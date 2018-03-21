@@ -1,0 +1,13 @@
+{
+  "name": "microservice-performance-benchmarking",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/schmeusel/microservice-performance-benchmarking.git",
+  "author": "Lukas <meusel.lukas@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "json-schema-faker": "^0.5.0-rc13",
+    "request": "^2.85.0",
+    "swagger-client": "^3.5.1"
+  }
+}
