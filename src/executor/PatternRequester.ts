@@ -27,6 +27,7 @@ class PatternRequester {
 	}
 
 	private sendRequest(requestToSend: PatternRequest, callback: () => void): Promise<void> {
+		// TODO use SwaggerService for http requests
 		return new Promise((resolve, reject) => {
 			request({
 				url: requestToSend.url,
