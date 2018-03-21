@@ -1,4 +1,4 @@
-export interface EnvironmentSettings {
+export default interface EnvironmentSettings {
 	accessKeys?: {
 
 	}

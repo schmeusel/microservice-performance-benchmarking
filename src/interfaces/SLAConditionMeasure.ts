@@ -1,9 +1,6 @@
-type SLAConditionType = {
-	name: "hard" | "soft",
-	value?: number // when "name" is "soft", then threshold value required
-}
+import { SLAConditionType } from ".";
 
-export interface SLAConditionMeasure {
+export default interface SLAConditionMeasure {
 	value: number,
 	unit?: string // e.g. "ms",
 	type: SLAConditionType

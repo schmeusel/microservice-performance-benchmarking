@@ -1,7 +1,7 @@
 import jsf from 'json-schema-faker';
-import { PatternRequest } from '../interfaces/PatternRequest';
-import { PatternElement } from '../interfaces/PatternElement';
+import { PatternRequest, PatternElement } from '../interfaces/index';
 import { Pattern } from '../interfaces/Pattern';
+import { generateDistributionData } from '../services/IntervalDistributionService';
 
 class PatternBuilder {
 	private generatePopulatedSchema(jsonSchema): Promise<any> {
@@ -32,7 +32,7 @@ class PatternBuilder {
 		return null
 	}
 
-	generate(pattern: Pattern): Promise<PatternRequest[]> {
+	static generate(pattern: Pattern): Promise<PatternRequest[]> {
 		return null
 	}
 

@@ -1,6 +1,8 @@
-export interface PatternRequestMeasurement {
+import { RequestMethod } from "./index";
+
+export default interface PatternRequestMeasurement {
 	status: number,
-	method: 'GET' | 'PUT' | 'POST' | 'DELETE',
+	method: RequestMethod,
 	url: string,
 	timestampStart: number,
 	timestampEnd: number,

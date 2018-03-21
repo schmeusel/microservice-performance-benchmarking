@@ -1,6 +1,5 @@
 import request from 'request';
-import { PatternRequest } from '../interfaces/PatternRequest';
-import { PatternRequestMeasurement } from '../interfaces/PatternRequestMeasurement';
+import { PatternRequest, PatternRequestMeasurement } from '../interfaces/index';
 
 class PatternRequester {
 	private pattern: string;

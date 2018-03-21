@@ -1,5 +1,5 @@
-import { SLACondition } from './SLACondition';
+import { SLACondition } from './index';
 
-export interface SLASpecification {
+export default interface SLASpecification {
 	latency: SLACondition
 }

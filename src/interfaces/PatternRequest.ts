@@ -1,6 +1,6 @@
-export type RequestMethod = 'GET' | 'PUT' | 'POST' |  'DELETE';
+import { RequestMethod } from "./index";
 
-export interface PatternRequest {
+export default interface PatternRequest {
 	url: string,
 	method: RequestMethod,
 	auth?: object,
@@ -8,5 +8,6 @@ export interface PatternRequest {
 	body?: object,
 	patternIndex: number,
 	operationId: string,
+	params: object,
 	wait: number,
 }

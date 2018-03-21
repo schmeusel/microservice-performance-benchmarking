@@ -1,4 +1,4 @@
-import { Interval } from "./Interval";
+import { Interval } from "./index";
 
 export interface PatternElement {
 	operationId: string,

@@ -1,6 +1,6 @@
-type Distribution = "uniform" | "normal";
+import { Distribution } from './index';
 
-export interface Interval {
+export default interface Interval {
 	distribution: Distribution,
 	params: {
 		fix?: number,
