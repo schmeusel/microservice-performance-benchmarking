@@ -1,4 +1,4 @@
-import { BenchmarkSpecification, ConfigurationSpecification, EnvironmentSettings, SLASpecification, SLACondition, Validator } from "../interfaces/index";
+import { BenchmarkSpecification, ConfigurationSpecification, EnvironmentSettings, SLASpecification, SLACondition, Validator, PatternElement, Pattern } from "../interfaces/index";
 
 import { ValidationError } from "../exceptions/ValidationError";
 
@@ -39,6 +39,19 @@ class BenchmarkSpecificationValidator implements Validator {
 		if (!Object.keys(condition).length) {
 			throw new ValidationError(`There has to be at least one property as a pass/fail condition. Possible properties are "${allowedKeys.join(',')}"`);
 		}
+
+		return true;
+	}
+
+	private validateConfigurationPattern(pattern: Pattern) {
+		if (!pattern.sequence.length) {
+			throw new ValidationError('There should at least be one pattern defined.');
+		}
+
+		// TODO implement function
+		pattern.sequence.forEach((el: PatternElement) => {
+
+		})
 
 		return true;
 	}

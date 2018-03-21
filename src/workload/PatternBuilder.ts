@@ -1,6 +1,5 @@
 import jsf from 'json-schema-faker';
-import { PatternRequest, PatternElement } from '../interfaces/index';
-import { Pattern } from '../interfaces/Pattern';
+import { PatternRequest, PatternElement, Pattern } from '../interfaces/index';
 import { generateDistributionData } from '../services/IntervalDistributionService';
 
 class PatternBuilder {

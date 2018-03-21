@@ -1,7 +1,8 @@
-import { PatternElement } from "./PatternElement";
+import { Interval, PatternElement } from "./index";
 
-export interface Pattern {
+export default interface Pattern {
 	name: string,
 	sequence: PatternElement[],
+	interval: Interval
 	weight: number,
 }

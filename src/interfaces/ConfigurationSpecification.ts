@@ -1,5 +1,4 @@
-import { Interval } from './index';
-import { Pattern } from './Pattern';
+import { Interval, Pattern } from './index';
 
 export default interface ConfigurationSpecification {
 	totalPatternRequests: number,

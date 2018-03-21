@@ -1,6 +1,4 @@
-import { Interval } from "./index";
-
-export interface PatternElement {
+export default interface PatternElement {
 	operationId: string,
-	wait: Interval
+	wait?: number,
 }
