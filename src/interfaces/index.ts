@@ -3,6 +3,7 @@ export { default as ConfigurationSpecification} from './ConfigurationSpecificati
 export { default as EnvironmentSettings } from './EnvironmentSettings';
 export { Distribution } from './Distribution';
 export { default as Interval } from './Interval';
+export { default as OpenAPISpecification } from './OpenAPISpecification';
 export { default as Pattern } from './Pattern';
 export { default as PatternElement } from './PatternElement';
 export { default as PatternRequest } from './PatternRequest';

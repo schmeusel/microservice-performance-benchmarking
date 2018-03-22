@@ -1,2 +1,2 @@
-export { default as SwaggerError } from './SwaggerError';
+export { default as OpenAPIError } from './OpenAPIError';
 export { default as ValidationError } from './ValidationError';

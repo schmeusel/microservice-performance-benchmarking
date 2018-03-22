@@ -1,8 +1,8 @@
-import { ConfigurationSpecification, EnvironmentSettings, SLASpecification } from "./index";
+import { ConfigurationSpecification, EnvironmentSettings, OpenAPISpecification, SLASpecification } from "./index";
 
 export default interface BenchmarkSpecification {
 	environment?: EnvironmentSettings,
-	openAPISpec: string | object,
+	openAPISpec: string | OpenAPISpecification,
 	configuration: ConfigurationSpecification,
 	condition: SLASpecification
 }
