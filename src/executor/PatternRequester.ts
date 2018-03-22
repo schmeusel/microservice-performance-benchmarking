@@ -27,7 +27,7 @@ class PatternRequester {
 	}
 
 	private sendRequest(requestToSend: PatternRequest, callback: () => void): Promise<void> {
-		// TODO use SwaggerService for http requests
+		// TODO use SwaggerService for http requests, but in combination with custom userFetch
 		return new Promise((resolve, reject) => {
 			request({
 				url: requestToSend.url,
@@ -46,7 +46,7 @@ class PatternRequester {
 					timestampStart: timingStart,
 					timestampEnd: timingStart + response
 				}
-				this.measurements.push(measurement);
+				this.addMeasurement(measurement);
 				callback();
 			})
 		})
@@ -54,6 +54,10 @@ class PatternRequester {
 
 	public run(callback: () => any): void {
 		this.asyncLoop(0, callback);
+	}
+
+	private addMeasurement(measurement: PatternRequestMeasurement): void {
+		this.measurements.push(measurement);
 	}
 
 	public getMeasurements(): PatternRequestMeasurement[] {

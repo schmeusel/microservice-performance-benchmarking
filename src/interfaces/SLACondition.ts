@@ -4,5 +4,6 @@ export default interface SLACondition {
 	min?: SLAConditionMeasure,
 	max?: SLAConditionMeasure,
 	mean?: SLAConditionMeasure,
-	stdev?: SLAConditionMeasure
+	stdev?: SLAConditionMeasure,
+	// add percentiles
 }

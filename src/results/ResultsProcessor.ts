@@ -1,6 +1,0 @@
-class ResultsProcessor {
-
-	constructor(patternResults) {
-
-	}
-}

@@ -7,7 +7,7 @@ export { default as Pattern } from './Pattern';
 export { default as PatternElement } from './PatternElement';
 export { default as PatternRequest } from './PatternRequest';
 export { default as PatternRequestMeasurement } from './PatternRequestMeasurement';
-export { default as PatternResult } from './PatternResult';
+export { default as PatternRequestResult } from './PatternRequestResult';
 export { RequestMethod } from './RequestMethod';
 export { default as SLACondition } from './SLACondition';
 export { default as SLAConditionMeasure } from './SLAConditionMeasure';
