@@ -12,6 +12,10 @@ class SwaggerService {
 		return response;
 	}
 
+	private attachCustomFetch(url: string, options: object) {
+
+	}
+
 	initiliaze(swaggerFile: object, options: object): Promise<void> {
 		// TODO try out custom userFetch
 		return new Promise((resolve, reject) => {
@@ -19,6 +23,7 @@ class SwaggerService {
 				spec: swaggerFile,
 				requestInterceptor: req => this.attachRequestInterceptor(req, options),
 				responseInterceptor: res => this.attachResponseInterceptor(res, options),
+				// userFetch: (url: string, options: object) => this.attachCustomFetch(url, options),
 			})
 				.then(client => {
 					this.client = client;

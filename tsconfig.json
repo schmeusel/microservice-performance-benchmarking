@@ -1,12 +1,14 @@
 {
 	"compilerOptions": {
 		"module": "commonjs",
-		"target": "es5",
+		"target": "es6",
 		"noImplicitAny": false,
+		"noImplicitReturns": true,
 		"sourceMap": true,
 		"lib": [
 			"es6", "es2016.array.include"
 		],
+		"rootDir": "src",
 		"outDir": "build"
 	},
 	"include": [

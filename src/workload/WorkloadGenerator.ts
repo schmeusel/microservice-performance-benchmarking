@@ -1,7 +1,4 @@
-import Swagger from 'swagger-client';
-import spec from './assets/';
-
-class WorkloadManager {
+class WorkloadGenerator {
 
     generateRequestQueue(workloadSpecification) {
 
