@@ -1,5 +1,6 @@
 import Swagger from 'swagger-client';
-import SwaggerError from '../exceptions/SwaggerError';
+import request from 'request';
+import { SwaggerError } from '../exceptions/index';
 
 class SwaggerService {
 	private client: any;
@@ -9,21 +10,37 @@ class SwaggerService {
 	}
 
 	private attachResponseInterceptor(response, options) {
+		console.log('attaching response interceptor', response);
+
 		return response;
 	}
 
-	private attachCustomFetch(url: string, options: object) {
+	private attachCustomFetch(req: object): Promise<any> {
+		return new Promise((resolve, reject) => {
+			request({
+				...req,
+				time: true
+			}, (error, res) => {
+				if (error) {
+					reject(error);
+					return;
+				}
+				const {timingStart, timings: { response } } = res;
 
+                res.timestampStart = timingStart;
+                res.timestampEnd = timingStart + response;
+				res.duration = (timingStart + response) - timingStart;
+
+				resolve(response);
+			})
+		});
 	}
 
 	initiliaze(swaggerFile: object, options: object): Promise<void> {
-		// TODO try out custom userFetch
 		return new Promise((resolve, reject) => {
 			Swagger({
 				spec: swaggerFile,
-				requestInterceptor: req => this.attachRequestInterceptor(req, options),
-				responseInterceptor: res => this.attachResponseInterceptor(res, options),
-				// userFetch: (url: string, options: object) => this.attachCustomFetch(url, options),
+				http: (req: object) => this.attachCustomFetch(req),
 			})
 				.then(client => {
 					this.client = client;
@@ -32,11 +49,11 @@ class SwaggerService {
 		})
 	}
 
-	sendRequest(params, callback) {
+	sendRequest(params, callback) {
 		if (!this.client) {
 			throw new SwaggerError('Service needs to be initialized before sending requests through it.');
 		}
-		if (!params.operationId || !params.operationId.length) {
+		if (!params.operationId || !params.operationId.length) {
 			throw new SwaggerError('operationId is required for params.')
 		}
 		this.client.execute({ ...params })
