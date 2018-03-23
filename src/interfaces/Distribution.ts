@@ -1,4 +1,4 @@
 export enum Distribution {
-	UNIFORM = "uniform",
-	NORMAL = "normal",
+    UNIFORM = 'uniform',
+    NORMAL = 'normal'
 }

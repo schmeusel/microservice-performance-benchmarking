@@ -1,9 +1,8 @@
-import { BenchmarkSpecification } from "../interfaces";
+import { BenchmarkSpecification } from '../interfaces';
 
 class BenchmarkController {
-
     start(benchmarkSpec: BenchmarkSpecification) {
-        throw new Error("start not implemented.");
+        throw new Error('start not implemented.');
     }
 
     initializeServices() {

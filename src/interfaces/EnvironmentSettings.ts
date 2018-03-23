@@ -1,5 +1,3 @@
 export default interface EnvironmentSettings {
-	accessKeys?: {
-
-	}
-}
+    accessKeys?: {};
+};

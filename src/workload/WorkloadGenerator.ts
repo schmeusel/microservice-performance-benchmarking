@@ -1,6 +1,3 @@
 class WorkloadGenerator {
-
-    generateRequestQueue(workloadSpecification) {
-
-    }
+    generateRequestQueue(workloadSpecification) {}
 }

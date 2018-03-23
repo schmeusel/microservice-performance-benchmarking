@@ -1,3 +1,3 @@
 export default interface Validator {
-	validate: (input: any) => boolean
-}
+    validate: (input: any) => boolean;
+};
