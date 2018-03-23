@@ -60,20 +60,20 @@ interface PathItemObject {
     patch?: OperationObject;
     trace?: OperationObject;
     servers?: ServerObject[];
-    parameters?: ParameterObject[] | ReferenceObject[];
+    parameters?: ParameterObject[];
 }
 
-interface OperationObject {
+export interface OperationObject {
     tags?: string[];
     summary?: string;
     description?: string;
     externalDocs?: ExternalDocumentationObject;
     operationId?: string;
-    parameters?: ParameterObject[] | ReferenceObject[];
-    requestBody?: RequestBodyObject | ReferenceObject;
+    parameters?: ParameterObject[];
+    requestBody?: RequestBodyObject;
     responses?: ResponsesObject;
     callbacks?: {
-        [key: string]: CallbackObject | ReferenceObject;
+        [key: string]: CallbackObject;
     };
     deprecated?: boolean;
     security?: SecurityRequirementObject[];
@@ -90,17 +90,17 @@ interface ParameterObject {
     style?: 'matrix' | 'label' | 'form' | 'simple' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject';
     explode?: boolean;
     allowReserved?: boolean;
-    schema?: SchemaObject | ReferenceObject;
+    schema?: SchemaObject;
     example?: any;
     examples?: {
-        [key: string]: ExampleObject | ReferenceObject;
+        [key: string]: ExampleObject;
     };
     content?: {
         [key: string]: MediaTypeObject;
     };
 }
 
-interface RequestBodyObject {
+export interface RequestBodyObject {
     description?: string;
     content: {
         [mediaType: string]: MediaTypeObject;
@@ -109,10 +109,10 @@ interface RequestBodyObject {
 }
 
 interface MediaTypeObject {
-    schema?: SchemaObject | ReferenceObject;
+    schema?: SchemaObject;
     example?: any;
     examples?: {
-        [key: string]: ExampleObject | ReferenceObject;
+        [key: string]: ExampleObject;
     };
     encoding?: {
         [key: string]: EncodingObject;
@@ -122,7 +122,7 @@ interface MediaTypeObject {
 interface EncodingObject {
     contentType?: string;
     headers?: {
-        [key: string]: HeaderObject | ReferenceObject;
+        [key: string]: HeaderObject;
     };
     style?: 'matrix' | 'label' | 'form' | 'simple' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject';
     explode?: boolean;
@@ -130,20 +130,20 @@ interface EncodingObject {
 }
 
 interface ResponsesObject {
-    default?: ResponseObject | ReferenceObject;
-    [httpStatusCode: string]: ResponseObject | ReferenceObject;
+    default?: ResponseObject;
+    [httpStatusCode: string]: ResponseObject;
 }
 
 interface ResponseObject {
     description: string;
     headers?: {
-        [key: string]: HeaderObject | ReferenceObject;
+        [key: string]: HeaderObject;
     };
     content?: {
         [key: string]: MediaTypeObject;
     };
     links?: {
-        [key: string]: LinkObject | ReferenceObject;
+        [key: string]: LinkObject;
     };
 }
 
@@ -179,10 +179,10 @@ interface HeaderObject {
     style?: 'matrix' | 'label' | 'form' | 'simple' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject';
     explode?: boolean;
     allowReserved?: boolean;
-    schema?: SchemaObject | ReferenceObject;
+    schema?: SchemaObject;
     example?: any;
     examples?: {
-        [key: string]: ExampleObject | ReferenceObject;
+        [key: string]: ExampleObject;
     };
     content?: {
         [key: string]: MediaTypeObject;
@@ -191,31 +191,31 @@ interface HeaderObject {
 
 interface ComponentsObject {
     schemas?: {
-        [key: string]: SchemaObject | ReferenceObject;
+        [key: string]: SchemaObject;
     };
     responses?: {
-        [key: string]: ResponseObject | ReferenceObject;
+        [key: string]: ResponseObject;
     };
     parameters?: {
-        [key: string]: ParameterObject | ReferenceObject;
+        [key: string]: ParameterObject;
     };
     examples?: {
-        [key: string]: ExampleObject | ReferenceObject;
+        [key: string]: ExampleObject;
     };
     requestBodies?: {
-        [key: string]: RequestBodyObject | ReferenceObject;
+        [key: string]: RequestBodyObject;
     };
     headers?: {
-        [key: string]: HeaderObject | ReferenceObject;
+        [key: string]: HeaderObject;
     };
     securitySchemas?: {
-        [key: string]: SecuritySchemeObject | ReferenceObject;
+        [key: string]: SecuritySchemeObject;
     };
     links?: {
-        [key: string]: LinkObject | ReferenceObject;
+        [key: string]: LinkObject;
     };
     callbacks?: {
-        [key: string]: CallbackObject | ReferenceObject;
+        [key: string]: CallbackObject;
     };
 }
 
@@ -223,7 +223,7 @@ interface ReferenceObject {
     $ref: string;
 }
 
-interface SchemaObject {}
+export interface SchemaObject {}
 
 interface SecuritySchemeObject {
     type: string;
