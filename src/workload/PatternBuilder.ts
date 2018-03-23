@@ -2,6 +2,7 @@ import jsf from 'json-schema-faker';
 import { PatternRequest, PatternElement, Pattern } from '../interfaces/index';
 import { generateDistributionData } from '../services/IntervalDistributionService';
 import { SchemaObject, OperationObject } from '../interfaces/openapi/OpenAPISpecification';
+import OpenAPIService from '../services/OpenAPIService';
 
 class PatternBuilder {
     private generatePopulatedSchema(jsonSchema?: SchemaObject): Promise<any> {
@@ -19,7 +20,7 @@ class PatternBuilder {
             }, []);
 
             Promise.all([
-                this.generatePopulatedSchema(requestBody),
+                ...requestBodySchemata.map(this.generatePopulatedSchema),
                 ...parameters.map(param => this.generatePopulatedSchema(param.schema))
             ])
                 .then(paramsArray => {
@@ -29,7 +30,8 @@ class PatternBuilder {
         });
     }
 
-    private generatePatternRequest(): Promise<PatternRequest> {
+    private generatePatternRequest(patternElement: PatternElement): Promise<PatternRequest> {
+        const opObject: OperationObject = OpenAPIService.getSpecificationByOperationId(patternElement.operationId);
         throw new Error('generatePatternRequest not implemented yet.');
     }
 

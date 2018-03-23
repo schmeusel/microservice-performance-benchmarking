@@ -7,6 +7,7 @@ export { default as EnvironmentSettings } from './EnvironmentSettings';
 export { Distribution } from './Distribution';
 export { default as Interval } from './Interval';
 export { default as OpenAPISpecification } from './openapi/OpenAPISpecification';
+export { default as OpenAPIClient } from './openapi/OpenAPIClient';
 export { default as Resource } from './openapi/Resource';
 export { default as Pattern } from './patterns/Pattern';
 export { default as PatternElement } from './patterns/PatternElement';

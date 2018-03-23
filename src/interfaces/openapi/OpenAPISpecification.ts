@@ -43,7 +43,7 @@ interface ServerVariableObject {
     description: string;
 }
 
-interface PathsObject {
+export interface PathsObject {
     [path: string]: PathItemObject;
 }
 

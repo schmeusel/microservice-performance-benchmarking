@@ -1,15 +1,21 @@
 import Swagger from 'swagger-client';
 import request from 'request';
 import { OpenAPIError } from '../exceptions/index';
+import OpenAPISpecification, { OperationObject, PathsObject } from '../interfaces/openapi/OpenAPISpecification';
+import { OpenAPIClient, AbstractPatternElementOperation, Resource } from '../interfaces/index';
 
 class OpenAPIService {
-    private _client: any;
+    private _client: OpenAPIClient;
     private _resources: string[];
 
-    public get specification() {
+    private get client(): OpenAPIClient {
         if (!this._client) {
-            throw new OpenAPIError('Service needs to be initialized before sending requests through it.');
+            throw new OpenAPIError('Service needs to be initialized before trying to use its client.');
         }
+        return this._client;
+    }
+
+    public get specification(): OpenAPISpecification {
         return this._client.spec;
     }
 
@@ -37,13 +43,10 @@ class OpenAPIService {
     }
 
     public sendRequest(params, callback) {
-        if (!this._client) {
-            throw new OpenAPIError('Service needs to be initialized before sending requests through it.');
-        }
         if (!params.operationId || !params.operationId.length) {
             throw new OpenAPIError('operationId is required for params.');
         }
-        this._client
+        this.client
             .execute({ ...params })
             .then(response => {
                 callback(null, response);
@@ -51,16 +54,56 @@ class OpenAPIService {
             .catch(callback);
     }
 
-    getSpecificationByOperationId(operationId: string) {
-        // TODO implement get specification by operation ID
-        throw new Error('getSpecificationByOperationId not implemented yet.');
+    public getSpecificationByOperationId(operationId: string): OperationObject {
+        const pathsSpec: PathsObject = this.specification.paths;
+        Object.keys(pathsSpec).forEach(pathName => {
+            Object.keys(pathsSpec[pathName]).forEach(op => {
+                if (pathsSpec[pathName][op].operationId === operationId) {
+                    return pathsSpec[pathName][op];
+                }
+            });
+        });
+
+        return null;
     }
 
-    private discoverResources(): void {
-        if (!this._client || !this._client.spec) {
-            throw new OpenAPIError('Service needs to be initialized before starting the resource discovery phase.');
+    private discoverResources(path?: string): Resource {
+        // TODO handle top level array and subresource discovery in different methods
+        const paths = Object.keys(this.specification.paths);
+        if (!path) {
+            const topLevelResources = paths.reduce((tlr, path) => {
+                const regex = /\/?[^/]+$/;
+                if (path.match(regex)) {
+                    return [...tlr, path];
+                }
+                return tlr;
+            }, []);
+            return topLevelResources.map(tlr => {
+                return {
+                    name: tlr.replace('/', ''),
+                    path: tlr,
+                    operations: [], // TODO gather operations
+                    subResource: this.discoverResources(path)
+                } as Resource;
+            })[0];
         }
+        return null;
+
         // TODO lay out discovery process
+    }
+
+    private mapHttpMethodToElementOperation(path: string, method: string) {
+        switch (method.toUpperCase()) {
+            case 'GET': {
+                // TODO differentiate between read and scan
+            }
+            case 'PUT':
+                return AbstractPatternElementOperation.UPDATE;
+            case 'POST':
+                return AbstractPatternElementOperation.CREATE;
+            case 'DELETE':
+                return AbstractPatternElementOperation.DELETE;
+        }
     }
 
     private useCustomRequest(req: object): Promise<any> {
