@@ -4,5 +4,5 @@ export default interface Resource {
     name: string;
     path: string;
     operations: AbstractPatternElementOperation[];
-    subResource?: Resource;
+    subResources?: Resource[];
 };

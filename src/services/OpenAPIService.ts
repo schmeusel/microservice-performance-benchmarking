@@ -3,10 +3,11 @@ import request from 'request';
 import { OpenAPIError } from '../exceptions/index';
 import OpenAPISpecification, { OperationObject, PathsObject } from '../interfaces/openapi/OpenAPISpecification';
 import { OpenAPIClient, AbstractPatternElementOperation, Resource } from '../interfaces/index';
+import { RequestMethod } from '../interfaces/RequestMethod';
 
 class OpenAPIService {
     private _client: OpenAPIClient;
-    private _resources: string[];
+    private _resources: Resource[];
 
     private get client(): OpenAPIClient {
         if (!this._client) {
@@ -16,10 +17,10 @@ class OpenAPIService {
     }
 
     public get specification(): OpenAPISpecification {
-        return this._client.spec;
+        return this.client.spec;
     }
 
-    public get resources(): string[] {
+    public get resources(): Resource[] {
         if (!this._resources) {
             throw new OpenAPIError(
                 'Service needs to be initialized first, so that the resource discovery can be initiated.'
@@ -36,6 +37,7 @@ class OpenAPIService {
             })
                 .then(client => {
                     this._client = client;
+                    this._resources = this.hierarchizeResources();
                     resolve();
                 })
                 .catch(reject);
@@ -67,45 +69,103 @@ class OpenAPIService {
         return null;
     }
 
-    private discoverResources(path?: string): Resource {
-        // TODO handle top level array and subresource discovery in different methods
-        const paths = Object.keys(this.specification.paths);
-        if (!path) {
-            const topLevelResources = paths.reduce((tlr, path) => {
-                const regex = /\/?[^/]+$/;
-                if (path.match(regex)) {
-                    return [...tlr, path];
+    private hierarchizeResources(): Resource[] {
+        const topLevelResourcePaths = Object.keys(this.specification.paths).filter(path => path.match(/\/?[^/]+$/));
+        return topLevelResourcePaths.map(resourcePath => {
+            return {
+                name: resourcePath.replace('/', ''),
+                path: resourcePath,
+                operations: this.getOperationsForResource(resourcePath),
+                subResources: this.resolveResourcePath(resourcePath)
+            } as Resource;
+        });
+    }
+
+    /**
+     * Recursively resolve a path to a collection of {Resource[]}
+     *
+     * @param resourcePath
+     */
+    private resolveResourcePath(resourcePath: string): Resource[] {
+        const subResources = Object.keys(this.specification.paths).filter(path => {
+            const startsWithGivenPath = path.startsWith(resourcePath);
+            const pathParts = path.split('/');
+            const isScanOperation = pathParts.length === resourcePath.split('/').length + 2;
+            const hasParamInputAtEndRegex = new RegExp(resourcePath.replace('$', '\\$') + '/\\${.*}$');
+            const isReadOperation = path.match(hasParamInputAtEndRegex);
+
+            return startsWithGivenPath && (isScanOperation || isReadOperation);
+        });
+
+        if (!subResources.length) {
+            return []; // (or return null)
+        }
+
+        return subResources.map(subResourcePath => {
+            return {
+                name: subResourcePath.split('/').pop(),
+                path: subResourcePath,
+                operations: this.getOperationsForResource(subResourcePath),
+                subResources: this.resolveResourcePath(subResourcePath)
+            };
+        });
+    }
+
+    /**
+     * Gather all possible operations that a resource supports,
+     * directly mapped to an {AbstractPatternElementOperation}
+     *
+     * @param resourcePath {string}
+     * @returns {AbstracPatternElementOperation[]}
+     */
+    private getOperationsForResource(resourcePath: string): AbstractPatternElementOperation[] {
+        return Object.keys(this.specification.paths)
+            .map(path => {
+                const isSame = path === resourcePath;
+                const hasResourceAccessor =
+                    resourcePath.split('/').length === path.split('/').length + 1 &&
+                    path
+                        .split('/')
+                        .pop()
+                        .endsWithInputParam();
+                if (isSame || hasResourceAccessor) {
+                    return Object.keys(this.specification.paths[path])
+                        .filter(methodKey => methodKey.toUpperCase() in RequestMethod)
+                        .map(methodKey => {
+                            return this.mapHttpMethodToElementOperation(path, methodKey);
+                        });
                 }
-                return tlr;
-            }, []);
-            return topLevelResources.map(tlr => {
-                return {
-                    name: tlr.replace('/', ''),
-                    path: tlr,
-                    operations: [], // TODO gather operations
-                    subResource: this.discoverResources(path)
-                } as Resource;
-            })[0];
-        }
-        return null;
-
-        // TODO lay out discovery process
+                return [];
+            })
+            .flatten();
     }
 
-    private mapHttpMethodToElementOperation(path: string, method: string) {
+    private mapHttpMethodToElementOperation(path: string, method: string): AbstractPatternElementOperation {
         switch (method.toUpperCase()) {
-            case 'GET': {
-                // TODO differentiate between read and scan
+            case RequestMethod.GET: {
+                if (path.match(/\${.*}$/)) {
+                    return AbstractPatternElementOperation.READ;
+                }
+                return AbstractPatternElementOperation.SCAN;
             }
-            case 'PUT':
+            case RequestMethod.PUT:
                 return AbstractPatternElementOperation.UPDATE;
-            case 'POST':
+            case RequestMethod.POST:
                 return AbstractPatternElementOperation.CREATE;
-            case 'DELETE':
+            case RequestMethod.DELETE:
                 return AbstractPatternElementOperation.DELETE;
+            default:
+                return null;
         }
     }
 
+    /**
+     * Use the request.js HTTP module to take advantage of its built-in timestamping
+     * for when a request was sent and received.
+     *
+     * See 'time: true' at https://github.com/request/request#requestoptions-callback
+     * @param req
+     */
     private useCustomRequest(req: object): Promise<any> {
         return new Promise((resolve, reject) => {
             request(

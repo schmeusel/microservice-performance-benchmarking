@@ -1,12 +1,14 @@
 import { BenchmarkSpecification } from '../interfaces';
+import PolyfillUtil from '../utils/PolyfillUtil';
 
 class BenchmarkController {
     start(benchmarkSpec: BenchmarkSpecification) {
         throw new Error('start not implemented.');
     }
 
-    initializeServices() {
-        // init Swagger and Storage system
+    initializeServices(): Promise<void> {
+        // init Swagger and Storage system + Polyfillutil
+        PolyfillUtil.initialize();
         throw new Error('initializeServices not implemented yet.');
     }
 
