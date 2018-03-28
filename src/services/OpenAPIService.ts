@@ -4,6 +4,7 @@ import { OpenAPIError } from '../exceptions/index';
 import OpenAPISpecification, { OperationObject, PathsObject } from '../interfaces/openapi/OpenAPISpecification';
 import { OpenAPIClient, AbstractPatternElementOperation, Resource } from '../interfaces/index';
 import { RequestMethod } from '../interfaces/RequestMethod';
+import { mapHttpMethodToElementOperation } from '../utils/OpenAPIUtil';
 
 class OpenAPIService {
     private _client: OpenAPIClient;
@@ -66,11 +67,14 @@ class OpenAPIService {
             });
         });
 
-        return null;
+        return undefined;
     }
 
     private hierarchizeResources(): Resource[] {
-        const topLevelResourcePaths = Object.keys(this.specification.paths).filter(path => path.match(/\/?[^/]+$/));
+        // const topLevelResourcePaths = Object.keys(this.specification.paths).filter(path => path.match(/\/?[^/]+$/));
+        const topLevelResourcePaths = Object.keys(this.specification.paths).filter(
+            path => path.split('/').shift() === path.replace('/', '')
+        );
         return topLevelResourcePaths.map(resourcePath => {
             return {
                 name: resourcePath.replace('/', ''),
@@ -79,6 +83,35 @@ class OpenAPIService {
                 subResources: this.resolveResourcePath(resourcePath)
             } as Resource;
         });
+    }
+
+    /**
+     * Gather all possible operations that a resource supports,
+     * directly mapped to an {AbstractPatternElementOperation}
+     *
+     * @param resourcePath {string}
+     * @returns {AbstracPatternElementOperation[]}
+     */
+    private getOperationsForResource(resourcePath: string): AbstractPatternElementOperation[] {
+        return Object.keys(this.specification.paths)
+            .map(path => {
+                const isSame = path === resourcePath;
+                const hasResourceAccessor =
+                    resourcePath.split('/').length === path.split('/').length + 1 &&
+                    path
+                        .split('/')
+                        .pop()
+                        .endsWithInputParam();
+                if (isSame || hasResourceAccessor) {
+                    return Object.keys(this.specification.paths[path])
+                        .filter(methodKey => methodKey.toUpperCase() in RequestMethod)
+                        .map(methodKey => {
+                            return mapHttpMethodToElementOperation(path, methodKey);
+                        });
+                }
+                return [];
+            })
+            .reduce((arr, valOrArr) => (Array.isArray(valOrArr) ? [...arr, ...valOrArr] : [...arr, valOrArr]), []);
     }
 
     /**
@@ -109,54 +142,6 @@ class OpenAPIService {
                 subResources: this.resolveResourcePath(subResourcePath)
             };
         });
-    }
-
-    /**
-     * Gather all possible operations that a resource supports,
-     * directly mapped to an {AbstractPatternElementOperation}
-     *
-     * @param resourcePath {string}
-     * @returns {AbstracPatternElementOperation[]}
-     */
-    private getOperationsForResource(resourcePath: string): AbstractPatternElementOperation[] {
-        return Object.keys(this.specification.paths)
-            .map(path => {
-                const isSame = path === resourcePath;
-                const hasResourceAccessor =
-                    resourcePath.split('/').length === path.split('/').length + 1 &&
-                    path
-                        .split('/')
-                        .pop()
-                        .endsWithInputParam();
-                if (isSame || hasResourceAccessor) {
-                    return Object.keys(this.specification.paths[path])
-                        .filter(methodKey => methodKey.toUpperCase() in RequestMethod)
-                        .map(methodKey => {
-                            return this.mapHttpMethodToElementOperation(path, methodKey);
-                        });
-                }
-                return [];
-            })
-            .flatten();
-    }
-
-    private mapHttpMethodToElementOperation(path: string, method: string): AbstractPatternElementOperation {
-        switch (method.toUpperCase()) {
-            case RequestMethod.GET: {
-                if (path.match(/\${.*}$/)) {
-                    return AbstractPatternElementOperation.READ;
-                }
-                return AbstractPatternElementOperation.SCAN;
-            }
-            case RequestMethod.PUT:
-                return AbstractPatternElementOperation.UPDATE;
-            case RequestMethod.POST:
-                return AbstractPatternElementOperation.CREATE;
-            case RequestMethod.DELETE:
-                return AbstractPatternElementOperation.DELETE;
-            default:
-                return null;
-        }
     }
 
     /**

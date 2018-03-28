@@ -1,20 +1,16 @@
 {
-	"compilerOptions": {
-		"module": "commonjs",
-		"target": "es6",
-		"noImplicitAny": false,
-		"noImplicitReturns": true,
-		"sourceMap": true,
-		"lib": [
-			"es6", "es2016.array.include"
-		],
-		"rootDir": "src",
-		"outDir": "build"
-	},
-	"include": [
-		"src/**/*"
-	],
-	"exclude": [
-		"node_modules"
-	]
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "sourceMap": true,
+    "lib": ["es6", "es2016.array.include"],
+    "rootDir": "src",
+    "outDir": "build",
+    "types": ["mocha", "chai"],
+    "typeRoots": ["./node_modules/@types"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }
