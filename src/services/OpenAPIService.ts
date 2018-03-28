@@ -107,7 +107,8 @@ class OpenAPIService {
                         .filter(methodKey => methodKey.toUpperCase() in RequestMethod)
                         .map(methodKey => {
                             return mapHttpMethodToElementOperation(path, methodKey);
-                        });
+                        })
+                        .filter(val => !!val);
                 }
                 return [];
             })
