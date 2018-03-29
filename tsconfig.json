@@ -8,8 +8,7 @@
     "lib": ["es6", "es2016.array.include"],
     "rootDir": "src",
     "outDir": "build",
-    "types": ["mocha", "chai"],
-    "typeRoots": ["./node_modules/@types"]
+    "types": ["node"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]

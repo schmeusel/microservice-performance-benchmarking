@@ -1,5 +1,11 @@
 import request from 'request';
-import { PatternRequest, PatternRequestMeasurement } from '../interfaces/index';
+import {
+    PatternRequest,
+    PatternRequestMeasurement,
+    RequestMethod,
+    AbstractPatternElementOperation
+} from '../interfaces/index';
+import OpenAPIService from '../services/OpenAPIService';
 
 class PatternRequester {
     private pattern: string;
@@ -26,32 +32,19 @@ class PatternRequester {
         }
     }
 
-    private sendRequest(requestToSend: PatternRequest, callback: () => void): Promise<void> {
-        // TODO use SwaggerService for http requests, but in combination with custom userFetch
-        return new Promise((resolve, reject) => {
-            request(
-                {
-                    url: requestToSend.url,
-                    method: requestToSend.method,
-                    time: true
-                },
-                (error, res) => {
-                    if (error) {
-                        callback();
-                    }
-                    const { timingStart, timings: { response } } = res;
-                    const measurement: PatternRequestMeasurement = {
-                        pattern: this.pattern,
-                        status: res.status,
-                        method: requestToSend.method,
-                        url: requestToSend.url,
-                        timestampStart: timingStart,
-                        timestampEnd: timingStart + response
-                    };
-                    this.addMeasurement(measurement);
-                    callback();
-                }
-            );
+    private sendRequest(requestToSend: PatternRequest, callback: () => void): void {
+        OpenAPIService.sendRequest(requestToSend, (error, res) => {
+            const measurement: PatternRequestMeasurement = {
+                pattern: this.pattern,
+                status: res.status,
+                method: RequestMethod.GET, // TODO use real one
+                operation: AbstractPatternElementOperation.CREATE, // TODO use real one
+                url: 'bla',
+                timestampStart: res.timestampStart,
+                timestampEnd: res.timestampEnd
+            };
+            this.addMeasurement(measurement);
+            callback();
         });
     }
 

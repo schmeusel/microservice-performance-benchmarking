@@ -1,6 +1,9 @@
 import { AbstractPatternElementOperation, RequestMethod, Resource } from '../interfaces';
 
 export function mapHttpMethodToElementOperation(path: string, method: string): AbstractPatternElementOperation {
+    if (!path || !method || !path.startsWith('/')) {
+        return undefined;
+    }
     switch (method.toUpperCase()) {
         case RequestMethod.GET: {
             if (path.endsWithInputParam()) {
@@ -15,6 +18,6 @@ export function mapHttpMethodToElementOperation(path: string, method: string): A
         case RequestMethod.DELETE:
             return AbstractPatternElementOperation.DELETE;
         default:
-            return null;
+            return undefined;
     }
 }

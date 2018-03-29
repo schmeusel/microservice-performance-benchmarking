@@ -1,8 +1,8 @@
-import { mapHttpMethodToElementOperation } from './OpenAPIUtil';
-import PolyfillUtil from './PolyfillUtil';
-import { RequestMethod, AbstractPatternElementOperation } from '../interfaces';
+import { expect } from 'chai';
 
-const expect = chai.expect;
+import { mapHttpMethodToElementOperation } from '../../src/utils/OpenAPIUtil';
+import PolyfillUtil from '../../src/utils/PolyfillUtil';
+import { RequestMethod, AbstractPatternElementOperation } from '../../src/interfaces';
 
 describe('TestSuite for OpenAPIUtil', () => {
     before(() => {
@@ -31,7 +31,7 @@ describe('TestSuite for OpenAPIUtil', () => {
             expect(getResult).to.equal(AbstractPatternElementOperation.READ);
             expect(scanResult).to.equal(AbstractPatternElementOperation.SCAN);
         });
-        it('should return null if no valid method has been passed as an argument', () => {
+        it('should return undefined if no valid method has been passed as an argument', () => {
             const path = '/users';
             const res1 = mapHttpMethodToElementOperation(path, 'kas');
             const res2 = mapHttpMethodToElementOperation(path, null);
@@ -39,6 +39,12 @@ describe('TestSuite for OpenAPIUtil', () => {
             [res1, res2, res3].forEach(result => {
                 expect(result).to.be.undefined;
             });
+        });
+        it('should return undefined if no valid path has been passed as an argument', () => {
+            const method = 'get';
+            const res1 = mapHttpMethodToElementOperation(null, method);
+            const res2 = mapHttpMethodToElementOperation(undefined, method);
+            const res3 = mapHttpMethodToElementOperation('users', method);
         });
     });
 });
