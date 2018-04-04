@@ -30,10 +30,11 @@ class OpenAPIService {
         return this._resources;
     }
 
-    public initiliaze(swaggerFile: object, options: object): Promise<void> {
+    public initialize(openAPISpec: OpenAPISpecification | string, options: object): Promise<void> {
         return new Promise((resolve, reject) => {
             Swagger({
-                spec: swaggerFile,
+                spec: typeof openAPISpec !== 'string' ? openAPISpec : null,
+                url: typeof openAPISpec === 'string' ? openAPISpec : null,
                 http: this.useCustomRequest
             })
                 .then(client => {

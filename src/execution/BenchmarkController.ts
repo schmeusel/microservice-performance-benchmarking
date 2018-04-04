@@ -1,28 +1,59 @@
 import { BenchmarkSpecification } from '../interfaces';
 import PolyfillUtil from '../utils/PolyfillUtil';
+import OpenAPIService from '../services/OpenAPIService';
+import LoggingService from '../services/LoggingService';
 
-class BenchmarkController {
-    start(benchmarkSpec: BenchmarkSpecification) {
-        throw new Error('start not implemented.');
+export default class BenchmarkController {
+    private specification: BenchmarkSpecification;
+    private wasSuccessful: boolean;
+
+    constructor(spec: BenchmarkSpecification) {
+        this.specification = spec;
     }
 
-    initializeServices(): Promise<void> {
-        // init Swagger and Storage system + Polyfillutil
-        PolyfillUtil.initialize();
-        throw new Error('initializeServices not implemented yet.');
+    public start() {
+        this.initializeServices()
+            .then(() => this.preLoad())
+            .then(() => this.runExperiment())
+            .then(() => this.processResults())
+            .then((wasSuccessful: boolean) => {
+                this.cleanUp();
+                this.prepareShutdown(wasSuccessful);
+            });
     }
 
-    preload() {
-        throw new Error('preload not implemented yet.');
+    private initializeServices(): Promise<any> {
+        return Promise.all([
+            PolyfillUtil.initialize(),
+            OpenAPIService.initialize(this.specification.openAPISpec, {}),
+            LoggingService.initialize()
+        ]);
     }
 
-    cleanup() {
-        // depending on what data has been generated, delete it from storage
-        throw new Error('cleanup not implemented yet.');
+    private runExperiment(): Promise<void> {
+        // implement runExperiment
+        return Promise.resolve();
     }
 
-    processResults() {
-        // evaluate results, aggregate data
-        throw new Error('processResults not implemented yet.');
+    private preLoad(): Promise<void> {
+        // TODO implement possible preLoad phase
+        return Promise.resolve();
+    }
+
+    private cleanUp(): Promise<void> {
+        // TODO implement possible cleanUp phase
+        return Promise.resolve();
+    }
+
+    private processResults(): Promise<boolean> {
+        // TODO implement process Results
+        return Promise.resolve(true);
+    }
+
+    /**
+     * By just setting the exit code allow graceful shutdown.
+     */
+    private prepareShutdown(wasSuccessful: boolean): void {
+        process.exitCode = wasSuccessful ? 0 : 1;
     }
 }

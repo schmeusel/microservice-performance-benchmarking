@@ -1,47 +1,19 @@
-// import LoggingManager from './logging/LoggingManager';
+import * as minimist from 'minimist';
+import BenchmarkController from './execution/BenchmarkController';
+import { BenchmarkSpecification } from './interfaces/index';
 
-// LoggingManager.initialize();
+const argv = minimist(process.argv.slice(2));
+if (!argv.spec || !require(argv.spec)) {
+    printInstructions();
+    process.exit(1);
+}
 
-// LoggingManager.log({ level: 'info', message: 'This is the first log' });
-import winston, { format, createLogger, transports } from 'winston';
-import { PatternRequestMeasurement, AbstractPatternElementOperation } from './interfaces';
+const specification = require(argv.spec);
+const benchmarkController = new BenchmarkController(argv.spec as BenchmarkSpecification);
+benchmarkController.start();
 
-const withMeasurement = (info, options) => {
-    const { measurement } = <{ measurement: PatternRequestMeasurement }>info.measurement;
-    if (measurement) {
-        info.message = `${measurement.pattern},${measurement.operation},${measurement.timestampStart},${
-            measurement.timestampEnd
-        }`;
-    }
-    return info.message;
-};
-
-const logger = createLogger({
-    transports: [
-        new transports.Console({
-            formatter: withMeasurement
-        })
-    ],
-    colorize: true,
-    json: false
-});
-
-// logger.configure({
-//     transports: [
-//         new logger.transports.Console({
-//             colorize: true
-//         })
-//     ]
-// });
-
-const measurement = {
-    pattern: 'test',
-    operation: AbstractPatternElementOperation.CREATE,
-    timestampStart: Date.now() - 60000,
-    timestampEnd: Date.now()
-} as PatternRequestMeasurement;
-
-logger.log({
-    level: 'info',
-    measurement
-});
+function printInstructions() {
+    console.log('Usage: node app.js <options>');
+    console.log('<options>:');
+    console.log('\t--spec <benchmark_spec>\t\tJSON file describing the various parameters of the benchmark run');
+}
