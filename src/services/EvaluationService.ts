@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as readline from 'readline';
 import * as simpleStats from 'simple-statistics';
 import config from '../config';
-import SLAConditionMeasure, { SLASpecification, SLACondition } from '../interfaces/index';
+import { SLASpecification, SLACondition, SLAConditionMeasure } from '../interfaces/index';
 import { EvaluationError } from '../exceptions';
 
 class EvaluationService {
