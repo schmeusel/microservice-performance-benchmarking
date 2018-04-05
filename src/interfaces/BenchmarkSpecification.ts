@@ -2,7 +2,6 @@ import { ConfigurationSpecification, EnvironmentSettings, OpenAPISpecification, 
 
 export default interface BenchmarkSpecification {
     environment?: EnvironmentSettings;
-    openAPISpec: string | OpenAPISpecification;
     configuration: ConfigurationSpecification;
     condition: SLASpecification;
 };

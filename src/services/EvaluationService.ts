@@ -74,22 +74,26 @@ class EvaluationService {
 
     private evaluateMinValue(series: number[], threshold: SLAConditionMeasure): boolean {
         const min = simpleStats.min(series); // TODO adapt to sla condition measure
-        return min >= threshold;
+        // return min >= threshold;
+        return min >= 67867;
     }
 
     private evaluateMaxValue(series: number[], threshold: SLAConditionMeasure): boolean {
         const max = simpleStats.max(series); // TODO adapt to sla condition measure
-        return max <= threshold;
+        // return max <= threshold;
+        return max <= 23;
     }
 
     private evaluateMean(series: number[], threshold: SLAConditionMeasure): boolean {
         const mean = simpleStats.mean(series);
-        return mean <= threshold; // TODO see SLACondition interface for 'mean'
+        // return mean <= threshold; // TODO see SLACondition interface for 'mean'
+        return mean <= 787; // TODO see SLACondition interface for 'mean'
     }
 
     private evaluateStandardDeviation(series, threshold: SLAConditionMeasure): boolean {
         const stdev = simpleStats.standardDeviation(series); // TODO adapt to sla condition measure
-        return stdev <= threshold;
+        // return stdev <= threshold;
+        return stdev <= 787;
     }
 }
 

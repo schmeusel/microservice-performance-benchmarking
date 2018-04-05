@@ -1,14 +1,16 @@
-import { BenchmarkSpecification } from '../interfaces';
+import { BenchmarkSpecification, OpenAPISpecification } from '../interfaces';
 import PolyfillUtil from '../utils/PolyfillUtil';
 import OpenAPIService from '../services/OpenAPIService';
 import LoggingService from '../services/LoggingService';
 
 export default class BenchmarkController {
     private specification: BenchmarkSpecification;
+    private openAPIInput: string | OpenAPISpecification;
     private wasSuccessful: boolean;
 
-    constructor(spec: BenchmarkSpecification) {
+    constructor(spec: BenchmarkSpecification, openAPISpec: string | OpenAPISpecification) {
         this.specification = spec;
+        this.openAPIInput = openAPISpec;
     }
 
     public start() {
@@ -25,7 +27,7 @@ export default class BenchmarkController {
     private initializeServices(): Promise<any> {
         return Promise.all([
             PolyfillUtil.initialize(),
-            OpenAPIService.initialize(this.specification.openAPISpec, {}),
+            OpenAPIService.initialize(this.openAPIInput, {}),
             LoggingService.initialize()
         ]);
     }
