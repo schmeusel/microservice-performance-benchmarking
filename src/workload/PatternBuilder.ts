@@ -35,7 +35,19 @@ class PatternBuilder {
         throw new Error('generatePatternRequest not implemented yet.');
     }
 
-    static generate(pattern: Pattern): Promise<PatternRequest[]> {
-        throw new Error('generate not implemented yet.');
+    public generate(pattern: Pattern): Promise<PatternRequest[]> {
+        return Promise.resolve([
+            {
+                patternIndex: 0,
+                operationId: 'getPetById',
+                parameters: {
+                    petId: 12
+                },
+                wait: 1500
+            }
+        ]);
+        // TODO initiaize genereation
     }
 }
+
+export default new PatternBuilder();

@@ -1,4 +1,4 @@
-import Swagger from 'swagger-client';
+import * as Swagger from 'swagger-client';
 import request from 'request';
 import { OpenAPIError } from '../exceptions/index';
 import OpenAPISpecification, { OperationObject, PathsObject } from '../interfaces/openapi/OpenAPISpecification';
@@ -32,9 +32,12 @@ class OpenAPIService {
 
     public initialize(openAPISpec: OpenAPISpecification | string, options: object): Promise<void> {
         return new Promise((resolve, reject) => {
+            // console.log('starting to intialize swagger with spec', openAPISpec);
+
             Swagger({
-                spec: typeof openAPISpec !== 'string' ? openAPISpec : null,
-                url: typeof openAPISpec === 'string' ? openAPISpec : null,
+                spec: openAPISpec,
+                // spec: typeof openAPISpec !== 'string' ? openAPISpec : null,
+                // url: typeof openAPISpec === 'string' ? openAPISpec : null,
                 http: this.useCustomRequest
             })
                 .then(client => {
@@ -47,6 +50,8 @@ class OpenAPIService {
     }
 
     public sendRequest(params, callback) {
+        console.log('sending request in openAPIService with params', params);
+
         if (!params.operationId || !params.operationId.length) {
             throw new OpenAPIError('operationId is required for params.');
         }
@@ -150,28 +155,34 @@ class OpenAPIService {
      * Use the request.js HTTP module to take advantage of its built-in timestamping
      * for when a request was sent and received.
      *
-     * See 'time: true' at https://github.com/request/request#requestoptions-callback
+     * For 'time: true', see https://github.com/request/request#requestoptions-callback
      * @param req
      */
     private useCustomRequest(req: object): Promise<any> {
         return new Promise((resolve, reject) => {
+            console.log('sending custom request with obj', req);
+
             request(
                 {
                     ...req,
                     time: true
                 },
                 (error, res) => {
+                    console.log('request received', error, res);
+
                     if (error) {
                         reject(error);
                         return;
                     }
+                    console.log('response in request', res);
+
                     const { timingStart, timings: { response } } = res;
 
                     res.timestampStart = timingStart;
                     res.timestampEnd = timingStart + response;
                     res.duration = timingStart + response - timingStart;
 
-                    resolve(response);
+                    resolve(res);
                 }
             );
         });

@@ -24,13 +24,14 @@ npm manifest:
     "scripts": {
       "test": "mocha --compilers ts:ts-node/register ./test/**/*.test.ts",
       "build": "tsc",
-      "start": "tsc && node ./build/app.js"
+      "start": "tsc && node ./build/app.js --json ./assets/sampleAPI_extended.json --spec ./assets/benchmarkSpec.json"
     },
     "dependencies": {
       "json-schema-faker": "^0.5.0-rc13",
       "minimist": "^1.2.0",
       "prob.js": "^1.0.6",
       "request": "^2.85.0",
+      "simple-statistics": "^5.3.1",
       "swagger-client": "^3.5.1",
       "typescript": "^2.8.1",
       "winston": "^3.0.0-rc3"
@@ -897,6 +898,10 @@ Lockfile:
     version "5.1.1"
     resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.1.1.tgz#893312af69b2123def71f57889001671eeb2c853"
   
+  simple-statistics@^5.3.1:
+    version "5.3.1"
+    resolved "https://registry.yarnpkg.com/simple-statistics/-/simple-statistics-5.3.1.tgz#4555147fdbc795677762d92925ab5299c81a9cf5"
+  
   sntp@2.x.x:
     version "2.1.0"
     resolved "https://registry.yarnpkg.com/sntp/-/sntp-2.1.0.tgz#2c6cec14fedc2222739caf9b5c3d85d1cc5a2cc8"
@@ -1107,7 +1112,7 @@ Trace:
   Error: Command failed.
   Exit code: 1
   Command: sh
-  Arguments: -c tsc && node ./build/app.js
+  Arguments: -c tsc && node ./build/app.js --json ./assets/sampleAPI_extended.json --spec ./assets/benchmarkSpec.json
   Directory: /Users/Lukas/Developer/microservice-performance-benchmarking
   Output:
   

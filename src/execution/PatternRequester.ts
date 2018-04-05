@@ -6,17 +6,15 @@ import {
     AbstractPatternElementOperation
 } from '../interfaces/index';
 import OpenAPIService from '../services/OpenAPIService';
+import LoggingService from '../services/LoggingService';
 
-class PatternRequester {
+export default class PatternRequester {
     private pattern: string;
     private requests: PatternRequest[];
-    private requestCount: number;
-    private measurements: PatternRequestMeasurement[];
 
     constructor(pattern: string, requests: PatternRequest[]) {
         this.pattern = pattern;
         this.requests = requests;
-        this.measurements = [];
     }
 
     private asyncLoop(index: number, callback: () => void): void {
@@ -33,13 +31,17 @@ class PatternRequester {
     }
 
     private sendRequest(requestToSend: PatternRequest, callback: () => void): void {
+        console.log('sending request in pattern requester');
+
         OpenAPIService.sendRequest(requestToSend, (error, res) => {
+            console.log('response received', res);
+
             const measurement: PatternRequestMeasurement = {
                 pattern: this.pattern,
                 status: res.status,
                 method: RequestMethod.GET, // TODO use real one
                 operation: AbstractPatternElementOperation.CREATE, // TODO use real one
-                url: 'bla',
+                url: 'bla', // TODO use real one
                 timestampStart: res.timestampStart,
                 timestampEnd: res.timestampEnd
             };
@@ -53,10 +55,6 @@ class PatternRequester {
     }
 
     private addMeasurement(measurement: PatternRequestMeasurement): void {
-        this.measurements.push(measurement);
-    }
-
-    public getMeasurements(): PatternRequestMeasurement[] {
-        return this.measurements;
+        LoggingService.addMeasurement(measurement);
     }
 }

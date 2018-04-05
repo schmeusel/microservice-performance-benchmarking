@@ -2,6 +2,7 @@ import { BenchmarkSpecification, OpenAPISpecification } from '../interfaces';
 import PolyfillUtil from '../utils/PolyfillUtil';
 import OpenAPIService from '../services/OpenAPIService';
 import LoggingService from '../services/LoggingService';
+import ExperimentRunner from './ExperimentRunner';
 
 export default class BenchmarkController {
     private specification: BenchmarkSpecification;
@@ -15,12 +16,18 @@ export default class BenchmarkController {
 
     public start() {
         this.initializeServices()
-            .then(() => this.preLoad())
+            .then(() => {
+                console.log('all services initliazed');
+                this.preLoad();
+            })
             .then(() => this.runExperiment())
             .then(() => this.processResults())
             .then((wasSuccessful: boolean) => {
                 this.cleanUp();
                 this.prepareShutdown(wasSuccessful);
+            })
+            .catch(err => {
+                console.log('initialization failed', err); // TODO shutdown
             });
     }
 
@@ -33,8 +40,8 @@ export default class BenchmarkController {
     }
 
     private runExperiment(): Promise<void> {
-        // implement runExperiment
-        return Promise.resolve();
+        console.log('ExperimentRunner.start(1)');
+        return ExperimentRunner.start(1);
     }
 
     private preLoad(): Promise<void> {
