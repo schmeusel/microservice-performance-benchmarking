@@ -1,5 +1,5 @@
 import * as Swagger from 'swagger-client';
-import request from 'request';
+import * as request from 'request';
 import OpenAPIError from '../exceptions/OpenAPIError';
 import OpenAPISpecification, { OperationObject, PathsObject } from '../interfaces/openapi/OpenAPISpecification';
 import { OpenAPIClient, AbstractPatternElementOperation, Resource } from '../interfaces/index';
@@ -158,31 +158,35 @@ class OpenAPIService {
      * For 'time: true', see https://github.com/request/request#requestoptions-callback
      * @param req
      */
-    private useCustomRequest(req: object): Promise<any> {
+    private useCustomRequest(req: any): Promise<any> {
         return new Promise((resolve, reject) => {
-            console.log('sending custom request with obj', req);
-
             request(
                 {
                     ...req,
                     time: true
                 },
                 (error, res) => {
-                    console.log('request received', error, res);
-
                     if (error) {
                         reject(error);
                         return;
                     }
-                    console.log('response in request', res);
+                    console.log('response in request with status', res.statusCode);
 
                     const { timingStart, timings: { response } } = res;
 
+                    // const answer = {
+                    //     ...res,
+                    //     timestampStart: timingStart,
+                    //     timestampEnd: timingStart + response,
+                    //     duration: timingStart + response - timingStart
+                    // };
                     res.timestampStart = timingStart;
                     res.timestampEnd = timingStart + response;
                     res.duration = timingStart + response - timingStart;
 
                     resolve(res);
+
+                    // resolve(answer);
                 }
             );
         });

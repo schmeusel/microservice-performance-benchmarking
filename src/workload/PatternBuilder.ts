@@ -44,6 +44,14 @@ class PatternBuilder {
                     petId: 12
                 },
                 wait: 1500
+            },
+            {
+                patternIndex: 1,
+                operationId: 'getOrderById',
+                parameters: {
+                    orderId: 12
+                },
+                wait: 300
             }
         ]);
         // TODO initiaize genereation

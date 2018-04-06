@@ -1,4 +1,3 @@
-import request from 'request';
 import {
     PatternRequest,
     PatternRequestMeasurement,
@@ -9,15 +8,17 @@ import OpenAPIService from '../services/OpenAPIService';
 import LoggingService from '../services/LoggingService';
 
 export default class PatternRequester {
+    private measurements: PatternRequestMeasurement[];
     private pattern: string;
     private requests: PatternRequest[];
 
     constructor(pattern: string, requests: PatternRequest[]) {
         this.pattern = pattern;
         this.requests = requests;
+        this.measurements = [];
     }
 
-    private asyncLoop(index: number, callback: () => void): void {
+    private asyncLoop(index: number, callback: (any) => void): void {
         if (index < this.requests.length) {
             const currentRequest: PatternRequest = this.requests[index];
             this.sendRequest(currentRequest, () => {
@@ -26,7 +27,7 @@ export default class PatternRequester {
                 }, currentRequest.wait);
             });
         } else {
-            callback();
+            callback(this.measurements);
         }
     }
 
@@ -34,11 +35,13 @@ export default class PatternRequester {
         console.log('sending request in pattern requester');
 
         OpenAPIService.sendRequest(requestToSend, (error, res) => {
-            console.log('response received', res);
+            if (error) {
+                console.log('err', error);
+            }
 
             const measurement: PatternRequestMeasurement = {
                 pattern: this.pattern,
-                status: res.status,
+                status: res.statusCode,
                 method: RequestMethod.GET, // TODO use real one
                 operation: AbstractPatternElementOperation.CREATE, // TODO use real one
                 url: 'bla', // TODO use real one
@@ -50,11 +53,13 @@ export default class PatternRequester {
         });
     }
 
-    public run(callback: () => any): void {
+    public run(callback: (any) => any): void {
         this.asyncLoop(0, callback);
     }
 
     private addMeasurement(measurement: PatternRequestMeasurement): void {
-        LoggingService.addMeasurement(measurement);
+        this.measurements.push(measurement);
+        // this.resultCallback(measurement);
+        // LoggingService.addMeasurement(measurement);
     }
 }

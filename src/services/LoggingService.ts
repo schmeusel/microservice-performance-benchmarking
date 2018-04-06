@@ -1,15 +1,15 @@
-import winston, { format, createLogger, transports, LoggerInstance } from 'winston';
+import * as winston from 'winston';
 import { PatternRequestMeasurement } from '../interfaces/index';
 import LoggingError from '../exceptions/LoggingError';
 import config from '../config';
 
 class LoggingService {
-    private _logger: LoggerInstance;
+    private _logger: winston.LoggerInstance;
     private _client: any;
     private _batchSize: number;
     private _measurementCache: PatternRequestMeasurement[];
 
-    public get logger(): LoggerInstance {
+    public get logger(): winston.LoggerInstance {
         if (!this._logger) {
             throw new LoggingError('LoggingManager has to be initiliazed before logging');
         }
@@ -17,21 +17,22 @@ class LoggingService {
     }
 
     public initialize(batchSize?: number): Promise<void> {
-        this._logger = createLogger({
+        this._logger = winston.createLogger({
             transports: [
-                new transports.File({
+                new winston.transports.File({
                     level: 'info',
-                    filename: config.logging.measurements.filepath,
-                    formatter: (info, options) => this.withMeasurement(info, options)
-                }),
-                new transports.Console({
-                    level: 'notice'
-                    // filename: config.logging.systemEvents.filepath,
+                    filename: config.logging.measurements.filename,
+                    format: winston.format.combine(winston.format.printf(this.withMeasurement))
                 })
+                // new winston.transports.Console({
+                //     level: 'notice'
+                //     // filename: config.logging.systemEvents.filepath,
+                // })
             ],
             colorize: false,
             json: false
         });
+        this.logMeasurementHeaderLine();
 
         return Promise.resolve();
     }
@@ -43,18 +44,36 @@ class LoggingService {
         });
     }
 
+    public addMeasurements(patternRequestMeasurements: PatternRequestMeasurement[]): void {
+        console.log('loggin measurements');
+        patternRequestMeasurements.forEach(measurement => {
+            this.logger.log({
+                level: 'info',
+                measurement
+            });
+        });
+    }
+
     public log(options: object) {
         this.logger.log(options);
     }
 
-    private withMeasurement(info, options) {
-        const { measurement } = <{ measurement: PatternRequestMeasurement }>info.measurement;
+    private withMeasurement(info) {
+        const { measurement } = <{ measurement: PatternRequestMeasurement }>info;
         if (measurement) {
-            info.message = `${measurement.pattern},${measurement.operation},${measurement.timestampStart},${
-                measurement.timestampEnd
-            }`;
+            return LoggingService.getCSVFields().reduce((logString, propertyName) => {
+                return `${logString},${measurement[propertyName]}`;
+            });
         }
         return info.message;
+    }
+
+    private logMeasurementHeaderLine() {
+        this.logger.info(LoggingService.getCSVFields().join(','));
+    }
+
+    private static getCSVFields(): string[] {
+        return ['pattern', 'operation', 'timestampStart', 'timestampEnd'];
     }
 }
 

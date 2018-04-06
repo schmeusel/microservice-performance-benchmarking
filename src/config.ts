@@ -1,10 +1,12 @@
+import * as path from 'path';
+
 export default {
     logging: {
         measurements: {
-            filepath: __dirname + '/logs/measurements.log'
+            filename: 'measurements.log'
         },
         systemEvents: {
-            filepath: __dirname + 'logs/systemEvents.log'
+            filename: 'systemEvents.log'
         }
     }
 };

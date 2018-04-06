@@ -4,6 +4,7 @@ import PatternRequester from './PatternRequester';
 import LoggingService from '../services/LoggingService';
 import { Pattern, PatternRequest, IPCMessage, IPCMessageType } from '../interfaces';
 import PatternBuilder from '../workload/PatternBuilder';
+import OpenAPIService from '../services/OpenAPIService';
 
 export default class ExperimentRunner {
     private patterns: Pattern[];
@@ -18,7 +19,9 @@ export default class ExperimentRunner {
     start(): Promise<void> {
         return new Promise((resolve, reject) => {
             this.patterns.forEach(pattern => {
-                const worker = fork(path.resolve(__dirname, 'PatternRunner.js'));
+                const worker = fork(path.resolve(__dirname, 'PatternRunner.js'), [
+                    JSON.stringify(OpenAPIService.specification)
+                ]);
                 this.workersAlive += 1;
                 worker.on('message', this.handleMessage);
                 worker.on('exit', this.handleWorkerDone(resolve));
@@ -31,9 +34,9 @@ export default class ExperimentRunner {
     }
 
     private handleMessage(message: IPCMessage): void {
-        switch (message.data) {
+        switch (message.type) {
             case IPCMessageType.RESULT: {
-                // TODO process result
+                LoggingService.addMeasurements(message.data);
             }
         }
     }
