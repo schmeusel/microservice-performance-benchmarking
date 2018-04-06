@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import { PatternRequestMeasurement } from '../interfaces/index';
 import LoggingError from '../exceptions/LoggingError';
 import config from '../config';
+import { format } from 'util';
 
 class LoggingService {
     private _logger: winston.LoggerInstance;
@@ -27,6 +28,15 @@ class LoggingService {
                             level: 'info',
                             filename: config.logging.measurements.filename,
                             format: winston.format.combine(winston.format.printf(this.withMeasurement))
+                        }),
+                        new winston.transports.Console({
+                            level: 'debug',
+                            filename: config.logging.systemEvents.filename,
+                            format: winston.format.combine(
+                                this.ignoreInfo(),
+                                winston.format.timestamp(),
+                                winston.format.printf(this.withTimestamp)
+                            )
                         })
                     ],
                     colorize: false,
@@ -47,16 +57,25 @@ class LoggingService {
         });
     }
 
-    public log(options: object): void {
-        this.logger.log(options);
+    public log(message: string): void {
+        this.logger.log({
+            level: 'debug',
+            message
+        });
+    }
+
+    private withTimestamp(info): string {
+        if (info.timestamp) {
+            return `[${info.timestamp}] ${info.message}`;
+        }
+        return info;
     }
 
     private withMeasurement(info): string {
         const { measurement } = info;
+        let returnString = '';
         if (measurement) {
-            return LoggingService.getCSVFields().reduce((logString, propertyName) => {
-                return `${!logString ? '' : logString + ','}${measurement[propertyName]}`;
-            }, '');
+            return LoggingService.getMeasurementString(measurement);
         }
         return info.message;
     }
@@ -68,6 +87,21 @@ class LoggingService {
 
     private static getCSVFields(): string[] {
         return ['pattern', 'operation', 'timestampStart', 'timestampEnd'];
+    }
+
+    private static getMeasurementString(measurement: PatternRequestMeasurement): string {
+        return LoggingService.getCSVFields().reduce((logString, propertyName) => {
+            return `${!logString ? '' : logString + ','}${measurement[propertyName]}`;
+        }, '');
+    }
+
+    private ignoreInfo() {
+        return winston.format((info, options) => {
+            if (info.level === 'info') {
+                return false;
+            }
+            return info;
+        })();
     }
 }
 

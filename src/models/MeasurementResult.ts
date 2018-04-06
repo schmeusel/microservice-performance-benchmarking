@@ -35,6 +35,6 @@ export default class MeasurementResult implements PatternRequestMeasurement {
     }
 
     public save() {
-        LoggingService.addMeasurement(this);
+        // TODO
     }
 }

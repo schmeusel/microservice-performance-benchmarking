@@ -17,17 +17,29 @@ export default class BenchmarkController {
     public start() {
         this.initializeServices()
             .then(() => {
-                console.log('all services initliazed');
+                LoggingService.log('All services initialized.');
                 this.preLoad();
             })
-            .then(() => this.runExperiment())
-            .then(() => this.processResults())
+            .then(() => {
+                LoggingService.log('Pre loading finished.');
+                return this.runExperiment();
+            })
+            .then(() => {
+                LoggingService.log('Experiment finished.');
+                return this.processResults();
+            })
             .then((wasSuccessful: boolean) => {
-                this.cleanUp();
+                LoggingService.log('Results processed.');
                 this.prepareShutdown(wasSuccessful);
+                return this.cleanUp();
+            })
+            .then(() => {
+                LoggingService.log('Clean up done.');
             })
             .catch(err => {
-                console.log('initialization failed', err); // TODO shutdown
+                console.error(err);
+                LoggingService.log('Initialization error');
+                this.prepareShutdown(false);
             });
     }
 
