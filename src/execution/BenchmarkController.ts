@@ -1,4 +1,4 @@
-import { BenchmarkSpecification, OpenAPISpecification } from '../interfaces';
+import { BenchmarkSpecification, OpenAPISpecification, Pattern } from '../interfaces';
 import PolyfillUtil from '../utils/PolyfillUtil';
 import OpenAPIService from '../services/OpenAPIService';
 import LoggingService from '../services/LoggingService';
@@ -40,8 +40,15 @@ export default class BenchmarkController {
     }
 
     private runExperiment(): Promise<void> {
-        console.log('ExperimentRunner.start(1)');
-        return ExperimentRunner.start(1);
+        const patterns = [
+            {
+                name: 'test1',
+                sequence: [],
+                weight: 1
+            } as Pattern
+        ];
+
+        return Promise.resolve(ExperimentRunner.start(patterns));
     }
 
     private preLoad(): Promise<void> {

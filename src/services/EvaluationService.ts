@@ -3,7 +3,7 @@ import * as readline from 'readline';
 import * as simpleStats from 'simple-statistics';
 import config from '../config';
 import { SLASpecification, SLACondition, SLAConditionMeasure } from '../interfaces/index';
-import { EvaluationError } from '../exceptions';
+import EvaluationError from '../exceptions/EvaluationError';
 
 class EvaluationService {
     evaluateMeasurements(slaSpec: SLASpecification): Promise<boolean> {

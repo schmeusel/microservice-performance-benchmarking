@@ -1,6 +1,6 @@
 import * as Swagger from 'swagger-client';
 import request from 'request';
-import { OpenAPIError } from '../exceptions/index';
+import OpenAPIError from '../exceptions/OpenAPIError';
 import OpenAPISpecification, { OperationObject, PathsObject } from '../interfaces/openapi/OpenAPISpecification';
 import { OpenAPIClient, AbstractPatternElementOperation, Resource } from '../interfaces/index';
 import { RequestMethod } from '../interfaces/RequestMethod';

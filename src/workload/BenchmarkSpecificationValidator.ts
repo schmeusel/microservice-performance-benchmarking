@@ -9,7 +9,7 @@ import {
     Pattern
 } from '../interfaces/index';
 
-import { ValidationError } from '../exceptions/index';
+import ValidationError from '../exceptions/ValidationError';
 
 class BenchmarkSpecificationValidator implements Validator {
     public validate(benchmarkSpecification: BenchmarkSpecification): boolean {

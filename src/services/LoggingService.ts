@@ -1,6 +1,6 @@
 import winston, { format, createLogger, transports, LoggerInstance } from 'winston';
 import { PatternRequestMeasurement } from '../interfaces/index';
-import { LoggingError } from '../exceptions/index';
+import LoggingError from '../exceptions/LoggingError';
 import config from '../config';
 
 class LoggingService {
