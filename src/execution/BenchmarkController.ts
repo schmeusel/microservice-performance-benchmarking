@@ -42,13 +42,12 @@ export default class BenchmarkController {
     private runExperiment(): Promise<void> {
         const patterns = [
             {
-                name: 'test1',
+                name: 'test',
                 sequence: [],
                 weight: 1
             } as Pattern
         ];
-
-        return Promise.resolve(ExperimentRunner.start(patterns));
+        return new ExperimentRunner(patterns).start();
     }
 
     private preLoad(): Promise<void> {

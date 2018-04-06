@@ -6,6 +6,8 @@ export { default as ConfigurationSpecification } from './ConfigurationSpecificat
 export { default as EnvironmentSettings } from './EnvironmentSettings';
 export { Distribution } from './Distribution';
 export { default as Interval } from './Interval';
+export { default as IPCMessage } from './IPCMessage';
+export { IPCMessageType } from './IPCMessageType';
 export { default as OpenAPISpecification } from './openapi/OpenAPISpecification';
 export { default as OpenAPIClient } from './openapi/OpenAPIClient';
 export { default as Resource } from './openapi/Resource';

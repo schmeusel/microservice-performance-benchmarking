@@ -1,31 +1,49 @@
-import * as Parallel from 'paralleljs';
+import { fork } from 'child_process';
+import * as path from 'path';
 import PatternRequester from './PatternRequester';
 import LoggingService from '../services/LoggingService';
-import { Pattern, PatternRequest } from '../interfaces';
+import { Pattern, PatternRequest, IPCMessage, IPCMessageType } from '../interfaces';
 import PatternBuilder from '../workload/PatternBuilder';
 
-class ExperimentRunner {
-    private asyncLoop(index) {}
+export default class ExperimentRunner {
+    private patterns: Pattern[];
+    private workersAlive: number;
 
-    start(patterns: Pattern[]) {
-        const processes = new Parallel(patterns);
-        processes
-            .require(this.run)
-            .map(this.run)
-            .then(result => {
-                console.log('result from processes', result);
-            });
+    constructor(patterns: Pattern[]) {
+        this.patterns = patterns;
+        this.handleMessage = this.handleMessage.bind(this);
+        this.handleWorkerDone = this.handleWorkerDone.bind(this);
     }
 
-    private run(pattern: Pattern): Promise<void> {
+    start(): Promise<void> {
         return new Promise((resolve, reject) => {
-            console.log('generating PatternRequest[] to run');
-            PatternBuilder.generate(pattern).then(patternRequests => {
-                const requester: PatternRequester = new PatternRequester(pattern.name, patternRequests);
-                requester.run(resolve);
+            this.patterns.forEach(pattern => {
+                const worker = fork(path.resolve(__dirname, 'PatternRunner.js'));
+                this.workersAlive += 1;
+                worker.on('message', this.handleMessage);
+                worker.on('exit', this.handleWorkerDone(resolve));
+                worker.send({
+                    type: IPCMessageType.INIT,
+                    data: { pattern }
+                } as IPCMessage);
             });
         });
     }
-}
 
-export default new ExperimentRunner();
+    private handleMessage(message: IPCMessage): void {
+        switch (message.data) {
+            case IPCMessageType.RESULT: {
+                // TODO process result
+            }
+        }
+    }
+
+    private handleWorkerDone(resolveCallback: () => void) {
+        return () => {
+            this.workersAlive -= 1;
+            if (this.workersAlive === 0) {
+                resolveCallback();
+            }
+        };
+    }
+}
