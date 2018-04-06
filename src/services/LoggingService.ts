@@ -6,9 +6,6 @@ import config from '../config';
 
 class LoggingService {
     private _logger: winston.LoggerInstance;
-    private _client: any;
-    private _batchSize: number;
-    private _measurementCache: PatternRequestMeasurement[];
 
     public get logger(): winston.LoggerInstance {
         if (!this._logger) {
@@ -17,9 +14,14 @@ class LoggingService {
         return this._logger;
     }
 
-    public initialize(batchSize?: number): Promise<void> {
+    /**
+     * Clean up previous log files and create logging transport to file as described in config.
+     * Also, for the log file, print the header line depicting the structure of the CSV file.
+     */
+    public initialize(): Promise<void> {
         return new Promise((resolve, reject) => {
-            fs.unlink(config.logging.measurements.filename, error => {
+            // Remove previous log file and ignore errors (e.g. file did not exist before)
+            fs.unlink(config.logging.measurements.filename, () => {
                 this._logger = winston.createLogger({
                     transports: [
                         new winston.transports.File({
@@ -37,13 +39,6 @@ class LoggingService {
         });
     }
 
-    public addMeasurement(patternRequestMeasurement: PatternRequestMeasurement): void {
-        this.logger.log({
-            level: 'info',
-            measurement: patternRequestMeasurement
-        });
-    }
-
     public addMeasurements(patternRequestMeasurements: PatternRequestMeasurement[]): void {
         patternRequestMeasurements.forEach(measurement => {
             this.logger.log({
@@ -53,11 +48,11 @@ class LoggingService {
         });
     }
 
-    public log(options: object) {
+    public log(options: object): void {
         this.logger.log(options);
     }
 
-    private withMeasurement(info) {
+    private withMeasurement(info): string {
         const { measurement } = info;
         if (measurement) {
             return LoggingService.getCSVFields().reduce((logString, propertyName) => {
@@ -67,7 +62,7 @@ class LoggingService {
         return info.message;
     }
 
-    private logMeasurementHeaderLine() {
+    private logMeasurementHeaderLine(): void {
         const header = LoggingService.getCSVFields().join(',');
         console.log('header', header);
         this.logger.info(header);
