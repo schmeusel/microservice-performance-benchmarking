@@ -20,7 +20,6 @@ class LoggingService {
      */
     public initialize(): Promise<void> {
         return new Promise((resolve, reject) => {
-            // Remove previous log file and ignore errors (e.g. file did not exist before)
             fs.unlink(config.logging.measurements.filename, () => {
                 this._logger = winston.createLogger({
                     transports: [
@@ -64,7 +63,6 @@ class LoggingService {
 
     private logMeasurementHeaderLine(): void {
         const header = LoggingService.getCSVFields().join(',');
-        console.log('header', header);
         this.logger.info(header);
     }
 
