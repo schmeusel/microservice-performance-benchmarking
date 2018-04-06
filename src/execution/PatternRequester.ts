@@ -32,8 +32,6 @@ export default class PatternRequester {
     }
 
     private sendRequest(requestToSend: PatternRequest, callback: () => void): void {
-        console.log('sending request in pattern requester');
-
         OpenAPIService.sendRequest(requestToSend, (error, res) => {
             if (error) {
                 console.log('err', error);
@@ -42,9 +40,9 @@ export default class PatternRequester {
             const measurement: PatternRequestMeasurement = {
                 pattern: this.pattern,
                 status: res.statusCode,
-                method: RequestMethod.GET, // TODO use real one
+                method: res.request.method.toUpperCase() as RequestMethod, // TODO use real one
                 operation: AbstractPatternElementOperation.CREATE, // TODO use real one
-                url: 'bla', // TODO use real one
+                url: res.request.uri.href,
                 timestampStart: res.timestampStart,
                 timestampEnd: res.timestampEnd
             };
