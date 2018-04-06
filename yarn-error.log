@@ -1,5 +1,5 @@
 Arguments: 
-  /usr/local/bin/node /usr/local/bin/yarn start
+  /usr/local/bin/node /usr/local/bin/yarn remove paralleljs
 
 PATH: 
   /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/Users/Lukas/.sdkman/candidates/groovy/current/bin:/Users/Lukas/.sdkman/candidates/grails/current/bin
@@ -29,7 +29,6 @@ npm manifest:
     "dependencies": {
       "json-schema-faker": "^0.5.0-rc13",
       "minimist": "^1.2.0",
-      "paralleljs": "^0.2.1",
       "prob.js": "^1.0.6",
       "request": "^2.85.0",
       "simple-statistics": "^5.3.1",
@@ -839,10 +838,6 @@ Lockfile:
       type-check "~0.3.2"
       wordwrap "~1.0.0"
   
-  paralleljs@^0.2.1:
-    version "0.2.1"
-    resolved "https://registry.yarnpkg.com/paralleljs/-/paralleljs-0.2.1.tgz#ebca745d3e09c01e2bebcc14858891ff4510e926"
-  
   path-is-absolute@^1.0.0:
     version "1.0.1"
     resolved "https://registry.yarnpkg.com/path-is-absolute/-/path-is-absolute-1.0.1.tgz#174b9268735534ffbc7ace6bf53a5a9e1b5c5f5f"
@@ -1142,17 +1137,10 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/yn/-/yn-2.0.0.tgz#e5adabc8acf408f6385fc76495684c88e6af689a"
 
 Trace: 
-  Error: Command failed.
-  Exit code: 1
-  Command: sh
-  Arguments: -c tsc && node ./build/app.js --json ./assets/sampleAPI_extended.json --spec ./assets/benchmarkSpec.json
-  Directory: /Users/Lukas/Developer/microservice-performance-benchmarking
-  Output:
-  
-      at ProcessTermError.MessageError (/usr/local/lib/node_modules/yarn/lib/cli.js:186:110)
-      at new ProcessTermError (/usr/local/lib/node_modules/yarn/lib/cli.js:226:113)
-      at ChildProcess.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:30281:17)
-      at emitTwo (events.js:126:13)
-      at ChildProcess.emit (events.js:214:7)
-      at maybeClose (internal/child_process.js:925:16)
-      at Process.ChildProcess._handle.onexit (internal/child_process.js:209:5)
+  Error: This module isn't specified in a manifest.
+      at new MessageError (/usr/local/lib/node_modules/yarn/lib/cli.js:186:110)
+      at Object.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:60445:15)
+      at Generator.next (<anonymous>)
+      at step (/usr/local/lib/node_modules/yarn/lib/cli.js:98:30)
+      at /usr/local/lib/node_modules/yarn/lib/cli.js:109:13
+      at <anonymous>
