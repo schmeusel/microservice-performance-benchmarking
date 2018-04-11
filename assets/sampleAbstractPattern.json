@@ -1,0 +1,24 @@
+{
+  "name": "Scan_And_Delete_Last_SubResource_Item",
+  "sequence": [
+    {
+      "operation": "SCAN",
+      "output": "list"
+    },
+    {
+      "operation": "READ",
+      "input": "list",
+      "selector": "random",
+      "output": "item"
+    },
+    {
+      "operation": "SCAN",
+      "input": "item",
+      "output": "item_subResource"
+    },
+    {
+      "operation": "DELETE",
+      "input": "item_subResource:last"
+    }
+  ]
+}

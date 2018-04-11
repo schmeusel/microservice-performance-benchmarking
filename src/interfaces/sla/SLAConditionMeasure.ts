@@ -1,7 +1,8 @@
-import { SLAConditionType } from '../index';
+import { SLAConditionMeasureBoundary, SLAConditionMeasureType } from '../index';
 
 export default interface SLAConditionMeasure {
     value: number;
-    unit?: string; // e.g. "ms",
-    type: SLAConditionType;
+    boundary: SLAConditionMeasureBoundary;
+    type: SLAConditionMeasureType;
+    tolerance?: number;
 };
