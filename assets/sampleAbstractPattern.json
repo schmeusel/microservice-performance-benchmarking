@@ -12,13 +12,15 @@
       "output": "item"
     },
     {
+      "id": "scanSubResource",
       "operation": "SCAN",
       "input": "item",
-      "output": "item_subResource"
+      "output": "item_subResourceList"
     },
     {
       "operation": "DELETE",
-      "input": "item_subResource:last"
+      "input": "item_subResource",
+      "selector": "last"
     }
   ]
 }

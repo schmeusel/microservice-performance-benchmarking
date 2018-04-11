@@ -1,6 +1,6 @@
 import {
-    PatternRequest,
-    PatternRequestMeasurement,
+    PatternElementRequest,
+    PatternResultMeasurement,
     RequestMethod,
     AbstractPatternElementOperation
 } from '../interfaces/index';
@@ -8,11 +8,11 @@ import OpenAPIService from '../services/OpenAPIService';
 import LoggingService from '../services/LoggingService';
 
 export default class PatternRequester {
-    private measurements: PatternRequestMeasurement[];
+    private measurements: PatternResultMeasurement[];
     private pattern: string;
-    private requests: PatternRequest[];
+    private requests: PatternElementRequest[];
 
-    constructor(pattern: string, requests: PatternRequest[]) {
+    constructor(pattern: string, requests: PatternElementRequest[]) {
         this.pattern = pattern;
         this.requests = requests;
         this.measurements = [];
@@ -20,7 +20,7 @@ export default class PatternRequester {
 
     private asyncLoop(index: number, callback: (any) => void): void {
         if (index < this.requests.length) {
-            const currentRequest: PatternRequest = this.requests[index];
+            const currentRequest: PatternElementRequest = this.requests[index];
             this.sendRequest(currentRequest, () => {
                 setTimeout(() => {
                     this.asyncLoop(index + 1, callback);
@@ -31,13 +31,13 @@ export default class PatternRequester {
         }
     }
 
-    private sendRequest(requestToSend: PatternRequest, callback: () => void): void {
+    private sendRequest(requestToSend: PatternElementRequest, callback: () => void): void {
         OpenAPIService.sendRequest(requestToSend, (error, res) => {
             if (error) {
                 console.log('err', error);
             }
 
-            const measurement: PatternRequestMeasurement = {
+            const measurement: PatternResultMeasurement = {
                 pattern: this.pattern,
                 status: res.statusCode,
                 method: res.request.method.toUpperCase() as RequestMethod, // TODO use real one
@@ -55,7 +55,7 @@ export default class PatternRequester {
         this.asyncLoop(0, callback);
     }
 
-    private addMeasurement(measurement: PatternRequestMeasurement): void {
+    private addMeasurement(measurement: PatternResultMeasurement): void {
         this.measurements.push(measurement);
         // this.resultCallback(measurement);
         // LoggingService.addMeasurement(measurement);

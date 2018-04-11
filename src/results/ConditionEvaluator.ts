@@ -1,9 +1,9 @@
-import { PatternRequestResult, Validator } from '../interfaces/index';
+import { PatternResult, Validator } from '../interfaces/index';
 
 class ConditionEvaluator implements Validator {
-    private patternResults: PatternRequestResult[];
+    private patternResults: PatternResult[];
 
-    constructor(patternResults: PatternRequestResult[]) {
+    constructor(patternResults: PatternResult[]) {
         this.patternResults = patternResults;
     }
 
@@ -11,7 +11,7 @@ class ConditionEvaluator implements Validator {
         throw new Error('validate not implemented yet.');
     }
 
-    private validatePatternResult(patternResult: PatternRequestResult) {
+    private validatePatternResult(patternResult: PatternResult) {
         throw new Error('validatePatternResult not implemented yet.');
     }
 

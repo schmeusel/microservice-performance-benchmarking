@@ -2,7 +2,7 @@ import { fork } from 'child_process';
 import * as path from 'path';
 import PatternRequester from './PatternRequester';
 import LoggingService from '../services/LoggingService';
-import { Pattern, PatternRequest, IPCMessage, IPCMessageType } from '../interfaces';
+import { Pattern, PatternElementRequest, IPCMessage, IPCMessageType } from '../interfaces';
 import PatternBuilder from '../workload/PatternBuilder';
 import OpenAPIService from '../services/OpenAPIService';
 
