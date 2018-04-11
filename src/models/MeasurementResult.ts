@@ -1,8 +1,8 @@
-import { PatternRequestMeasurement, RequestMethod, AbstractPatternElementOperation } from '../interfaces/index';
+import { PatternResultMeasurement, RequestMethod, AbstractPatternElementOperation } from '../interfaces/index';
 import MeasurementResultError from '../exceptions/MeasurementResultError';
 import LoggingService from '../services/LoggingService';
 
-export default class MeasurementResult implements PatternRequestMeasurement {
+export default class MeasurementResult implements PatternResultMeasurement {
     status: number;
     method: RequestMethod;
     operation: AbstractPatternElementOperation;
@@ -11,7 +11,7 @@ export default class MeasurementResult implements PatternRequestMeasurement {
     timestampEnd: number;
     pattern: string;
 
-    constructor(measurement: PatternRequestMeasurement) {
+    constructor(measurement: PatternResultMeasurement) {
         this.status = measurement.status;
         this.method = measurement.method;
         this.operation = measurement.operation;

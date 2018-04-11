@@ -1,5 +1,5 @@
 import jsf from 'json-schema-faker';
-import { PatternRequest, PatternElement, Pattern } from '../interfaces/index';
+import { PatternElementRequest, PatternElement, Pattern } from '../interfaces/index';
 import { generateDistributionData } from '../services/IntervalDistributionService';
 import { SchemaObject, OperationObject } from '../interfaces/openapi/OpenAPISpecification';
 import OpenAPIService from '../services/OpenAPIService';
@@ -30,12 +30,12 @@ class PatternBuilder {
         });
     }
 
-    private generatePatternRequest(patternElement: PatternElement): Promise<PatternRequest> {
+    private generatePatternRequest(patternElement: PatternElement): Promise<PatternElementRequest> {
         const opObject: OperationObject = OpenAPIService.getSpecificationByOperationId(patternElement.operationId);
         throw new Error('generatePatternRequest not implemented yet.');
     }
 
-    public generate(pattern: Pattern): Promise<PatternRequest[]> {
+    public generate(pattern: Pattern): Promise<PatternElementRequest[]> {
         return Promise.resolve([
             {
                 patternIndex: 0,
