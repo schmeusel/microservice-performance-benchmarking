@@ -1,7 +1,7 @@
 import Prob from 'prob.js';
 import { Interval, Distribution } from '../interfaces/index';
 
-export function generateDistributionData(amount, options: Interval) {
+export function generateDistributionData(amount: number, options: Interval) {
     const { distribution, params } = options;
     if (distribution === Distribution.UNIFORM) {
         return Array.from({ length: amount }, () => params.fix);
