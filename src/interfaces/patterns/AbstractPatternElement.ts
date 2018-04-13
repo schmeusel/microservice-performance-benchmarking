@@ -1,10 +1,10 @@
-import { AbstractPatternElementOperation, AbstractPatternElementSelector } from '..';
+import { AbstractPatternElementOperation, PatternElementSelector } from '..';
 
 export default interface AbstractPatternElement {
     id?: string;
     operation: AbstractPatternElementOperation;
     input?: string;
-    selector?: AbstractPatternElementSelector;
+    selector?: PatternElementSelector;
     output: string;
     wait?: number;
 };

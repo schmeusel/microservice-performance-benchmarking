@@ -4,12 +4,12 @@ import { mapHttpMethodToElementOperation } from '../../src/utils/OpenAPIUtil';
 import PolyfillUtil from '../../src/utils/PolyfillUtil';
 import { RequestMethod, AbstractPatternElementOperation } from '../../src/interfaces';
 
-describe('TestSuite for OpenAPIUtil', () => {
+describe('Test OpenAPIUtil', () => {
     before(() => {
         PolyfillUtil.initialize();
     });
 
-    describe('mapHttpMethodToElementOperation', () => {
+    describe('mapHttpMethodToElementOperation(...)', () => {
         it('should map correct methods and paths to abstract operation elements', () => {
             const pathMock = '/users/${userId}';
 

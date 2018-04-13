@@ -1,12 +1,12 @@
 import { expect } from 'chai';
 import PolyfillUtil from '../../src/utils/PolyfillUtil';
 
-describe('TestSuite for PolyfillUtil', () => {
+describe('Test PolyfillUtil', () => {
     before(() => {
         PolyfillUtil.initialize();
     });
 
-    describe('String.endsWithInputParam', () => {
+    describe('String.endsWithInputParam()', () => {
         it('should correctly tell whether a string ends with some sort of input param', () => {
             const correctRes1 = '/users/${userId}'.endsWithInputParam();
             const correctRes2 = '/users/${userId}/hallo/${pet}'.endsWithInputParam();

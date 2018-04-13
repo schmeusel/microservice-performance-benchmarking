@@ -5,18 +5,19 @@ import {
     AbstractPatternElement,
     PatternElement,
     AbstractPatternConfiguration,
-    AbstractPatternElementOperation
+    AbstractPatternElementOperation,
+    AbstractPattern
 } from '../interfaces/index';
 import * as IntervalDistributionService from '../services/IntervalDistributionService';
 import PatternResolverError from '../exceptions/PatternResolverError';
 
 class AbstractPatternResolver {
-    private _abstractPatterns: Pattern[];
+    private _abstractPatterns: AbstractPattern[];
     private _openAPISpec: OpenAPISpecification;
     private _resources: Resource[];
     private _patternConfiguration: AbstractPatternConfiguration;
 
-    public initialize(patterns: Pattern[], openAPISpec: OpenAPISpecification, resources: Resource[], patternConfig: AbstractPatternConfiguration) {
+    public initialize(patterns: AbstractPattern[], openAPISpec: OpenAPISpecification, resources: Resource[], patternConfig: AbstractPatternConfiguration) {
         if (!resources || !resources.length) {
             throw new PatternResolverError('No resources in the OpenAPI sepc.');
         }
@@ -26,7 +27,7 @@ class AbstractPatternResolver {
         this._patternConfiguration = patternConfig;
     }
 
-    private resolveAbstractPattern(abstractPattern: Pattern): Pattern {
+    private resolveAbstractPattern(abstractPattern: AbstractPattern): Pattern {
         const intervalWaitTimes: number[] = abstractPattern.interval
             ? IntervalDistributionService.generateDistributionData(abstractPattern.sequence.length, abstractPattern.interval)
             : null;
@@ -55,6 +56,17 @@ class AbstractPatternResolver {
             selector: sequence[index].selector,
             wait: waitTime
         };
+    }
+
+    /**
+     * structure for example: [
+     *      [{ index: 2, ...element }, { index: 3, ...element }],
+     * ]
+     */
+
+    private resolveAbstractPatternOperations(pattern: AbstractPattern): string[] {
+        const dependencyStructure = this.getDependencyStructure(pattern.sequence);
+        const dependenciesWithResources = dependencyStructure.map(depenLine => {});
     }
 
     private resolveAbstractPatternOperation(sequence: AbstractPatternElement[], index: number, patternName: string): string {
@@ -138,25 +150,48 @@ class AbstractPatternResolver {
         throw new PatternResolverError(`"${op}" is not a valid operation.`);
     }
 
-    private getOperationDependencies(sequence: AbstractPatternElement, index: number, dependencyLine = []) {
-        if (index === 0 && dependencyLine.length === 0) {
-            throw new PatternResolverError('First element of a pattern cannot have an input.');
-        }
+    private getDependencyStructure(sequence: AbstractPatternElement[]): object[] {
+        return sequence
+            .map((elem, i) => {
+                return this.getOperationDependencies(sequence, i, []);
+            })
+            .reduceRight((result, depen, i) => {
+                const alreadyHasIndex = result.find(obj => obj[0].index === depen[0].index);
+                if (alreadyHasIndex) {
+                    return result;
+                }
+                return [depen, ...result];
+            }, []);
+    }
 
+    private getOperationDependencies(sequence: AbstractPatternElement[], index: number, dependencyLine: object[]) {
+        if (!dependencyLine) {
+            dependencyLine = [{ index: index, operation: sequence[index].operation }];
+        }
         for (let i = index - 1; i > 0; i--) {
-            if (sequence[i].output === sequence[index].input) {
+            const hasInput = !!sequence[index].input;
+            const hasMatchingPreviousOutput = sequence[i].output === sequence[index].input;
+            if (hasInput && hasMatchingPreviousOutput) {
                 return this.getOperationDependencies(sequence, i, [{ index: i, operation: sequence[i].operation }, ...dependencyLine]);
             }
         }
-
         return dependencyLine;
     }
 
-    private getResourceDepthLevelForDependencies(dependencies): number {
-        return dependencies.reduce((count, dependeny) => {
-            if (dependeny.operation === AbstractPatternElementOperation.SCAN) {
-                return count + 1;
-            }
-        }, 0);
+    private getResourceDepth(resource: Resource): number {
+        if (!resource.subResources) {
+            return 1;
+        }
+        return 1 + Math.max(...resource.subResources.map(r => this.getResourceDepth(r)));
+    }
+
+    private getResourcesWithMinimumDepthLevel(resources: Resource[], level: number) {
+        return resources
+            .map(resource => ({ ...resource, level: this.getResourceDepth(resource) }))
+            .filter(resource => resource.level >= level)
+            .map(({ level, ...rest }) => ({
+                ...rest,
+                subResources: rest.subResources ? this.getResourcesWithMinimumDepthLevel(rest.subResources, level - 1) : undefined
+            }));
     }
 }

@@ -1,6 +1,7 @@
+export { default as AbstractPattern } from './patterns/AbstractPattern';
 export { default as AbstractPatternConfiguration } from './patterns/AbstractPatternConfiguration';
 export { default as AbstractPatternElement } from './patterns/AbstractPatternElement';
-export { AbstractPatternElementSelector } from './patterns/AbstractPatternElementSelector';
+export { PatternElementSelector } from './patterns/PatternElementSelector';
 export { AbstractPatternElementOperation } from './patterns/AbstractPatternElementOperation';
 export { default as BenchmarkSpecification } from './BenchmarkSpecification';
 export { default as ConfigurationSpecification } from './ConfigurationSpecification';
@@ -14,6 +15,7 @@ export { default as OpenAPIClient } from './openapi/OpenAPIClient';
 export { default as Resource } from './openapi/Resource';
 export { default as Pattern } from './patterns/Pattern';
 export { default as PatternElement } from './patterns/PatternElement';
+export { PatternElementOutputType } from './patterns/PatternElementOutputType';
 export { default as PatternElementRequest } from './patterns/PatternElementRequest';
 export { default as PatternResultMeasurement } from './patterns/PatternResultMeasurement';
 export { default as PatternResult } from './patterns/PatternResult';
