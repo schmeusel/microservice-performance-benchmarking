@@ -1,26 +1,32 @@
-{
-  "name": "Scan_And_Delete_Last_SubResource_Item",
-  "sequence": [
-    {
-      "operation": "SCAN",
-      "output": "list"
-    },
-    {
-      "operation": "READ",
-      "input": "list",
-      "selector": "random",
-      "output": "item"
-    },
-    {
-      "id": "scanSubResource",
-      "operation": "SCAN",
-      "input": "item",
-      "output": "item_subResourceList"
-    },
-    {
-      "operation": "DELETE",
-      "input": "item_subResource",
-      "selector": "last"
-    }
-  ]
-}
+[
+  {
+    "name": "Scan_And_Delete_Last_SubResource_Item",
+    "sequence": [
+      {
+        "operation": "SCAN",
+        "output": "list",
+        "wait": 1000
+      },
+      {
+        "operation": "READ",
+        "input": "list",
+        "selector": "random",
+        "output": "item",
+        "wait": 1000
+      },
+      {
+        "id": "scanSubResource",
+        "operation": "SCAN",
+        "input": "item",
+        "output": "item_subResourceList",
+        "wait": 1000
+      },
+      {
+        "operation": "DELETE",
+        "input": "item_subResource",
+        "selector": "last",
+        "wait": 1000
+      }
+    ]
+  }
+]

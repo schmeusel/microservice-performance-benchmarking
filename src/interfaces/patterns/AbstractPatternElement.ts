@@ -5,7 +5,7 @@ export default interface AbstractPatternElement {
     operation: AbstractPatternElementOperation;
     input?: string;
     selector?: PatternElementSelector;
-    output: string;
+    output?: string;
     wait?: number;
 }
 

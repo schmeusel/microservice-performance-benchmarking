@@ -23,7 +23,9 @@ class OpenAPIService {
 
     public get resources(): Resource[] {
         if (!this._resources) {
-            throw new OpenAPIError('Service needs to be initialized first, so that the resource discovery can be initiated.');
+            throw new OpenAPIError(
+                'Service needs to be initialized first, so that the resource discovery can be initiated.'
+            );
         }
         return this._resources;
     }
@@ -70,7 +72,14 @@ class OpenAPIService {
     }
 
     private hierarchizeResources(): Resource[] {
-        const topLevelResourcePaths = Object.keys(this.specification.paths).filter(path => path.split('/').shift() === path.replace('/', ''));
+        const topLevelResourcePaths = Object.keys(this.specification.paths).filter(
+            path =>
+                path
+                    .split('/')
+                    .filter(str => str !== '')
+                    .shift() === path.replace('/', '')
+        );
+        console.log('topLevelResource paths', topLevelResourcePaths);
         return topLevelResourcePaths.map(resourcePath => {
             return {
                 name: resourcePath.replace('/', ''),

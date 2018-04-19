@@ -19,6 +19,11 @@ class AbstractPatternResolver {
     private _resources: Resource[];
     private _patternConfiguration: AbstractPatternConfiguration;
 
+    constructor() {
+        this.resolveAbstractPattern = this.resolveAbstractPattern.bind(this);
+        this.resolveAbstractPatternSequence = this.resolveAbstractPatternSequence.bind(this);
+    }
+
     public get patterns(): Pattern[] {
         if (!this._patterns) {
             throw new PatternResolverError(`To access patterns, first initialize the resolver.`);
@@ -57,13 +62,20 @@ class AbstractPatternResolver {
 
     private resolveAbstractPattern(abstractPattern: AbstractPattern): Pattern {
         const intervalWaitTimes: number[] = abstractPattern.interval
-            ? IntervalDistributionService.generateDistributionData(abstractPattern.sequence.length, abstractPattern.interval)
+            ? IntervalDistributionService.generateDistributionData(
+                  abstractPattern.sequence.length,
+                  abstractPattern.interval
+              )
             : abstractPattern.sequence.map(el => el.wait);
 
         const allNumbers = intervalWaitTimes.reduce((areNumbers, num) => areNumbers && typeof num === 'number', true);
 
         if (!allNumbers) {
-            throw new PatternResolverError(`For pattern ${abstractPattern.name}, either provide a sound interval or a wait period for each element.`);
+            throw new PatternResolverError(
+                `For pattern ${
+                    abstractPattern.name
+                }, either provide a sound interval or a wait period for each element.`
+            );
         }
         return {
             name: abstractPattern.name,
@@ -76,16 +88,25 @@ class AbstractPatternResolver {
         const dependencyStructure = this.getDependencyStructure(pattern.sequence);
         const dependenciesWithResources = dependencyStructure.map(dependencyLine => {
             const dependencyDepth = this.getDependencyDepth(dependencyLine);
-            const possibleResources: Resource[] = this.getResourcesWithMinimumDepthLevel(this._resources, dependencyDepth);
+            const possibleResources: Resource[] = this.getResourcesWithMinimumDepthLevel(
+                this._resources,
+                dependencyDepth
+            );
             return this.mapAbstractPatternToResources(dependencyLine, 0, possibleResources);
         });
 
-        const flattenedElements = dependenciesWithResources.reduce((flattened, dependencyLine) => [...flattened, ...dependencyLine], []);
+        const flattenedElements = dependenciesWithResources.reduce(
+            (flattened, dependencyLine) => [...flattened, ...dependencyLine],
+            []
+        );
 
         // check if same indexes have same resource
         flattenedElements.forEach((extendedElement, i) => {
             const elementsWithSameIndex = flattenedElements.filter(el => el.index === extendedElement.index);
-            const allSame = elementsWithSameIndex.reduce((same, el) => same && el.resource.name === extendedElement.resource.name, true);
+            const allSame = elementsWithSameIndex.reduce(
+                (same, el) => same && el.resource.name === extendedElement.resource.name,
+                true
+            );
             if (!allSame) {
                 throw new PatternResolverError(
                     `Dependency strucutre does not add up. In the '${
@@ -134,19 +155,27 @@ class AbstractPatternResolver {
             return this.mapAbstractPatternToResources(intermediate, index + 1, possibleResources);
         }
 
-        const inputDependencyIndex = dependencyLine.findIndex(patternElement => patternElement.output === element.input);
+        const inputDependencyIndex = dependencyLine.findIndex(
+            patternElement => patternElement.output === element.input
+        );
         if (inputDependencyIndex === -1 || inputDependencyIndex > index) {
-            throw new PatternResolverError(`There is no previous AbstractPatternElement whose output is equal to ${element.input}`);
+            throw new PatternResolverError(
+                `There is no previous AbstractPatternElement whose output is equal to ${element.input}`
+            );
         }
 
         const inputDependencyResource: Resource = dependencyLine[inputDependencyIndex].resource;
         if (element.operation !== AbstractPatternElementOperation.SCAN) {
-            const intermediate = dependencyLine.map((el, i) => (i === index ? { ...el, resource: inputDependencyResource } : el));
+            const intermediate = dependencyLine.map(
+                (el, i) => (i === index ? { ...el, resource: inputDependencyResource } : el)
+            );
             return this.mapAbstractPatternToResources(intermediate, index + 1, possibleResources);
         }
 
         if (!inputDependencyResource.subResources || !inputDependencyResource.subResources.length) {
-            throw new PatternResolverError(`The element at index ${element.index} requires interaction with a subresource that is not available.`);
+            throw new PatternResolverError(
+                `The element at index ${element.index} requires interaction with a subresource that is not available.`
+            );
         }
 
         const subResourceIndex = Math.round(Math.random() * (inputDependencyResource.subResources.length - 1));
@@ -198,7 +227,9 @@ class AbstractPatternResolver {
             }
         } catch (e) {
             throw new PatternResolverError(
-                `Operation "${op}" not available for resource "${resource.name}". Available operations are: ${resource.operations.join(', ')}`
+                `Operation "${op}" not available for resource "${
+                    resource.name
+                }". Available operations are: ${resource.operations.join(', ')}`
             );
         }
         throw new PatternResolverError(`"${op}" is not a valid operation.`);
@@ -218,25 +249,30 @@ class AbstractPatternResolver {
             }, []);
     }
 
-    private getOperationDependencies(sequence: AbstractPatternElement[], index: number, dependencyLine: object[]) {
-        if (!dependencyLine) {
-            dependencyLine = [{ index: index, operation: sequence[index].operation }];
+    private getOperationDependencies(
+        sequence: AbstractPatternElement[],
+        index: number,
+        dependencyLine: AbstractPatternElementExtended[]
+    ) {
+        if (!dependencyLine.length) {
+            dependencyLine = [{ ...sequence[index], index: index }];
         }
-        for (let i = index - 1; i > 0; i--) {
-            const hasInput = !!sequence[index].input;
+        const hasInput = !!sequence[index].input;
+        for (let i = index - 1; i >= 0; i--) {
             const hasMatchingPreviousOutput = sequence[i].output === sequence[index].input;
             if (hasInput && hasMatchingPreviousOutput) {
-                return this.getOperationDependencies(sequence, i, [{ index: i, operation: sequence[i].operation }, ...dependencyLine]);
+                return this.getOperationDependencies(sequence, i, [{ ...sequence[i], index: i }, ...dependencyLine]);
             }
         }
         return dependencyLine;
     }
 
     private getResourceDepth(resource: Resource): number {
-        if (!resource.subResources) {
+        if (!resource.subResources || !resource.subResources.length) {
             return 1;
         }
-        return 1 + Math.max(...resource.subResources.map(r => this.getResourceDepth(r)));
+        const depth = 1 + Math.max(...resource.subResources.map(r => this.getResourceDepth(r)));
+        return depth;
     }
 
     private getDependencyDepth(dependencyLine: AbstractPatternElementExtended[]): number {
@@ -254,7 +290,9 @@ class AbstractPatternResolver {
             .filter(resource => resource.level >= level)
             .map(({ level, ...rest }) => ({
                 ...rest,
-                subResources: rest.subResources ? this.getResourcesWithMinimumDepthLevel(rest.subResources, level - 1) : undefined
+                subResources: rest.subResources
+                    ? this.getResourcesWithMinimumDepthLevel(rest.subResources, level - 1)
+                    : undefined
             }));
     }
 }
