@@ -161,7 +161,10 @@ class OpenAPIService {
                         return;
                     }
 
-                    const { timingStart, timings: { response } } = res;
+                    const {
+                        timingStart,
+                        timings: { response }
+                    } = res;
 
                     res.timestampStart = timingStart;
                     res.timestampEnd = timingStart + response;

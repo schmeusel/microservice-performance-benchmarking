@@ -1,4 +1,4 @@
-import { AbstractPatternElementOperation, PatternElementSelector } from '..';
+import { AbstractPatternElementOperation, PatternElementSelector, Resource } from '..';
 
 export default interface AbstractPatternElement {
     id?: string;
@@ -7,4 +7,9 @@ export default interface AbstractPatternElement {
     selector?: PatternElementSelector;
     output: string;
     wait?: number;
-};
+}
+
+export interface AbstractPatternElementExtended extends AbstractPatternElement {
+    index?: number;
+    resource?: Resource;
+}
