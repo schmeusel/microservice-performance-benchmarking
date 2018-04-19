@@ -24,4 +24,26 @@ describe('Test PolyfillUtil', () => {
             });
         });
     });
+
+    describe('String.getLastInputParam()', () => {
+        it('should return undefined if no input param found', () => {
+            const res1 = '/hello/test'.getLastInputParam();
+            const res2 = 'hello'.getLastInputParam();
+            const res3 = '/hello'.getLastInputParam();
+
+            [res1, res2, res3].forEach(result => {
+                expect(result).to.be.undefined;
+            });
+        });
+
+        it('should return the name of the last input param if there is one', () => {
+            const res1 = '/hello/test/${testId}';
+            const res2 = '/hello/{testId}';
+            const res3 = 'hello/${helloId}/test/${testId}';
+
+            [res1, res2, res3].forEach(result => {
+                expect(result).to.equal('testId');
+            });
+        });
+    });
 });

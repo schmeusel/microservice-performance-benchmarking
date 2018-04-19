@@ -79,7 +79,6 @@ class OpenAPIService {
                     .filter(str => str !== '')
                     .shift() === path.replace('/', '')
         );
-        console.log('topLevelResource paths', topLevelResourcePaths);
         return topLevelResourcePaths.map(resourcePath => {
             return {
                 name: resourcePath.replace('/', ''),
