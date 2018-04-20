@@ -1,6 +1,6 @@
-import { Pattern } from './index';
+import { AbstractPattern } from './index';
 
 export default interface ConfigurationSpecification {
     totalPatternRequests: number;
-    patterns: Pattern[];
-};
+    patterns: AbstractPattern[];
+}

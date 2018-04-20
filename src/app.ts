@@ -13,8 +13,7 @@ if (!argv.spec || !(argv.json || argv.url)) {
 const specification: BenchmarkSpecification = require(path.resolve(argv.spec));
 const openAPISpec: string | OpenAPISpecification = require(path.resolve(argv.json)) || argv.url;
 
-const benchmarkController = new BenchmarkController(specification, openAPISpec);
-benchmarkController.start();
+new BenchmarkController(specification, openAPISpec).start();
 
 function printInstructions() {
     console.log('Usage: node app.js <options>');

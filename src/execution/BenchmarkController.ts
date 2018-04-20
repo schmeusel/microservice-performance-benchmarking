@@ -3,6 +3,7 @@ import PolyfillUtil from '../utils/PolyfillUtil';
 import OpenAPIService from '../services/OpenAPIService';
 import LoggingService from '../services/LoggingService';
 import ExperimentRunner from './ExperimentRunner';
+import AbstractPatternResolver from '../pattern/AbstractPatternResolver';
 
 export default class BenchmarkController {
     private specification: BenchmarkSpecification;
@@ -16,6 +17,7 @@ export default class BenchmarkController {
 
     public start() {
         this.initializeServices()
+            .then(() => this.initializePatternResolver())
             .then(() => {
                 LoggingService.log('All services initialized.');
                 this.preLoad();
@@ -44,22 +46,16 @@ export default class BenchmarkController {
     }
 
     private initializeServices(): Promise<any> {
-        return Promise.all([
-            PolyfillUtil.initialize(),
-            OpenAPIService.initialize(this.openAPIInput, {}),
-            LoggingService.initialize()
-        ]);
+        return Promise.all([PolyfillUtil.initialize(), OpenAPIService.initialize(this.openAPIInput, {}), LoggingService.initialize()]);
+    }
+
+    private initializePatternResolver(): Promise<any> {
+        return AbstractPatternResolver.initialize(this.specification.configuration.patterns, OpenAPIService.specification, OpenAPIService.resources, {});
     }
 
     private runExperiment(): Promise<void> {
-        const patterns = [
-            {
-                name: 'test',
-                sequence: [],
-                weight: 1
-            } as Pattern
-        ];
-        return new ExperimentRunner(patterns).start();
+        const patterns = AbstractPatternResolver.patterns;
+        return ExperimentRunner.initialize(patterns).start();
     }
 
     private preLoad(): Promise<void> {

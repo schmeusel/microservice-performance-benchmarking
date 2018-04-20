@@ -4,26 +4,41 @@ import PatternRequester from './PatternRequester';
 import PatternBuilder from '../workload/PatternBuilder';
 import OpenAPIService from '../services/OpenAPIService';
 
+let patternRequests;
+let pattern;
+
 process.on('message', (message: IPCMessage) => {
     switch (message.type) {
         case IPCMessageType.INIT: {
-            try {
-                const spec = JSON.parse(process.argv[2]);
-                OpenAPIService.initialize(spec, {}).then(() => {
-                    handlePatternReceival(message.data.pattern);
-                });
-            } catch (e) {
-                console.log('could not parse SPEC in pattern runner');
-            }
+            handleInit(message.data.pattern);
+        }
+        case IPCMessageType.START: {
+            handleStart();
         }
     }
 });
 
 function handlePatternReceival(pattern: Pattern) {
-    PatternBuilder.generate(pattern).then(patternRequests => {
-        const requester: PatternRequester = new PatternRequester(pattern.name, patternRequests);
-        requester.run(handleRunDone);
+    PatternBuilder.generate(pattern).then(reqs => {
+        patternRequests = reqs;
     });
+}
+
+function handleInit(mappedPattern: Pattern) {
+    try {
+        pattern = mappedPattern;
+        const spec = JSON.parse(process.argv[2]);
+        OpenAPIService.initialize(spec, {}).then(() => {
+            handlePatternReceival(pattern);
+        });
+    } catch (e) {
+        console.log('Could not parse SPEC in pattern runner');
+    }
+}
+
+function handleStart() {
+    const requester: PatternRequester = new PatternRequester(pattern.name, patternRequests);
+    requester.run(handleRunDone);
 }
 
 function handleRunDone(measurements) {
