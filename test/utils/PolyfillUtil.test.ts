@@ -27,21 +27,23 @@ describe('Test PolyfillUtil', () => {
 
     describe('String.getLastInputParam()', () => {
         it('should return undefined if no input param found', () => {
-            const res1 = '/hello/test'.getLastInputParam();
-            const res2 = 'hello'.getLastInputParam();
-            const res3 = '/hello'.getLastInputParam();
+            const str1 = '/hello/test';
+            const str2 = 'hello';
+            const str3 = '/hello';
 
-            [res1, res2, res3].forEach(result => {
+            [str1, str2, str3].forEach(string => {
+                const result = string.getLastInputParam();
                 expect(result).to.be.undefined;
             });
         });
 
         it('should return the name of the last input param if there is one', () => {
-            const res1 = '/hello/test/${testId}';
-            const res2 = '/hello/{testId}';
-            const res3 = 'hello/${helloId}/test/${testId}';
+            const str1 = '/hello/test/${testId}';
+            const str2 = '/hello/${testId}';
+            const str3 = 'hello/${helloId}/test/${testId}';
 
-            [res1, res2, res3].forEach(result => {
+            [str1, str2, str3].forEach(string => {
+                const result = string.getLastInputParam();
                 expect(result).to.equal('testId');
             });
         });
