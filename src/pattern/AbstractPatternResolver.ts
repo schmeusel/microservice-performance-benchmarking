@@ -192,7 +192,6 @@ class AbstractPatternResolver {
                     return this._openAPISpec.paths[resource.path].get.operationId;
                 }
                 case AbstractPatternElementOperation.READ: {
-                    console.log('handling READ with selector', resource.selector);
                     return this._openAPISpec.paths[`${resource.path}/{${resource.selector}}`].get.operationId;
                 }
                 case AbstractPatternElementOperation.UPDATE: {
