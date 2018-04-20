@@ -96,8 +96,6 @@ class OpenAPIService {
      * @returns {AbstracPatternElementOperation[]}
      */
     private getOperationsForResource(resourcePath: string): AbstractPatternElementOperation[] {
-        console.log('get operations for resource path', resourcePath);
-
         return Object.keys(this.specification.paths)
             .map(path => {
                 const isSame = path === resourcePath;
