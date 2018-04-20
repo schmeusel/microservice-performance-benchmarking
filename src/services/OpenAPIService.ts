@@ -23,9 +23,7 @@ class OpenAPIService {
 
     public get resources(): Resource[] {
         if (!this._resources) {
-            throw new OpenAPIError(
-                'Service needs to be initialized first, so that the resource discovery can be initiated.'
-            );
+            throw new OpenAPIError('Service needs to be initialized first, so that the resource discovery can be initiated.');
         }
         return this._resources;
     }
@@ -83,6 +81,7 @@ class OpenAPIService {
             return {
                 name: resourcePath.replace('/', ''),
                 path: resourcePath,
+                selector: this.getAccessorForResource(resourcePath),
                 operations: this.getOperationsForResource(resourcePath),
                 subResources: this.resolveResourcePath(resourcePath)
             } as Resource;
@@ -97,15 +96,13 @@ class OpenAPIService {
      * @returns {AbstracPatternElementOperation[]}
      */
     private getOperationsForResource(resourcePath: string): AbstractPatternElementOperation[] {
+        console.log('get operations for resource path', resourcePath);
+
         return Object.keys(this.specification.paths)
             .map(path => {
                 const isSame = path === resourcePath;
-                const hasResourceAccessor =
-                    resourcePath.split('/').length === path.split('/').length + 1 &&
-                    path
-                        .split('/')
-                        .pop()
-                        .endsWithInputParam();
+                const hasResourceAccessor = resourcePath.split('/').length + 1 === path.split('/').length && !!path.getLastInputParam();
+
                 if (isSame || hasResourceAccessor) {
                     return Object.keys(this.specification.paths[path])
                         .filter(methodKey => methodKey.toUpperCase() in RequestMethod)
@@ -119,6 +116,13 @@ class OpenAPIService {
             .reduce((arr, valOrArr) => (Array.isArray(valOrArr) ? [...arr, ...valOrArr] : [...arr, valOrArr]), []);
     }
 
+    private getAccessorForResource(resourcePath: string): string {
+        return Object.keys(this.specification.paths)
+            .filter(path => path.startsWith(resourcePath))
+            .filter(path => path.split('/').length - 1 === resourcePath.split('/').length && path.endsWithInputParam())
+            .reduce((acc, remainingPath) => remainingPath.getLastInputParam(), undefined);
+    }
+
     /**
      * Recursively resolve a path to a collection of {Resource[]}
      *
@@ -129,10 +133,11 @@ class OpenAPIService {
             const startsWithGivenPath = path.startsWith(resourcePath);
             const pathParts = path.split('/');
             const isScanOperation = pathParts.length === resourcePath.split('/').length + 2;
+            // const isAccessorOperation = pathParts.length - 1 === resourcePath.split('/').length && !!path.getLastInputParam
             const hasParamInputAtEndRegex = new RegExp(resourcePath.replace('$', '\\$') + '/\\${.*}$');
-            const isReadOperation = path.match(hasParamInputAtEndRegex);
+            const isAccessorOperation = path.match(hasParamInputAtEndRegex);
 
-            return startsWithGivenPath && (isScanOperation || isReadOperation);
+            return startsWithGivenPath && (isScanOperation || isAccessorOperation);
         });
 
         if (!subResources.length) {

@@ -8,12 +8,12 @@ describe('Test PolyfillUtil', () => {
 
     describe('String.endsWithInputParam()', () => {
         it('should correctly tell whether a string ends with some sort of input param', () => {
-            const correctRes1 = '/users/${userId}'.endsWithInputParam();
-            const correctRes2 = '/users/${userId}/hallo/${pet}'.endsWithInputParam();
+            const correctRes1 = '/users/{userId}'.endsWithInputParam();
+            const correctRes2 = '/users/{userId}/hallo/${pet}'.endsWithInputParam();
 
             const falseRes1 = '/users'.endsWithInputParam();
-            const falseRes2 = '/users/${id}/moin'.endsWithInputParam();
-            const falseRes3 = '/users/test${id}'.endsWithInputParam();
+            const falseRes2 = '/users/{id}/moin'.endsWithInputParam();
+            const falseRes3 = '/users/test{id}'.endsWithInputParam();
 
             [correctRes1, correctRes2].forEach(result => {
                 expect(result).to.be.true;
@@ -38,9 +38,9 @@ describe('Test PolyfillUtil', () => {
         });
 
         it('should return the name of the last input param if there is one', () => {
-            const str1 = '/hello/test/${testId}';
-            const str2 = '/hello/${testId}';
-            const str3 = 'hello/${helloId}/test/${testId}';
+            const str1 = '/hello/test/{testId}';
+            const str2 = '/hello/{testId}';
+            const str3 = 'hello/{helloId}/test/{testId}';
 
             [str1, str2, str3].forEach(string => {
                 const result = string.getLastInputParam();

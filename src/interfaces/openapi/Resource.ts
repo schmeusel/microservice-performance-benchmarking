@@ -6,4 +6,4 @@ export default interface Resource {
     selector?: string;
     operations: AbstractPatternElementOperation[];
     subResources?: Resource[];
-};
+}

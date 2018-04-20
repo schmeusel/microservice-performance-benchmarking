@@ -11,7 +11,7 @@ describe('Test OpenAPIUtil', () => {
 
     describe('mapHttpMethodToElementOperation(...)', () => {
         it('should map correct methods and paths to abstract operation elements', () => {
-            const pathMock = '/users/${userId}';
+            const pathMock = '/users/{userId}';
 
             const putResult = mapHttpMethodToElementOperation(pathMock, 'put');
             const postResult = mapHttpMethodToElementOperation(pathMock, 'post');
@@ -22,7 +22,7 @@ describe('Test OpenAPIUtil', () => {
         });
 
         it('should be able to differentiate between READ and SCAN depending on the path', () => {
-            const readPath = '/users/${id}';
+            const readPath = '/users/{id}';
             const getResult = mapHttpMethodToElementOperation(readPath, 'get');
 
             const scanPath = '/users';

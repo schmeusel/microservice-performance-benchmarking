@@ -1,10 +1,6 @@
 import { expect } from 'chai';
 import AbstractPatternResolver from '../../src/pattern/AbstractPatternResolver';
-import {
-    AbstractPatternElementOperation,
-    PatternElementSelector,
-    PatternElementOutputType
-} from '../../src/interfaces';
+import { AbstractPatternElementOperation, PatternElementSelector, PatternElementOutputType } from '../../src/interfaces';
 
 describe('Test AbstractPatternResolver', () => {
     describe('initialize(...)', () => {
@@ -36,7 +32,7 @@ describe('Test AbstractPatternResolver', () => {
                             operationId: 'listUsers'
                         }
                     },
-                    '/user/${userId}': {
+                    '/user/{userId}': {
                         get: {
                             operationId: 'getUser'
                         }
