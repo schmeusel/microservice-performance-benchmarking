@@ -1,4 +1,5 @@
 import {
+    Pattern,
     PatternElementRequest,
     PatternResultMeasurement,
     RequestMethod,
@@ -6,13 +7,14 @@ import {
 } from '../interfaces/index';
 import OpenAPIService from '../services/OpenAPIService';
 import LoggingService from '../services/LoggingService';
+import {mapOutputTypeAndMethodToOperation} from '../utils/OpenAPIUtil';
 
 export default class PatternRequester {
     private measurements: PatternResultMeasurement[];
-    private pattern: string;
+    private pattern: Pattern;
     private requests: PatternElementRequest[];
 
-    constructor(pattern: string, requests: PatternElementRequest[]) {
+    constructor(pattern: Pattern, requests: PatternElementRequest[]) {
         this.pattern = pattern;
         this.requests = requests;
         this.measurements = [];
@@ -34,14 +36,16 @@ export default class PatternRequester {
     private sendRequest(requestToSend: PatternElementRequest, callback: () => void): void {
         OpenAPIService.sendRequest(requestToSend, (error, res) => {
             if (error) {
-                console.log('err', error);
+                console.log('err', error); // TODO error handling
             }
 
+            const method = res.request.method.toUpperCase() as RequestMethod;
+            const outputType = this.pattern.sequence[requestToSend.patternIndex].outputType;
             const measurement: PatternResultMeasurement = {
-                pattern: this.pattern,
+                pattern: this.pattern.name,
                 status: res.statusCode,
-                method: res.request.method.toUpperCase() as RequestMethod, // TODO use real one
-                operation: AbstractPatternElementOperation.CREATE, // TODO use real one
+                method: method,
+                operation: mapOutputTypeAndMethodToOperation(outputType, method)
                 url: res.request.uri.href,
                 timestampStart: res.timestampStart,
                 timestampEnd: res.timestampEnd

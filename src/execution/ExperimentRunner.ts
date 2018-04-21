@@ -1,6 +1,5 @@
 import { fork, ChildProcess } from 'child_process';
 import * as path from 'path';
-import PatternRequester from './PatternRequester';
 import LoggingService from '../services/LoggingService';
 import { Pattern, PatternElementRequest, IPCMessage, IPCMessageType } from '../interfaces';
 import PatternBuilder from '../workload/PatternBuilder';
@@ -30,7 +29,9 @@ class ExperimentRunner extends EventEmitter {
     start(): Promise<void> {
         return new Promise((resolve, reject) => {
             this.patterns.forEach(pattern => {
-                const worker = fork(path.resolve(__dirname, 'PatternRunner.js'), [JSON.stringify(OpenAPIService.specification)]);
+                const worker = fork(path.resolve(__dirname, 'PatternRunner.js'), [
+                    JSON.stringify(OpenAPIService.specification)
+                ]);
                 this.workersAlive += 1;
                 worker.on('message', this.handleMessage);
                 worker.on('exit', this.handleWorkerDone(resolve));

@@ -1,11 +1,11 @@
-import { IPCMessage, IPCMessageType, Pattern } from '../interfaces/index';
+import { IPCMessage, IPCMessageType, Pattern, PatternElementRequest } from '../interfaces/index';
 import * as path from 'path';
 import PatternRequester from './PatternRequester';
 import PatternBuilder from '../workload/PatternBuilder';
 import OpenAPIService from '../services/OpenAPIService';
 
-let patternRequests;
-let pattern;
+let patternRequests: PatternElementRequest[];
+let pattern: Pattern;
 
 process.on('message', (message: IPCMessage) => {
     switch (message.type) {
@@ -37,7 +37,7 @@ function handleInit(mappedPattern: Pattern) {
 }
 
 function handleStart() {
-    const requester: PatternRequester = new PatternRequester(pattern.name, patternRequests);
+    const requester: PatternRequester = new PatternRequester(pattern, patternRequests);
     requester.run(handleRunDone);
 }
 
