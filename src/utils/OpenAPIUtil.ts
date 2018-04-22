@@ -23,10 +23,14 @@ export function mapHttpMethodToElementOperation(path: string, method: string): A
 }
 
 export function mapOutputTypeAndMethodToOperation(outputType: PatternElementOutputType, method: RequestMethod) {
-    switch (method.toUpperCase() {
+    switch (method.toUpperCase()) {
         case RequestMethod.GET: {
-            if (outputType === PatternElementOutputType.LIST) return AbstractPatternElementOperation.SCAN;
-            if (outputType === PatternElementOutputType.ITEM) return AbstractPatternElementOperation.READ;
+            if (outputType === PatternElementOutputType.LIST) {
+                return AbstractPatternElementOperation.SCAN;
+            }
+            if (outputType === PatternElementOutputType.ITEM) {
+                return AbstractPatternElementOperation.READ;
+            }
         }
         case RequestMethod.POST: {
             return AbstractPatternElementOperation.CREATE;

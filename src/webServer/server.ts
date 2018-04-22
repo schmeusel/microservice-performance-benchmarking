@@ -23,7 +23,6 @@ function handlePatternResultMeasurement(measurement: PatternResultMeasurement) {
     io.emit('SOCKET_MEASUREMENT', measurement);
 }
 
-app.use(morgan());
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', (req, res) => {

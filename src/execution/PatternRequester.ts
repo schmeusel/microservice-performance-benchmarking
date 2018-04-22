@@ -7,7 +7,7 @@ import {
 } from '../interfaces/index';
 import OpenAPIService from '../services/OpenAPIService';
 import LoggingService from '../services/LoggingService';
-import {mapOutputTypeAndMethodToOperation} from '../utils/OpenAPIUtil';
+import { mapOutputTypeAndMethodToOperation } from '../utils/OpenAPIUtil';
 
 export default class PatternRequester {
     private measurements: PatternResultMeasurement[];
@@ -45,7 +45,7 @@ export default class PatternRequester {
                 pattern: this.pattern.name,
                 status: res.statusCode,
                 method: method,
-                operation: mapOutputTypeAndMethodToOperation(outputType, method)
+                operation: mapOutputTypeAndMethodToOperation(outputType, method),
                 url: res.request.uri.href,
                 timestampStart: res.timestampStart,
                 timestampEnd: res.timestampEnd
