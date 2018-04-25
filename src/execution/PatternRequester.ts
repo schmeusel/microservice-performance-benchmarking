@@ -1,10 +1,4 @@
-import {
-    Pattern,
-    PatternElementRequest,
-    PatternResultMeasurement,
-    RequestMethod,
-    AbstractPatternElementOperation
-} from '../interfaces/index';
+import { Pattern, PatternElementRequest, PatternResultMeasurement, RequestMethod, AbstractPatternElementOperation } from '../interfaces/index';
 import OpenAPIService from '../services/OpenAPIService';
 import LoggingService from '../services/LoggingService';
 import { mapOutputTypeAndMethodToOperation } from '../utils/OpenAPIUtil';
@@ -20,48 +14,55 @@ export default class PatternRequester {
         this.measurements = [];
     }
 
-    private asyncLoop(index: number, callback: (any) => void): void {
+    private asyncLoop(index: number, resolve: (measurementResults: PatternResultMeasurement[]) => void, reject): void {
         if (index < this.requests.length) {
             const currentRequest: PatternElementRequest = this.requests[index];
-            this.sendRequest(currentRequest, () => {
-                setTimeout(() => {
-                    this.asyncLoop(index + 1, callback);
-                }, currentRequest.wait);
-            });
+            this.sendRequest(currentRequest)
+                .then(() => {
+                    setTimeout(() => {
+                        this.asyncLoop(index + 1, resolve, reject);
+                    }, currentRequest.wait);
+                })
+                .catch(err => {
+                    reject(err);
+                });
         } else {
-            callback(this.measurements);
+            resolve(this.measurements);
         }
     }
 
-    private sendRequest(requestToSend: PatternElementRequest, callback: () => void): void {
-        OpenAPIService.sendRequest(requestToSend, (error, res) => {
-            if (error) {
-                console.log('err', error); // TODO error handling
-            }
+    private sendRequest(requestToSend: PatternElementRequest): Promise<void> {
+        return new Promise((resolve, reject) => {
+            OpenAPIService.sendRequest(requestToSend, (error, res) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
 
-            const method = res.request.method.toUpperCase() as RequestMethod;
-            const outputType = this.pattern.sequence[requestToSend.patternIndex].outputType;
-            const measurement: PatternResultMeasurement = {
-                pattern: this.pattern.name,
-                status: res.statusCode,
-                method: method,
-                operation: mapOutputTypeAndMethodToOperation(outputType, method),
-                url: res.request.uri.href,
-                timestampStart: res.timestampStart,
-                timestampEnd: res.timestampEnd
-            };
-            this.addMeasurement(measurement);
-            callback();
+                const method = res.request.method.toUpperCase() as RequestMethod;
+                const outputType = this.pattern.sequence[requestToSend.patternIndex].outputType;
+                const measurement: PatternResultMeasurement = {
+                    pattern: this.pattern.name,
+                    status: res.statusCode,
+                    method: method,
+                    operation: mapOutputTypeAndMethodToOperation(outputType, method),
+                    url: res.request.uri.href,
+                    timestampStart: res.timestampStart,
+                    timestampEnd: res.timestampEnd
+                };
+                this.addMeasurement(measurement);
+                resolve();
+            });
         });
     }
 
-    public run(callback: (any) => any): void {
-        this.asyncLoop(0, callback);
+    public run(): Promise<PatternResultMeasurement[]> {
+        return new Promise((resolve, reject) => {
+            this.asyncLoop(0, resolve, reject);
+        });
     }
 
     private addMeasurement(measurement: PatternResultMeasurement): void {
         this.measurements.push(measurement);
-        // this.resultCallback(measurement);
-        // LoggingService.addMeasurement(measurement);
     }
 }

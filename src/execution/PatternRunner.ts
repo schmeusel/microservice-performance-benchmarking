@@ -1,50 +1,70 @@
-import { IPCMessage, IPCMessageType, Pattern, PatternElementRequest } from '../interfaces/index';
+import { IPCMessage, IPCMessageType, Pattern, PatternElementRequest, OpenAPISpecification } from '../interfaces/index';
 import * as path from 'path';
+import * as fs from 'fs';
+import * as readline from 'readline';
 import PatternRequester from './PatternRequester';
 import PatternBuilder from '../workload/PatternBuilder';
 import OpenAPIService from '../services/OpenAPIService';
+import config from '../config';
 
-let patternRequests: PatternElementRequest[];
-let pattern: Pattern;
+let patternRequests: PatternElementRequest[] = [];
 
 process.on('message', (message: IPCMessage) => {
     switch (message.type) {
-        case IPCMessageType.INIT: {
-            handleInit(message.data.pattern);
-        }
         case IPCMessageType.START: {
-            handleStart();
+            handleStart(message.data);
         }
     }
 });
 
-function handlePatternReceival(pattern: Pattern) {
-    PatternBuilder.generate(pattern).then(reqs => {
-        patternRequests = reqs;
+// TOOD type options more strongly
+function handleStart({ openAPISpec, pattern, options }: { openAPISpec: OpenAPISpecification; pattern: Pattern; options: object }) {
+    OpenAPIService.initialize(openAPISpec, options)
+        .then(() => {
+            readline
+                .createInterface({
+                    input: fs.createReadStream(config.logging.workloads.filename(pattern.name), 'utf8')
+                })
+                .on('line', line => {
+                    handleLineRead(line, pattern);
+                })
+                .on('close', () => {});
+        })
+        .catch(err => {
+            console.log('error during initializtion of openapis ervice');
+        });
+}
+
+function handleLineRead(line: string, pattern: Pattern): Promise<void> {
+    return new Promise((resolve, reject) => {
+        if (line === config.logging.workloads.delimiter) {
+            const requester: PatternRequester = new PatternRequester(pattern, patternRequests);
+            requester
+                .run()
+                .then(measurements => {
+                    handleRoundDone(measurements);
+                    resolve();
+                })
+                .catch(err => {
+                    // TODO error handling
+                    console.log('error while executing pattern requests');
+                    resolve();
+                });
+            patternRequests = [];
+        } else {
+            patternRequests.push();
+            resolve();
+        }
     });
 }
 
-function handleInit(mappedPattern: Pattern) {
-    try {
-        pattern = mappedPattern;
-        const spec = JSON.parse(process.argv[2]);
-        OpenAPIService.initialize(spec, {}).then(() => {
-            handlePatternReceival(pattern);
-        });
-    } catch (e) {
-        console.log('Could not parse SPEC in pattern runner');
-    }
-}
-
-function handleStart() {
-    const requester: PatternRequester = new PatternRequester(pattern, patternRequests);
-    requester.run(handleRunDone);
-}
-
-function handleRunDone(measurements) {
+function handleRoundDone(measurements) {
     process.send({
         type: IPCMessageType.RESULT,
         data: measurements
     });
+}
+
+function handleDone() {
     process.exit(0);
 }

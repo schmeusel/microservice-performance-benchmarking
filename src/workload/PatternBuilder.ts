@@ -27,9 +27,10 @@ class PatternBuilder {
         });
     }
 
-    private generatePatternRequest(patternElement: PatternElement, index: number): Promise<PatternElementRequest> {
+    private generatePatternRequest(patternName, patternElement: PatternElement, index: number): Promise<PatternElementRequest> {
         const opObject: OperationObject = OpenAPIService.getSpecificationByOperationId(patternElement.operationId);
         const request: PatternElementRequest = {
+            patternName: patternName,
             patternIndex: index,
             operationId: patternElement.operationId,
             params: this.generateClientParamsObject(opObject),
@@ -40,27 +41,9 @@ class PatternBuilder {
 
     public generate(pattern: Pattern): Promise<PatternElementRequest[]> {
         const promises: Promise<PatternElementRequest>[] = pattern.sequence.map((patternElement, i) => {
-            return this.generatePatternRequest(patternElement, i);
+            return this.generatePatternRequest(pattern.name, patternElement, i);
         });
         return Promise.all(promises);
-        // return Promise.resolve([
-        //     {
-        //         patternIndex: 0,
-        //         operationId: 'getPetById',
-        //         parameters: {
-        //             petId: 12
-        //         },
-        //         wait: 1500
-        //     },
-        //     {
-        //         patternIndex: 1,
-        //         operationId: 'getOrderById',
-        //         parameters: {
-        //             orderId: 12
-        //         },
-        //         wait: 300
-        //     }
-        // ]);
     }
 }
 

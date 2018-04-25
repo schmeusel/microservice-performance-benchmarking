@@ -7,6 +7,10 @@ export default {
         },
         systemEvents: {
             filename: 'systemEvents.log'
+        },
+        workloads: {
+            filename: (patternName: string) => `${patternName}.workload`,
+            delimiter: '---------------'
         }
     }
 };

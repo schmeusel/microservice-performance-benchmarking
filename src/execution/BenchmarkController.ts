@@ -19,28 +19,28 @@ export default class BenchmarkController {
         this.initializeServices()
             .then(() => this.initializePatternResolver())
             .then(() => {
-                LoggingService.log('All services initialized.');
+                LoggingService.logEvent('All services initialized.');
                 this.preLoad();
             })
             .then(() => {
-                LoggingService.log('Pre loading finished.');
+                LoggingService.logEvent('Pre loading finished.');
                 return this.runExperiment();
             })
             .then(() => {
-                LoggingService.log('Experiment finished.');
+                LoggingService.logEvent('Experiment finished.');
                 return this.processResults();
             })
             .then((wasSuccessful: boolean) => {
-                LoggingService.log('Results processed.');
+                LoggingService.logEvent('Results processed.');
                 this.prepareShutdown(wasSuccessful);
                 return this.cleanUp();
             })
             .then(() => {
-                LoggingService.log('Clean up done.');
+                LoggingService.logEvent('Clean up done.');
             })
             .catch(err => {
                 console.error(err);
-                LoggingService.log('Initialization error');
+                LoggingService.logEvent('Initialization error');
                 this.prepareShutdown(false);
             });
     }
