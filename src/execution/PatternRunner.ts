@@ -7,7 +7,8 @@ import PatternBuilder from '../workload/PatternBuilder';
 import OpenAPIService from '../services/OpenAPIService';
 import config from '../config';
 
-let patternRequests: PatternElementRequest[] = [];
+let patternRequests: (PatternElementRequest | string)[] = [];
+let rl: readline.ReadLine;
 
 process.on('message', (message: IPCMessage) => {
     switch (message.type) {
@@ -21,7 +22,7 @@ process.on('message', (message: IPCMessage) => {
 function handleStart({ openAPISpec, pattern, options }: { openAPISpec: OpenAPISpecification; pattern: Pattern; options: object }) {
     OpenAPIService.initialize(openAPISpec, options)
         .then(() => {
-            readline
+            rl = readline
                 .createInterface({
                     input: fs.createReadStream(config.logging.workloads.filename(pattern.name), 'utf8')
                 })
@@ -35,27 +36,32 @@ function handleStart({ openAPISpec, pattern, options }: { openAPISpec: OpenAPISp
         });
 }
 
-function handleLineRead(line: string, pattern: Pattern): Promise<void> {
-    return new Promise((resolve, reject) => {
-        if (line === config.logging.workloads.delimiter) {
-            const requester: PatternRequester = new PatternRequester(pattern, patternRequests);
+function handleLineRead(line: string, pattern: Pattern): void {
+    if (line === config.logging.workloads.delimiter) {
+        patternRequests.push(line);
+        const indexOfFirstDelimiter = patternRequests.findIndex(el => el === config.logging.workloads.delimiter);
+        const requests = patternRequests.slice(0, indexOfFirstDelimiter) as PatternElementRequest[];
+
+        if (indexOfFirstDelimiter > -1) {
+            rl.pause();
+
+            patternRequests = patternRequests.slice(indexOfFirstDelimiter + 1);
+
+            const requester: PatternRequester = new PatternRequester(pattern, requests);
             requester
                 .run()
                 .then(measurements => {
                     handleRoundDone(measurements);
-                    resolve();
+                    rl.resume();
                 })
                 .catch(err => {
                     // TODO error handling
-                    console.log('error while executing pattern requests');
-                    resolve();
+                    console.log('error while executing pattern requests', err);
                 });
-            patternRequests = [];
-        } else {
-            patternRequests.push();
-            resolve();
         }
-    });
+    } else {
+        patternRequests.push(JSON.parse(line));
+    }
 }
 
 function handleRoundDone(measurements) {
