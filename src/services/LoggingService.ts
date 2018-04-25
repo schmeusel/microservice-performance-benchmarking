@@ -110,7 +110,7 @@ class LoggingService {
             if (i === patternRequests.length - 1) {
                 this[`_${patternRequest.patternName}Logger`].log({
                     level: 'info',
-                    message: config.logging.workloads.delimiter;
+                    message: config.logging.workloads.delimiter
                 });
             }
         });
