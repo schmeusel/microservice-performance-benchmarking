@@ -23,9 +23,7 @@ export default class PatternRequester {
                         this.asyncLoop(index + 1, resolve, reject);
                     }, currentRequest.wait);
                 })
-                .catch(err => {
-                    reject(err);
-                });
+                .catch(reject);
         } else {
             resolve(this.measurements);
         }
@@ -33,26 +31,23 @@ export default class PatternRequester {
 
     private sendRequest(requestToSend: PatternElementRequest): Promise<void> {
         return new Promise((resolve, reject) => {
-            OpenAPIService.sendRequest(requestToSend, (error, res) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-
-                const method = res.request.method.toUpperCase() as RequestMethod;
-                const outputType = this.pattern.sequence[requestToSend.patternIndex].outputType;
-                const measurement: PatternResultMeasurement = {
-                    pattern: this.pattern.name,
-                    status: res.statusCode,
-                    method: method,
-                    operation: mapOutputTypeAndMethodToOperation(outputType, method),
-                    url: res.request.uri.href,
-                    timestampStart: res.timestampStart,
-                    timestampEnd: res.timestampEnd
-                };
-                this.addMeasurement(measurement);
-                resolve();
-            });
+            OpenAPIService.sendRequest(requestToSend)
+                .then(response => {
+                    const method = response.request.method.toUpperCase() as RequestMethod;
+                    const outputType = this.pattern.sequence[requestToSend.patternIndex].outputType;
+                    const measurement: PatternResultMeasurement = {
+                        pattern: this.pattern.name,
+                        status: response.statusCode,
+                        method: method,
+                        operation: mapOutputTypeAndMethodToOperation(outputType, method),
+                        url: response.request.uri.href,
+                        timestampStart: response.timestampStart,
+                        timestampEnd: response.timestampEnd
+                    };
+                    this.addMeasurement(measurement);
+                    resolve();
+                })
+                .catch(reject);
         });
     }
 

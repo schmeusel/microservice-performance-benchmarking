@@ -44,29 +44,28 @@ class OpenAPIService {
         });
     }
 
-    public sendRequest(params, callback) {
+    public sendRequest(params): Promise<any> {
         if (!params.operationId || !params.operationId.length) {
             throw new OpenAPIError('operationId is required for params.');
         }
-        this.client
-            .execute({ ...params })
-            .then(response => {
-                callback(null, response);
-            })
-            .catch(callback);
+        return this.client.execute({ ...params });
     }
 
     public getSpecificationByOperationId(operationId: string): OperationObject {
         const pathsSpec: PathsObject = this.specification.paths;
+        let operationObject: OperationObject = undefined;
+
+        // TODO more functional
         Object.keys(pathsSpec).forEach(pathName => {
             Object.keys(pathsSpec[pathName]).forEach(op => {
                 if (pathsSpec[pathName][op].operationId === operationId) {
-                    return pathsSpec[pathName][op];
+                    operationObject = pathsSpec[pathName][op];
+                    return;
                 }
             });
         });
 
-        return undefined;
+        return operationObject;
     }
 
     private hierarchizeResources(): Resource[] {
