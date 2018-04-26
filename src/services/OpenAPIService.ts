@@ -111,7 +111,8 @@ class OpenAPIService {
                 }
                 return [];
             })
-            .reduce((arr, valOrArr) => (Array.isArray(valOrArr) ? [...arr, ...valOrArr] : [...arr, valOrArr]), []);
+            .reduce((arr, valOrArr) => (Array.isArray(valOrArr) ? [...arr, ...valOrArr] : [...arr, valOrArr]), [])
+            .filter((operation, i, arr) => arr.indexOf(operation) === i);
     }
 
     private getAccessorForResource(resourcePath: string): string {
