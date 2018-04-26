@@ -1,4 +1,4 @@
-import jsf from 'json-schema-faker';
+import * as jsf from 'json-schema-faker';
 import { PatternElementRequest, PatternElement, Pattern } from '../interfaces/index';
 import { generateDistributionData } from '../services/IntervalDistributionService';
 import { SchemaObject, OperationObject } from '../interfaces/openapi/OpenAPISpecification';
@@ -27,21 +27,26 @@ class PatternBuilder {
         });
     }
 
-    private generatePatternRequest(patternName, patternElement: PatternElement, index: number): Promise<PatternElementRequest> {
+    private generatePatternRequest(patternName, patternElement: PatternElement, index: number, round: number): Promise<PatternElementRequest> {
         const opObject: OperationObject = OpenAPIService.getSpecificationByOperationId(patternElement.operationId);
-        const request: PatternElementRequest = {
-            patternName: patternName,
-            patternIndex: index,
-            operationId: patternElement.operationId,
-            params: this.generateClientParamsObject(opObject),
-            wait: patternElement.wait
-        };
-        throw new Error('generatePatternRequest not implemented yet.');
+        return new Promise((resolve: (req: PatternElementRequest) => void, reject) => {
+            this.generateClientParamsObject(opObject).then(params => {
+                const request: PatternElementRequest = {
+                    patternName: patternName,
+                    patternIndex: index,
+                    operationId: patternElement.operationId,
+                    params: params,
+                    wait: patternElement.wait,
+                    round: round
+                };
+                resolve(request);
+            });
+        });
     }
 
-    public generate(pattern: Pattern): Promise<PatternElementRequest[]> {
+    public generate(pattern: Pattern, round: number): Promise<PatternElementRequest[]> {
         const promises: Promise<PatternElementRequest>[] = pattern.sequence.map((patternElement, i) => {
-            return this.generatePatternRequest(pattern.name, patternElement, i);
+            return this.generatePatternRequest(pattern.name, patternElement, i, round);
         });
         return Promise.all(promises);
     }

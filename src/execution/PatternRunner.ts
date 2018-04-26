@@ -6,8 +6,9 @@ import PatternRequester from './PatternRequester';
 import PatternBuilder from '../workload/PatternBuilder';
 import OpenAPIService from '../services/OpenAPIService';
 import config from '../config';
+import PolyfillUtil from '../utils/PolyfillUtil';
 
-let patternRequests: (PatternElementRequest | string)[] = [];
+let patternRequests: PatternElementRequest[] = [];
 let rl: readline.ReadLine;
 
 process.on('message', (message: IPCMessage) => {
@@ -20,6 +21,7 @@ process.on('message', (message: IPCMessage) => {
 
 // TOOD type options more strongly
 function handleStart({ openAPISpec, pattern, options }: { openAPISpec: OpenAPISpecification; pattern: Pattern; options: object }) {
+    PolyfillUtil.initialize();
     OpenAPIService.initialize(openAPISpec, options)
         .then(() => {
             rl = readline
@@ -34,36 +36,31 @@ function handleStart({ openAPISpec, pattern, options }: { openAPISpec: OpenAPISp
                 });
         })
         .catch(err => {
-            console.log('error during initializtion of openapis ervice');
+            console.log('error during initializtion of openapis ervice', err);
         });
 }
 
 function handleLineRead(pattern: Pattern) {
+    let currentRound = 0;
     return line => {
-        if (line === config.logging.workloads.delimiter) {
-            patternRequests.push(line);
-            const indexOfFirstDelimiter = patternRequests.findIndex(el => el === config.logging.workloads.delimiter);
-            const requests = patternRequests.slice(0, indexOfFirstDelimiter) as PatternElementRequest[];
+        const request = JSON.parse(line) as PatternElementRequest;
+        patternRequests.push(request);
+        if (request.round !== currentRound) {
+            const indexOfNextPatternElement = patternRequests.length - 2;
+            rl.pause();
 
-            if (indexOfFirstDelimiter > -1) {
-                rl.pause();
+            const requests = patternRequests.slice(0, indexOfNextPatternElement);
+            patternRequests = patternRequests.slice(indexOfNextPatternElement + 1);
 
-                patternRequests = patternRequests.slice(indexOfFirstDelimiter + 1);
-
-                const requester: PatternRequester = new PatternRequester(pattern, requests);
-                requester
-                    .run()
-                    .then(measurements => {
-                        handleRoundDone(measurements);
-                        rl.resume();
-                    })
-                    .catch(err => {
-                        // TODO error handling
-                        console.log('error while executing pattern requests', err);
-                    });
-            }
-        } else {
-            patternRequests.push(JSON.parse(line));
+            const requester: PatternRequester = new PatternRequester(pattern, requests);
+            requester
+                .run()
+                .then(measurements => {
+                    handleRoundDone(measurements);
+                    currentRound = currentRound + 1;
+                    rl.resume();
+                })
+                .catch(handleError);
         }
     };
 }
@@ -72,6 +69,13 @@ function handleRoundDone(measurements) {
     process.send({
         type: IPCMessageType.RESULT,
         data: measurements
+    });
+}
+
+function handleError(err) {
+    process.send({
+        type: IPCMessageType.ERROR,
+        data: err
     });
 }
 

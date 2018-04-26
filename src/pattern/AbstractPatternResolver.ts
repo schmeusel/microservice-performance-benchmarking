@@ -12,6 +12,7 @@ import {
 import * as IntervalDistributionService from '../services/IntervalDistributionService';
 import PatternResolverError from '../exceptions/PatternResolverError';
 import { AbstractPatternElementExtended } from '../interfaces/patterns/AbstractPatternElement';
+import OpenAPIService from '../services/OpenAPIService';
 
 class AbstractPatternResolver {
     private _patterns: Pattern[];
@@ -82,7 +83,7 @@ class AbstractPatternResolver {
         const dependenciesWithResources = dependencyStructure.map(dependencyLine => {
             const dependencyDepth = this.getDependencyDepth(dependencyLine);
             const possibleResources: Resource[] = this.getResourcesWithMinimumDepthLevel(this._resources, dependencyDepth);
-            return this.mapAbstractPatternToResources(dependencyLine, 0, possibleResources);
+            return this.mapAbstractPatternToResources(dependencyLine, 0, possibleResources, pattern);
         });
 
         const flattenedElements = dependenciesWithResources.reduce((flattened, dependencyLine) => [...flattened, ...dependencyLine], []);
@@ -125,18 +126,33 @@ class AbstractPatternResolver {
     private mapAbstractPatternToResources(
         dependencyLine: AbstractPatternElementExtended[],
         index: number,
-        possibleResources: Resource[]
+        possibleResources: Resource[],
+        abstractPattern: AbstractPattern
     ): AbstractPatternElementExtended[] {
         if (index > dependencyLine.length - 1) {
             return dependencyLine;
         }
 
         const element = dependencyLine[index];
+        if (element.id) {
+            const resourceName = this._patternConfiguration[abstractPattern.name] ? this._patternConfiguration[abstractPattern.name][element.id] : '';
+            const resource = this.findResource(possibleResources, resourceName);
+
+            if (!resource) {
+                throw new PatternResolverError(
+                    `The specified identifier "${element.id}" could not be located in the customization object for the pattern "${abstractPattern.name}"`
+                );
+            }
+
+            const intermediate = dependencyLine.map((el, i) => (i === index ? { ...el, resource } : el));
+            return this.mapAbstractPatternToResources(intermediate, index + 1, possibleResources, abstractPattern);
+        }
         if (!element.input) {
             const resourceIndex: number = Math.round(Math.random() * (possibleResources.length - 1));
             const resource = possibleResources[resourceIndex];
+
             const intermediate = dependencyLine.map((el, i) => (i === index ? { ...el, resource } : el));
-            return this.mapAbstractPatternToResources(intermediate, index + 1, possibleResources);
+            return this.mapAbstractPatternToResources(intermediate, index + 1, possibleResources, abstractPattern);
         }
 
         const inputDependencyIndex = dependencyLine.findIndex(patternElement => patternElement.output === element.input);
@@ -147,7 +163,7 @@ class AbstractPatternResolver {
         const inputDependencyResource: Resource = dependencyLine[inputDependencyIndex].resource;
         if (element.operation !== AbstractPatternElementOperation.SCAN) {
             const intermediate = dependencyLine.map((el, i) => (i === index ? { ...el, resource: inputDependencyResource } : el));
-            return this.mapAbstractPatternToResources(intermediate, index + 1, possibleResources);
+            return this.mapAbstractPatternToResources(intermediate, index + 1, possibleResources, abstractPattern);
         }
 
         if (!inputDependencyResource.subResources || !inputDependencyResource.subResources.length) {
@@ -157,7 +173,7 @@ class AbstractPatternResolver {
         const subResourceIndex = Math.round(Math.random() * (inputDependencyResource.subResources.length - 1));
         const subResouce = inputDependencyResource.subResources[subResourceIndex];
         const intermediate = dependencyLine.map((el, i) => (i === index ? { ...el, resource: subResouce } : el));
-        return this.mapAbstractPatternToResources(intermediate, index + 1, possibleResources);
+        return this.mapAbstractPatternToResources(intermediate, index + 1, possibleResources, abstractPattern);
 
         // TODO handle case with given ID for resource
     }
@@ -175,10 +191,10 @@ class AbstractPatternResolver {
             if (resource.name === resourceName) {
                 return resource;
             }
-            if (!!resource.subResources) {
+            if (!!resource.subResources && !!resource.subResources.length) {
                 return this.findResource(resource.subResources, resourceName);
             }
-            return foundResource;
+            throw new PatternResolverError(`Could not find resource with name "${resourceName}" in resources "${JSON.stringify(resources)}"`);
         }, undefined);
     }
 

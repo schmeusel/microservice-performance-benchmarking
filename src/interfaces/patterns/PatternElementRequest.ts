@@ -6,4 +6,5 @@ export default interface PatternElementRequest {
     operationId: string;
     params?: object;
     wait: number;
+    round: number;
 }

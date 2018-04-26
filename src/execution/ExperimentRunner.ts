@@ -16,6 +16,7 @@ class ExperimentRunner extends EventEmitter {
         this.handleMessage = this.handleMessage.bind(this);
         this.handleWorkerDone = this.handleWorkerDone.bind(this);
 
+        this.workers = [];
         this.workersAlive = 0;
         this.workersReady = 0;
     }
@@ -47,8 +48,15 @@ class ExperimentRunner extends EventEmitter {
         switch (message.type) {
             case IPCMessageType.RESULT: {
                 // TODO use constants
+                console.log('result', message.data);
+
                 this.emit('SOCKET_MEASUREMENT', message.data);
                 LoggingService.addMeasurements(message.data);
+                break;
+            }
+            case IPCMessageType.ERROR: {
+                console.log('error in request runner', message.data);
+                break;
             }
         }
     }

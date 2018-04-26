@@ -105,14 +105,6 @@ class LoggingService {
                 level: 'info',
                 request: patternRequest
             });
-
-            // Log the delimiter after the last one
-            if (i === patternRequests.length - 1) {
-                this[`_${patternRequest.patternName}Logger`].log({
-                    level: 'info',
-                    message: config.logging.workloads.delimiter
-                });
-            }
         });
     }
 

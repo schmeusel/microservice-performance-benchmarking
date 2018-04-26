@@ -1,1 +1,32 @@
-{}
+{
+  "configuration": {
+    "totalPatternRequests": 10,
+    "patterns": [
+      {
+        "name": "Scan_And_Delete_Last_SubResource_Item",
+        "sequence": [
+          {
+            "id": "userCreate",
+            "operation": "CREATE",
+            "output": "createdItem",
+            "wait": 200
+          }
+        ],
+        "weight": 2
+      }
+    ]
+  },
+  "condition": {
+    "latency": {
+      "max": {
+        "value": 500,
+        "type": "hard"
+      }
+    }
+  },
+  "customization": {
+    "resources": {
+      "userCreate": "user"
+    }
+  }
+}

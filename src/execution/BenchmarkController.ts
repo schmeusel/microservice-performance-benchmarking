@@ -4,6 +4,7 @@ import OpenAPIService from '../services/OpenAPIService';
 import LoggingService from '../services/LoggingService';
 import ExperimentRunner from './ExperimentRunner';
 import AbstractPatternResolver from '../pattern/AbstractPatternResolver';
+import WorkloadGenerator from '../workload/WorkloadGenerator';
 
 export default class BenchmarkController {
     private specification: BenchmarkSpecification;
@@ -22,6 +23,8 @@ export default class BenchmarkController {
                 LoggingService.logEvent('All services initialized.');
                 this.preLoad();
             })
+            .then(() => this.initializeLoggers())
+            .then(() => this.generateWorkloads())
             .then(() => {
                 LoggingService.logEvent('Pre loading finished.');
                 return this.runExperiment();
@@ -50,12 +53,26 @@ export default class BenchmarkController {
     }
 
     private initializePatternResolver(): Promise<any> {
-        return AbstractPatternResolver.initialize(this.specification.configuration.patterns, OpenAPIService.specification, OpenAPIService.resources, {});
+        const { patterns } = this.specification.configuration;
+        const { customization } = this.specification;
+        const { specification, resources } = OpenAPIService;
+        return AbstractPatternResolver.initialize(patterns, specification, resources, customization);
+    }
+
+    private initializeLoggers(): Promise<any> {
+        const { patterns } = AbstractPatternResolver;
+        return LoggingService.initializeWorkloadLoggers(patterns);
     }
 
     private runExperiment(): Promise<void> {
         const patterns = AbstractPatternResolver.patterns;
         return ExperimentRunner.initialize(patterns).start();
+    }
+
+    private generateWorkloads(): Promise<void> {
+        const { patterns } = AbstractPatternResolver;
+        const { totalPatternRequests } = this.specification.configuration;
+        return WorkloadGenerator.start(patterns, totalPatternRequests);
     }
 
     private preLoad(): Promise<void> {
