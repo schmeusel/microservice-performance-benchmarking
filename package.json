@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "express": "^4.16.3",
+    "fs-extra": "^5.0.0",
     "json-schema-faker": "^0.5.0-rc13",
     "minimist": "^1.2.0",
     "prob.js": "^1.0.6",
@@ -24,7 +25,7 @@
     "request": "^2.85.0",
     "simple-statistics": "^5.3.1",
     "socket.io": "^2.1.0",
-    "swagger-client": "^3.5.1",
+    "swagger-client": "^3.7.2",
     "typescript": "^2.8.1",
     "winston": "^3.0.0-rc3"
   },

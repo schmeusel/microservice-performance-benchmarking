@@ -2,7 +2,6 @@ import * as express from 'express';
 import * as path from 'path';
 import * as socketIO from 'socket.io';
 import * as http from 'http';
-import * as morgan from 'morgan';
 import ExperimentRunner from '../execution/ExperimentRunner';
 import { PatternResultMeasurement } from '../interfaces';
 

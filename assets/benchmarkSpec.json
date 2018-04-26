@@ -3,7 +3,7 @@
     "totalPatternRequests": 10,
     "patterns": [
       {
-        "name": "Scan_And_Delete_Last_SubResource_Item",
+        "name": "createResource",
         "sequence": [
           {
             "id": "userCreate",
@@ -25,7 +25,7 @@
     }
   },
   "customization": {
-    "resources": {
+    "createResource": {
       "userCreate": "user"
     }
   }

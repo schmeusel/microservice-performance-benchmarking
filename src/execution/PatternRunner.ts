@@ -26,7 +26,7 @@ function handleStart({ openAPISpec, pattern, options }: { openAPISpec: OpenAPISp
         .then(() => {
             rl = readline
                 .createInterface({
-                    input: fs.createReadStream(config.logging.workloads.filename(pattern.name), 'utf8')
+                    input: fs.createReadStream(config.logging.loggers.workloads.filename(pattern.name), 'utf8')
                 })
                 .on('line', handleLineRead(pattern))
                 .on('close', handleDone)

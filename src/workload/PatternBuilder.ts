@@ -35,7 +35,7 @@ class PatternBuilder {
                     patternName: patternName,
                     patternIndex: index,
                     operationId: patternElement.operationId,
-                    params: params,
+                    parameters: params,
                     wait: patternElement.wait,
                     round: round
                 };

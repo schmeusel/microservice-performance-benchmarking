@@ -1,5 +1,6 @@
 import * as winston from 'winston';
 import * as fs from 'fs';
+import * as fse from 'fs-extra';
 import { PatternResultMeasurement, PatternElementRequest, Pattern } from '../interfaces/index';
 import LoggingError from '../exceptions/LoggingError';
 import config from '../config';
@@ -28,62 +29,64 @@ class LoggingService {
      * Also, for the log file, print the header line depicting the structure of the CSV file.
      */
     public initialize(): Promise<any> {
-        return Promise.all([this.initializeEventLogger(), this.initializeMeasurementLogger()]);
-    }
-
-    public initializeMeasurementLogger(): Promise<void> {
         return new Promise((resolve, reject) => {
-            fs.unlink(config.logging.measurements.filename, () => {
-                this._measurementLogger = winston.createLogger({
-                    transports: [
-                        new winston.transports.File({
-                            level: 'info',
-                            filename: config.logging.measurements.filename,
-                            format: winston.format.combine(winston.format.printf(this.withMeasurement))
-                        })
-                    ]
-                });
-                this.logMeasurementHeaderLine();
-                resolve();
-            });
+            this.deletePreviousLogs()
+                .then(() => this.createLoggingDirectories())
+                .then(() => {
+                    this.initializeEventLogger();
+                    this.initializeMeasurementLogger();
+                    resolve();
+                })
+                .catch(reject);
         });
     }
 
-    private initializeEventLogger(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            fs.unlink(config.logging.systemEvents.filename, () => {
-                this._eventLogger = winston.createLogger({
-                    transports: [
-                        new winston.transports.File({
-                            level: 'info',
-                            filename: config.logging.systemEvents.filename,
-                            format: winston.format.combine(winston.format.timestamp(), winston.format.printf(this.withTimestamp))
-                        })
-                    ]
-                });
-                resolve();
-            });
+    private deletePreviousLogs(): Promise<void> {
+        return fse.remove(config.logging.directory);
+    }
+
+    private createLoggingDirectories(): Promise<void> {
+        return fse.ensureDir(config.logging.loggers.workloads.directory);
+    }
+
+    public initializeMeasurementLogger(): void {
+        this._measurementLogger = winston.createLogger({
+            transports: [
+                new winston.transports.File({
+                    level: 'info',
+                    filename: config.logging.loggers.measurements.filename,
+                    format: winston.format.combine(winston.format.printf(this.withMeasurement))
+                })
+            ]
+        });
+        this.logMeasurementHeaderLine();
+    }
+
+    private initializeEventLogger(): void {
+        this._eventLogger = winston.createLogger({
+            transports: [
+                new winston.transports.File({
+                    level: 'info',
+                    filename: config.logging.loggers.systemEvents.filename,
+                    format: winston.format.combine(winston.format.timestamp(), winston.format.printf(this.withTimestamp))
+                })
+            ]
         });
     }
 
-    public initializeWorkloadLoggers(patterns: Pattern[]): Promise<any> {
-        return Promise.all(patterns.map(pattern => this.initializeWorkloadLogger(pattern)));
+    public initializeWorkloadLoggers(patterns: Pattern[]): void {
+        patterns.forEach(pattern => this.initializeWorkloadLogger(pattern));
     }
 
-    private initializeWorkloadLogger(pattern: Pattern): Promise<void> {
-        return new Promise((resolve, reject) => {
-            fs.unlink(config.logging.workloads.filename(pattern.name), () => {
-                this[`_${pattern.name}Logger`] = winston.createLogger({
-                    transports: [
-                        new winston.transports.File({
-                            level: 'info',
-                            filename: config.logging.workloads.filename(pattern.name),
-                            format: winston.format.combine(winston.format.printf(this.withPatternRequest))
-                        })
-                    ]
-                });
-                resolve();
-            });
+    private initializeWorkloadLogger(pattern: Pattern): void {
+        this[`_${pattern.name}Logger`] = winston.createLogger({
+            transports: [
+                new winston.transports.File({
+                    level: 'info',
+                    filename: config.logging.loggers.workloads.filename(pattern.name),
+                    format: winston.format.combine(winston.format.printf(this.withPatternRequest))
+                })
+            ]
         });
     }
 

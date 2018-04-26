@@ -4,7 +4,7 @@ export default interface PatternElementRequest {
     patternName: string;
     patternIndex: number;
     operationId: string;
-    params?: object;
+    parameters?: object;
     wait: number;
     round: number;
 }

@@ -23,10 +23,16 @@ export default class BenchmarkController {
                 LoggingService.logEvent('All services initialized.');
                 this.preLoad();
             })
-            .then(() => this.initializeLoggers())
-            .then(() => this.generateWorkloads())
             .then(() => {
                 LoggingService.logEvent('Pre loading finished.');
+                this.initializeLoggers();
+            })
+            .then(() => {
+                LoggingService.logEvent('Loggers initialized.');
+                this.generateWorkloads();
+            })
+            .then(() => {
+                LoggingService.logEvent('Workloads generated.');
                 return this.runExperiment();
             })
             .then(() => {
@@ -61,7 +67,8 @@ export default class BenchmarkController {
 
     private initializeLoggers(): Promise<any> {
         const { patterns } = AbstractPatternResolver;
-        return LoggingService.initializeWorkloadLoggers(patterns);
+        LoggingService.initializeWorkloadLoggers(patterns);
+        return Promise.resolve();
     }
 
     private runExperiment(): Promise<void> {
@@ -94,6 +101,8 @@ export default class BenchmarkController {
      * By just setting the exit code allow graceful shutdown.
      */
     private prepareShutdown(wasSuccessful: boolean): void {
-        process.exitCode = wasSuccessful ? 0 : 1;
+        const exitCode = wasSuccessful ? 0 : 1;
+        LoggingService.logEvent(`Preparing shutdown with exit code: ${exitCode}`);
+        process.exitCode = exitCode;
     }
 }

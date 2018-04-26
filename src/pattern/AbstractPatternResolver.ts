@@ -135,7 +135,7 @@ class AbstractPatternResolver {
 
         const element = dependencyLine[index];
         if (element.id) {
-            const resourceName = this._patternConfiguration[abstractPattern.name] ? this._patternConfiguration[abstractPattern.name][element.id] : '';
+            const resourceName = this._patternConfiguration[abstractPattern.name] ? this._patternConfiguration[abstractPattern.name][element.id] : undefined;
             const resource = this.findResource(possibleResources, resourceName);
 
             if (!resource) {
@@ -174,8 +174,6 @@ class AbstractPatternResolver {
         const subResouce = inputDependencyResource.subResources[subResourceIndex];
         const intermediate = dependencyLine.map((el, i) => (i === index ? { ...el, resource: subResouce } : el));
         return this.mapAbstractPatternToResources(intermediate, index + 1, possibleResources, abstractPattern);
-
-        // TODO handle case with given ID for resource
     }
 
     /**
@@ -194,7 +192,7 @@ class AbstractPatternResolver {
             if (!!resource.subResources && !!resource.subResources.length) {
                 return this.findResource(resource.subResources, resourceName);
             }
-            throw new PatternResolverError(`Could not find resource with name "${resourceName}" in resources "${JSON.stringify(resources)}"`);
+            return undefined;
         }, undefined);
     }
 

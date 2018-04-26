@@ -56,7 +56,7 @@ class EvaluationService {
             const measurements: string[] = [];
             readline
                 .createInterface({
-                    input: fs.createReadStream(config.logging.systemEvents.filename, 'utf8')
+                    input: fs.createReadStream(config.logging.loggers.systemEvents.filename, 'utf8')
                 })
                 .on('line', line => {
                     measurements.push(line);
