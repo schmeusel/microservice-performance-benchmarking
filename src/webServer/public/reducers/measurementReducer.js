@@ -1,7 +1,7 @@
-import { MEASUREMENTS } from '../constants/ActionTypes';
+import ActionTypes from '../constants/ActionTypes';
 export default function reducer(state = [], action) {
     switch (action.type) {
-        case MEASUREMENTS.RECEIVE_MEASUREMENTS_BATCH: {
+        case ActionTypes.MEASUREMENTS.RECEIVE: {
             return [...state, ...action.data].slice(-100);
         }
     }

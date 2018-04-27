@@ -2,32 +2,92 @@ import * as express from 'express';
 import * as path from 'path';
 import * as socketIO from 'socket.io';
 import * as http from 'http';
+import * as morgan from 'morgan';
 import ExperimentRunner from '../execution/ExperimentRunner';
 import { PatternResultMeasurement } from '../interfaces';
+import LoggingService from '../services/LoggingService';
 
-const app = express();
-const server = http.createServer(app);
-const io = socketIO(server);
+class Server {
+    private _app;
+    private _server;
+    private _io;
+    private _measurementBatch: number = 100;
+    private _cache: object = {
+        measurements: []
+    };
 
-const measurementBatch = 100;
+    constructor() {
+        this._app = express();
+        this._server = http.createServer(this._app);
+        this._io = socketIO(this._server);
+        this.handlePatternResultMeasurement = this.handlePatternResultMeasurement.bind(this);
+        this.handleBenchmarkComplete = this.handleBenchmarkComplete.bind(this);
+    }
 
-const cache = {
-    measurements: []
-};
+    public start() {
+        this.setUpMiddleware();
+        this.setUpRoutes();
+        return new Promise((resolve, reject) => {
+            ExperimentRunner.on('SOCKET_MEASUREMENT', this.handlePatternResultMeasurement);
+            ExperimentRunner.on('BENCHMARK_COMPLETE', this.handleBenchmarkComplete);
+            this._app.listen(3000, err => {
+                if (err) {
+                    LoggingService.logEvent('Error starting server.');
+                    return reject(err);
+                }
+                LoggingService.logEvent('Server started on port 3000...');
+                resolve();
+            });
+        });
+    }
 
-// ExperimentRunner.on('SOCKET_MEASUREMENT', handlePatternResultMeasurement);
+    private setUpMiddleware() {
+        this._app.use(express.static(__dirname + '/public'));
+        this._app.use(morgan());
+    }
 
-function handlePatternResultMeasurement(measurement: PatternResultMeasurement) {
-    console.log('received measurement in server');
-    io.emit('SOCKET_MEASUREMENT', measurement);
+    private setUpRoutes() {
+        this._app.get('/', (req, res) => {
+            res.sendFile(__dirname + '/public/index.html');
+        });
+
+        this._app.get('/status'; (req, res) => {
+            res.json({
+                isRunning: ExperimentRunner.isRunning
+            });
+        })
+
+        this._app.get('/end/:result', (req, res) => {
+            if (!['succeed', 'fail'].includes(req.params.result)) {
+                res.status(400).json({
+                    message: 'Query param must either be "succeed" or "fail"'
+                });
+            }
+            res.json({
+                message: 'it just works'
+            });
+            switch (req.params.result) {
+                case 'fail': {
+                    ExperimentRunner.failExperiment();
+                    break;
+                }
+                case 'succeed': {
+                    ExperimentRunner.succeedExperiment();
+                    break;
+                }
+            }
+            this._server.close();
+        });
+    }
+
+    private handlePatternResultMeasurement(measurement: PatternResultMeasurement) {
+        console.log('received measurement in server');
+        this._io.emit('SOCKET_MEASUREMENT', measurement);
+    }
+
+    private handleBenchmarkComplete() {
+        this._io.emit('DECISION_TIME');
+    }
 }
 
-app.use(express.static(__dirname + '/public'));
-
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/public/index.html');
-});
-
-server.listen(3000, () => {
-    console.log('Server started on port 3000...');
-});
+export default new Server();

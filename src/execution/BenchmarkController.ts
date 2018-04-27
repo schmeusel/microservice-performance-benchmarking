@@ -25,7 +25,7 @@ export default class BenchmarkController {
             })
             .then(() => {
                 LoggingService.logEvent('Pre loading finished.');
-                this.initializeLoggers();
+                this.initializeWorkloadLoggers();
             })
             .then(() => {
                 LoggingService.logEvent('Loggers initialized.');
@@ -48,7 +48,6 @@ export default class BenchmarkController {
                 LoggingService.logEvent('Clean up done.');
             })
             .catch(err => {
-                console.error(err);
                 LoggingService.logEvent('Initialization error');
                 this.prepareShutdown(false);
             });
@@ -59,13 +58,13 @@ export default class BenchmarkController {
     }
 
     private initializePatternResolver(): Promise<any> {
-        const { patterns } = this.specification.configuration;
-        const { customization } = this.specification;
+        const { patterns, totalPatternRequests } = this.specification.configuration;
+        const { customization, configuration } = this.specification;
         const { specification, resources } = OpenAPIService;
-        return AbstractPatternResolver.initialize(patterns, specification, resources, customization);
+        return AbstractPatternResolver.initialize(patterns, totalPatternRequests, specification, resources, customization);
     }
 
-    private initializeLoggers(): Promise<any> {
+    private initializeWorkloadLoggers(): Promise<any> {
         const { patterns } = AbstractPatternResolver;
         LoggingService.initializeWorkloadLoggers(patterns);
         return Promise.resolve();
@@ -73,7 +72,7 @@ export default class BenchmarkController {
 
     private runExperiment(): Promise<void> {
         const patterns = AbstractPatternResolver.patterns;
-        return ExperimentRunner.initialize(patterns).start();
+        return ExperimentRunner.initialize(patterns).then(runner => runner.start());
     }
 
     private generateWorkloads(): Promise<void> {

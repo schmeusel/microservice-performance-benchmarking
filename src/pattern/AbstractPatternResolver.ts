@@ -15,6 +15,8 @@ import { AbstractPatternElementExtended } from '../interfaces/patterns/AbstractP
 import OpenAPIService from '../services/OpenAPIService';
 
 class AbstractPatternResolver {
+    private _totalRequests: number;
+    private _abstractPatterns: AbstractPattern[];
     private _patterns: Pattern[];
     private _openAPISpec: OpenAPISpecification;
     private _resources: Resource[];
@@ -33,6 +35,7 @@ class AbstractPatternResolver {
     }
     public initialize(
         abstractPatterns: AbstractPattern[],
+        totalRequests: number,
         openAPISpec: OpenAPISpecification,
         resources: Resource[],
         patternConfig: AbstractPatternConfiguration
@@ -41,6 +44,8 @@ class AbstractPatternResolver {
             throw new PatternResolverError('No resources in the OpenAPI sepc.');
         }
 
+        this._totalRequests = totalRequests;
+        this._abstractPatterns = abstractPatterns;
         this._openAPISpec = openAPISpec;
         this._resources = resources;
         this._patternConfiguration = patternConfig;
@@ -71,10 +76,13 @@ class AbstractPatternResolver {
         if (!allNumbers) {
             throw new PatternResolverError(`For pattern ${abstractPattern.name}, either provide a sound interval or a wait period for each element.`);
         }
+
+        const totalWeight = this._abstractPatterns.reduce((amount, pattern) => amount + pattern.weight, 0);
+        const amountOfRequests = Math.round(this._totalRequests / totalWeight * abstractPattern.weight);
         return {
             name: abstractPattern.name,
             sequence: this.resolveAbstractPatternSequence(abstractPattern, intervalWaitTimes),
-            weight: abstractPattern.weight
+            amount: amountOfRequests
         };
     }
 
