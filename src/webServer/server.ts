@@ -27,10 +27,9 @@ class Server {
     public start() {
         this.setUpMiddleware();
         this.setUpRoutes();
-        ExperimentRunner.on('SOCKET_MEASUREMENT', this.handlePatternResultMeasurement);
-        ExperimentRunner.on('BENCHMARK_COMPLETE', this.handleBenchmarkComplete);
+        this.setUpListeners();
         return new Promise((resolve, reject) => {
-            this._app.listen(3000, err => {
+            this._server.listen(3000, err => {
                 if (err) {
                     LoggingService.logEvent('Error starting server.');
                     return reject(err);
@@ -41,9 +40,17 @@ class Server {
         });
     }
 
+    private setUpListeners() {
+        ExperimentRunner.on('SOCKET_MEASUREMENT', this.handlePatternResultMeasurement);
+        ExperimentRunner.on('BENCHMARK_COMPLETE', this.handleBenchmarkComplete);
+        this._io.on('connection', socket => {
+            console.log('connection established to socket');
+        });
+    }
+
     private setUpMiddleware() {
         this._app.use(express.static(__dirname + '/public'));
-        this._app.use(morgan());
+        this._app.use(morgan('tiny'));
     }
 
     private setUpRoutes() {
@@ -81,11 +88,11 @@ class Server {
 
     private handlePatternResultMeasurement(measurement: PatternResultMeasurement) {
         console.log('received measurement in server');
-        this._io.emit('SOCKET_MEASUREMENT', measurement);
+        this._io.emit('update', { type: 'MEASUREMENTS_BATCH', data: measurement });
     }
 
     private handleBenchmarkComplete() {
-        this._io.emit('DECISION_TIME');
+        this._io.emit('update', { type: 'DECISION_TIME' });
     }
 }
 

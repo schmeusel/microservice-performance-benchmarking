@@ -1,14 +1,15 @@
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import measurementsReducer from '../reducers/measurementReducer';
 import { experimentStatusReducer, experimentResultReducer } from '../reducers/experimentReducer';
-import { socketMiddleware } from './socketMiddleware';
+import thunk from 'redux-thunk';
+import logger from 'redux-logger';
 
-const rootReducers = combinedReducers({
-    experiment: {
+const rootReducers = combineReducers({
+    experiment: combineReducers({
         status: experimentStatusReducer,
         result: experimentResultReducer
-    },
+    }),
     measurements: measurementsReducer
 });
 
-export default createStore(rootReducers, applyMiddleware(socketMiddleware));
+export default createStore(rootReducers, applyMiddleware(thunk, logger));
