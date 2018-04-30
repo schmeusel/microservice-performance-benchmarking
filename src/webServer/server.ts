@@ -27,9 +27,9 @@ class Server {
     public start() {
         this.setUpMiddleware();
         this.setUpRoutes();
+        ExperimentRunner.on('SOCKET_MEASUREMENT', this.handlePatternResultMeasurement);
+        ExperimentRunner.on('BENCHMARK_COMPLETE', this.handleBenchmarkComplete);
         return new Promise((resolve, reject) => {
-            ExperimentRunner.on('SOCKET_MEASUREMENT', this.handlePatternResultMeasurement);
-            ExperimentRunner.on('BENCHMARK_COMPLETE', this.handleBenchmarkComplete);
             this._app.listen(3000, err => {
                 if (err) {
                     LoggingService.logEvent('Error starting server.');
@@ -51,12 +51,11 @@ class Server {
             res.sendFile(__dirname + '/public/index.html');
         });
 
-        this._app.get('/status'; (req, res) => {
+        this._app.get('/status', (req, res) => {
             res.json({
                 isRunning: ExperimentRunner.isRunning
             });
-        })
-
+        });
         this._app.get('/end/:result', (req, res) => {
             if (!['succeed', 'fail'].includes(req.params.result)) {
                 res.status(400).json({
