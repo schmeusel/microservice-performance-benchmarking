@@ -35,3 +35,40 @@ export function getExperimentStatus() {
             });
     };
 }
+
+export function decideOnResult(result) {
+    return dispatch => {
+        dispatch({
+            type: ActionTypes.EXPERIMENT_DECISION.ASYNC,
+            data: {
+                errorCode: 0,
+                isLoading: true
+            }
+        });
+        fetch(`/end/${result}`)
+            .then(() => {
+                dispatch({
+                    type: ActionTypes.EXPERIMENT_DECISION.RESULT,
+                    data: {
+                        result: result
+                    }
+                });
+                dispatch({
+                    type: ActionTypes.EXPERIMENT_DECISION.ASYNC,
+                    data: {
+                        errorCode: 0,
+                        isLoading: false
+                    }
+                });
+            })
+            .catch(error => {
+                dispatch({
+                    type: ActionTypes.EXPERIMENT_DECISION.ASYNC,
+                    data: {
+                        errorCode: error.status,
+                        isLoading: false
+                    }
+                });
+            });
+    };
+}
