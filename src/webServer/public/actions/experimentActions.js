@@ -1,4 +1,5 @@
 import ActionTypes from '../constants/ActionTypes';
+import EndpointConstants from '../constants/EndpointConstants';
 
 export function getExperimentStatus() {
     return dispatch => {
@@ -9,7 +10,7 @@ export function getExperimentStatus() {
                 isLoading: true
             }
         });
-        fetch('/status')
+        fetch(EndpointConstants.STATUS)
             .then(res => res.json())
             .then(data => {
                 dispatch({
@@ -45,7 +46,7 @@ export function decideOnResult(result) {
                 isLoading: true
             }
         });
-        fetch(`/end/${result}`)
+        fetch(EndpointConstants.DECISION(result))
             .then(() => {
                 dispatch({
                     type: ActionTypes.EXPERIMENT_DECISION.RESULT,

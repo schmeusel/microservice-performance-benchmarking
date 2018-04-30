@@ -6,6 +6,8 @@ import * as morgan from 'morgan';
 import ExperimentRunner from '../execution/ExperimentRunner';
 import { PatternResultMeasurement } from '../interfaces';
 import LoggingService from '../services/LoggingService';
+import AbstractPatternResolver from '../pattern/AbstractPatternResolver';
+import config from '../config';
 
 class Server {
     private _app;
@@ -29,13 +31,12 @@ class Server {
         this.setUpRoutes();
         this.setUpListeners();
         return new Promise((resolve, reject) => {
-            this._server.listen(3000, err => {
+            this._server.listen(config.webServer.port, err => {
                 if (err) {
                     LoggingService.logEvent('Error starting server.');
                     return reject(err);
                 }
-                LoggingService.logEvent('Server started on port 3000...');
-                resolve();
+                resolve(config.webServer.port);
             });
         });
     }
@@ -54,16 +55,24 @@ class Server {
     }
 
     private setUpRoutes() {
-        this._app.get('/', (req, res) => {
-            res.sendFile(__dirname + '/public/index.html');
-        });
-
-        this._app.get('/status', (req, res) => {
+        this._app.get('/api/v1/status', (req, res) => {
+            // total amount of requests for each pattern
+            const stats = AbstractPatternResolver.patterns.reduce(
+                (finalStats, pattern) => ({
+                    ...finalStats,
+                    [pattern.name]: {
+                        total: pattern.amount,
+                        round: 0
+                    }
+                }),
+                {}
+            );
             res.json({
-                isRunning: ExperimentRunner.isRunning
+                isRunning: ExperimentRunner.isRunning,
+                stats: stats
             });
         });
-        this._app.get('/end/:result', (req, res) => {
+        this._app.get('/api/v1/end/:result', (req, res) => {
             if (!['succeed', 'fail'].includes(req.params.result)) {
                 res.status(400).json({
                     message: 'Query param must either be "succeed" or "fail"'
@@ -84,10 +93,13 @@ class Server {
             }
             this._server.close();
         });
+
+        this._app.get('*', (req, res) => {
+            res.sendFile(__dirname + '/public/index.html');
+        });
     }
 
     private handlePatternResultMeasurement(measurement: PatternResultMeasurement) {
-        console.log('received measurement in server');
         this._io.emit('update', { type: 'MEASUREMENTS_BATCH', data: measurement });
     }
 

@@ -16,6 +16,7 @@ class ExperimentRunner extends EventEmitter {
     private workers: ChildProcess[];
 
     public isRunning: boolean;
+    public patternStatistics: object;
 
     constructor() {
         super();
@@ -30,10 +31,10 @@ class ExperimentRunner extends EventEmitter {
     public initialize(patterns: Pattern[]): Promise<ExperimentRunner> {
         this.patterns = patterns;
         return new Promise((resolve, reject) => {
-            console.log('starting the server');
+            LoggingService.logEvent('Starting the server');
             Server.start()
-                .then(() => {
-                    console.log('server started');
+                .then(port => {
+                    LoggingService.logEvent(`Server started on port ${port}`);
                     resolve(this);
                 })
                 .catch(reject);

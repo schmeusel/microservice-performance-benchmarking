@@ -8,4 +8,5 @@ export default interface PatternRequestMeasurement {
     timestampStart: number;
     timestampEnd: number;
     pattern: string;
-};
+    round: number;
+}

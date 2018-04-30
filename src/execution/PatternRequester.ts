@@ -1,17 +1,33 @@
-import { Pattern, PatternElementRequest, PatternResultMeasurement, RequestMethod, AbstractPatternElementOperation } from '../interfaces/index';
+import {
+    Pattern,
+    PatternElementRequest,
+    PatternResultMeasurement,
+    RequestMethod,
+    AbstractPatternElementOperation
+} from '../interfaces/index';
 import OpenAPIService from '../services/OpenAPIService';
 import LoggingService from '../services/LoggingService';
 import { mapOutputTypeAndMethodToOperation } from '../utils/OpenAPIUtil';
+import * as winston from 'winston';
 
 export default class PatternRequester {
     private measurements: PatternResultMeasurement[];
     private pattern: Pattern;
     private requests: PatternElementRequest[];
+    private _eventLogger;
 
     constructor(pattern: Pattern, requests: PatternElementRequest[]) {
         this.pattern = pattern;
         this.requests = requests;
         this.measurements = [];
+
+        this._eventLogger = winston.createLogger({
+            transports: [
+                new winston.transports.File({
+                    filename: 'requester.log'
+                })
+            ]
+        });
     }
 
     private asyncLoop(index: number, resolve: (measurementResults: PatternResultMeasurement[]) => void, reject): void {
@@ -30,6 +46,7 @@ export default class PatternRequester {
     }
 
     private sendRequest(requestToSend: PatternElementRequest): Promise<void> {
+        this._eventLogger.info('sending a request');
         return new Promise((resolve, reject) => {
             OpenAPIService.sendRequest(requestToSend)
                 .then(response => {
@@ -42,12 +59,29 @@ export default class PatternRequester {
                         operation: mapOutputTypeAndMethodToOperation(outputType, method),
                         url: response.request.uri.href,
                         timestampStart: response.timestampStart,
-                        timestampEnd: response.timestampEnd
+                        timestampEnd: response.timestampEnd,
+                        round: requestToSend.round
                     };
+                    this._eventLogger.info('adding to measurements');
                     this.addMeasurement(measurement);
                     resolve();
                 })
-                .catch(reject);
+                .catch(err => {
+                    // TODO gather information from err
+                    const measurement: PatternResultMeasurement = {
+                        pattern: this.pattern.name,
+                        status: 400,
+                        method: RequestMethod.GET,
+                        operation: AbstractPatternElementOperation.SCAN,
+                        url: 'test',
+                        timestampStart: 1,
+                        timestampEnd: 300,
+                        round: requestToSend.round
+                    };
+                    this._eventLogger.info('adding error to measurements');
+                    this.addMeasurement(measurement);
+                    resolve();
+                });
         });
     }
 
