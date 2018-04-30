@@ -15,12 +15,25 @@ process.on('message', (message: IPCMessage) => {
     switch (message.type) {
         case IPCMessageType.START: {
             handleStart(message.data);
+            break;
+        }
+        case IPCMessageType.ABORT: {
+            handleAbort();
+            break;
         }
     }
 });
 
 // TOOD type options more strongly
-function handleStart({ openAPISpec, pattern, options }: { openAPISpec: OpenAPISpecification; pattern: Pattern; options: object }) {
+function handleStart({
+    openAPISpec,
+    pattern,
+    options
+}: {
+    openAPISpec: OpenAPISpecification;
+    pattern: Pattern;
+    options: object;
+}) {
     PolyfillUtil.initialize();
     OpenAPIService.initialize(openAPISpec, options)
         .then(() => {
@@ -77,6 +90,10 @@ function handleError(err) {
         type: IPCMessageType.ERROR,
         data: err
     });
+}
+
+function handleAbort() {
+    process.exit(0);
 }
 
 function handleDone() {

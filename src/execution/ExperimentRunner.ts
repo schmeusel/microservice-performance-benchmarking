@@ -62,13 +62,16 @@ class ExperimentRunner extends EventEmitter {
     }
 
     public failExperiment() {
-        console.log('failing experiment');
         this.isRunning = false;
+        this.workers.forEach(worker => {
+            worker.send({
+                type: IPCMessageType.ABORT
+            });
+        });
         this._reject();
     }
 
     public succeedExperiment() {
-        console.log('succeeding experiment');
         this.isRunning = false;
         this._resolve();
     }
@@ -78,7 +81,6 @@ class ExperimentRunner extends EventEmitter {
             case IPCMessageType.RESULT: {
                 // TODO use constants
                 console.log('result', message.data);
-                console.log('emitting socket measurement');
 
                 this.emit('SOCKET_MEASUREMENT', message.data);
                 LoggingService.addMeasurements(message.data);

@@ -1,5 +1,6 @@
 export enum IPCMessageType {
     START = 'START',
     RESULT = 'RESULT',
-    ERROR = 'ERROR'
+    ERROR = 'ERROR',
+    ABORT = 'ABORT'
 }
