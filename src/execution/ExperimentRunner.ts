@@ -96,8 +96,10 @@ class ExperimentRunner extends EventEmitter {
 
     private handleWorkerDone() {
         this.workersAlive -= 1;
+        console.log('worker done. still alive: ', this.workersAlive);
         if (this.workersAlive === 0) {
             this.emit('BENCHMARK_COMPLETE');
+            this.succeedExperiment();
         }
     }
 }

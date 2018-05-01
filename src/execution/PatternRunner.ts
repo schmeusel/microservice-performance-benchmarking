@@ -9,6 +9,9 @@ import config from '../config';
 import PolyfillUtil from '../utils/PolyfillUtil';
 
 let patternRequests: PatternElementRequest[] = [];
+let queue: PatternElementRequest[][] = [];
+let currentRound: number = 0;
+let isPerformingRequests: boolean = false;
 let rl: readline.ReadLine;
 
 process.on('message', (message: IPCMessage) => {
@@ -45,6 +48,7 @@ function handleStart({
                 .on('close', handleDone)
                 .on('error', error => {
                     // TODO proper error handling
+                    handleError(error);
                     console.log('error while reading pattern file', error);
                 });
         })
@@ -54,28 +58,39 @@ function handleStart({
 }
 
 function handleLineRead(pattern: Pattern) {
-    let currentRound = 0;
     return line => {
         const request = JSON.parse(line) as PatternElementRequest;
         patternRequests.push(request);
-        if (request.round !== currentRound) {
-            const indexOfNextPatternElement = patternRequests.length - 2;
+
+        if (request.patternIndex === pattern.sequence.length - 1) {
             rl.pause();
-
-            const requests = patternRequests.slice(0, indexOfNextPatternElement);
-            patternRequests = patternRequests.slice(indexOfNextPatternElement + 1);
-
-            const requester: PatternRequester = new PatternRequester(pattern, requests);
-            requester
-                .run()
-                .then(measurements => {
-                    handleRoundDone(measurements);
-                    currentRound = currentRound + 1;
-                    rl.resume();
-                })
-                .catch(handleError);
+            const requests = patternRequests.slice(0, pattern.sequence.length);
+            patternRequests = patternRequests.slice(pattern.sequence.length);
+            if (!isPerformingRequests) {
+                handleRequests(pattern, requests);
+            } else {
+                queue.push(requests);
+            }
         }
     };
+}
+
+function handleRequests(pattern: Pattern, requests: PatternElementRequest[]) {
+    isPerformingRequests = true;
+    const requester: PatternRequester = new PatternRequester(pattern, requests);
+    requester
+        .run()
+        .then(measurements => {
+            isPerformingRequests = false;
+            handleRoundDone(measurements);
+            currentRound = currentRound + 1;
+            if (queue.length) {
+                handleRequests(pattern, queue.shift());
+            } else {
+                rl.resume();
+            }
+        })
+        .catch(handleError);
 }
 
 function handleRoundDone(measurements) {
