@@ -7,6 +7,13 @@ const ExperimentResult = props => {
         props.onDecide(result);
     };
 
+    const styles = {
+        buttonContainer: {
+            display: 'flex',
+            flexDirection: 'column'
+        }
+    };
+
     const {
         result: { value, async }
     } = props;
@@ -17,12 +24,17 @@ const ExperimentResult = props => {
                     Submitted result: <b>{value}</b>
                 </span>
             )}
-            <button onClick={onDecide('succeed')} disabled={async.isLoading}>
-                Succeed
-            </button>
-            <button onClick={onDecide('fail')} disabled={async.isLoading}>
-                Fail
-            </button>
+            {!value && (
+                <div style={styles.buttonContainer}>
+                    <h2>Decide on Result</h2>
+                    <button onClick={onDecide('succeed')} disabled={async.isLoading}>
+                        Succeed
+                    </button>
+                    <button onClick={onDecide('fail')} disabled={async.isLoading}>
+                        Fail
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

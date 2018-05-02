@@ -112,6 +112,7 @@ class LoggingService {
     }
 
     public logEvent(message: string): void {
+        console.log(message);
         this.eventLogger.log({
             level: 'info',
             message

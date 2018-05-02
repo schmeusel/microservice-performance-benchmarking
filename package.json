@@ -9,6 +9,7 @@
     "test": "mocha --require ts-node/register ./test/**/*.test.ts",
     "build-server": "tsc",
     "build-client": "webpack --config webpack.config.js && cp ./src/webServer/public/index.html ./build/webServer/public/index.html",
+    "build-client-watch": "cp ./src/webServer/public/index.html ./build/webServer/public/index.html && webpack --config webpack.config.js --watch",
     "build": "yarn run build-server && yarn run build-client",
     "start": "yarn run build && node ./build/app.js --json ./assets/sampleAPI_extended.json --spec ./assets/benchmarkSpec.json"
   },

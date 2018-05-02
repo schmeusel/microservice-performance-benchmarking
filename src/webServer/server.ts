@@ -7,12 +7,14 @@ import ExperimentRunner from '../execution/ExperimentRunner';
 import { PatternResultMeasurement } from '../interfaces';
 import LoggingService from '../services/LoggingService';
 import AbstractPatternResolver from '../pattern/AbstractPatternResolver';
+import ApplicationState from '../services/ApplicationState';
 import config from '../config';
 
 class Server {
     private _app;
     private _server;
     private _io;
+    private _connectedSockets: object = {};
     private _measurementBatch: number = 100;
     private _cache: object = {
         measurements: []
@@ -23,7 +25,7 @@ class Server {
         this._server = http.createServer(this._app);
         this._io = socketIO(this._server);
         this.handlePatternResultMeasurement = this.handlePatternResultMeasurement.bind(this);
-        this.handleBenchmarkComplete = this.handleBenchmarkComplete.bind(this);
+        this.handleBenchmarkPhaseUpdate = this.handleBenchmarkPhaseUpdate.bind(this);
     }
 
     public start() {
@@ -31,6 +33,7 @@ class Server {
         this.setUpRoutes();
         this.setUpListeners();
         return new Promise((resolve, reject) => {
+            this._server.setTimeout(1000);
             this._server.listen(config.webServer.port, err => {
                 if (err) {
                     LoggingService.logEvent('Error starting server.');
@@ -43,9 +46,10 @@ class Server {
 
     private setUpListeners() {
         ExperimentRunner.on('SOCKET_MEASUREMENT', this.handlePatternResultMeasurement);
-        ExperimentRunner.on('BENCHMARK_COMPLETE', this.handleBenchmarkComplete);
+        ApplicationState.on('PHASE_UPDATE', this.handleBenchmarkPhaseUpdate);
         this._io.on('connection', socket => {
-            console.log('connection established to socket');
+            this._connectedSockets[socket.id] = socket;
+            socket.emit('update', { type: 'EXPERIMENT_PHASE', data: ApplicationState.phase });
         });
     }
 
@@ -56,21 +60,7 @@ class Server {
 
     private setUpRoutes() {
         this._app.get('/api/v1/status', (req, res) => {
-            // total amount of requests for each pattern
-            const stats = AbstractPatternResolver.patterns.reduce(
-                (finalStats, pattern) => ({
-                    ...finalStats,
-                    [pattern.name]: {
-                        total: pattern.amount,
-                        round: 0
-                    }
-                }),
-                {}
-            );
-            res.json({
-                isRunning: ExperimentRunner.isRunning,
-                stats: stats
-            });
+            res.json(this.calculateStatus());
         });
         this._app.post('/api/v1/end/:result', (req, res) => {
             if (!['succeed', 'fail'].includes(req.params.result)) {
@@ -78,10 +68,31 @@ class Server {
                     message: 'Query param must either be "succeed" or "fail"'
                 });
             }
-            res.json({
-                message: 'it just works'
-            });
-            switch (req.params.result) {
+            res.sendStatus(200);
+            this.shutdown(req.params.result);
+        });
+
+        // Provide download link to logs
+        this._app.get('/api/v1/logs', (req, res) => {
+            const validTypes = ['measurements', 'systemEvents'];
+            if (!validTypes.includes(req.query.type)) {
+                res.status(400).json({
+                    message: `No valid type. Valid types are: ${validTypes.join(', ')}`
+                });
+                return;
+            }
+            res.download(path.join(config.logging.directory, `${req.query.type}.log`));
+        });
+
+        this._app.get('*', (req, res) => {
+            res.sendFile(__dirname + '/public/index.html');
+        });
+    }
+
+    private shutdown(result) {
+        this.destroySocketConnections();
+        this._server.close(() => {
+            switch (result) {
                 case 'fail': {
                     ExperimentRunner.failExperiment();
                     break;
@@ -91,20 +102,35 @@ class Server {
                     break;
                 }
             }
-            this._server.close();
         });
+    }
 
-        this._app.get('*', (req, res) => {
-            res.sendFile(__dirname + '/public/index.html');
-        });
+    private calculateStatus() {
+        // total amount of requests for each pattern
+        return AbstractPatternResolver.patterns.reduce(
+            (finalStats, pattern) => ({
+                ...finalStats,
+                [pattern.name]: {
+                    total: pattern.amount,
+                    round: 0
+                }
+            }),
+            {}
+        );
     }
 
     private handlePatternResultMeasurement(measurement: PatternResultMeasurement) {
         this._io.emit('update', { type: 'MEASUREMENTS_BATCH', data: measurement });
     }
 
-    private handleBenchmarkComplete() {
-        this._io.emit('update', { type: 'DECISION_TIME' });
+    private handleBenchmarkPhaseUpdate() {
+        this._io.emit('update', { type: 'EXPERIMENT_PHASE', data: ApplicationState.phase });
+    }
+
+    private destroySocketConnections(): void {
+        Object.keys(this._connectedSockets).forEach(socketId => {
+            this._connectedSockets[socketId].disconnect(true);
+        });
     }
 }
 

@@ -1,43 +1,8 @@
 import ActionTypes from '../constants/ActionTypes';
 import EndpointConstants from '../constants/EndpointConstants';
 
-export function getExperimentStatus() {
-    return dispatch => {
-        dispatch({
-            type: ActionTypes.EXPERIMENT_STATUS.ASYNC,
-            data: {
-                errorCode: 0,
-                isLoading: true
-            }
-        });
-        fetch(EndpointConstants.STATUS)
-            .then(res => res.json())
-            .then(data => {
-                dispatch({
-                    type: ActionTypes.EXPERIMENT_STATUS.RESULT,
-                    data: data
-                });
-                dispatch({
-                    type: ActionTypes.EXPERIMENT_STATUS.ASYNC,
-                    data: {
-                        errorCode: 0,
-                        isLoading: false
-                    }
-                });
-            })
-            .catch(err => {
-                dispatch({
-                    type: ActionTypes.EXPERIMENT_STATUS.ASYNC,
-                    data: {
-                        errorCode: err.status,
-                        isLoading: false
-                    }
-                });
-            });
-    };
-}
-
 export function decideOnResult(result) {
+    const { DECISION } = EndpointConstants;
     return dispatch => {
         dispatch({
             type: ActionTypes.EXPERIMENT_DECISION.ASYNC,
@@ -46,8 +11,8 @@ export function decideOnResult(result) {
                 isLoading: true
             }
         });
-        fetch(EndpointConstants.DECISION(result), {
-            method: 'POST'
+        fetch(DECISION.path(result), {
+            method: DECISION.method
         })
             .then(() => {
                 dispatch({
@@ -63,6 +28,7 @@ export function decideOnResult(result) {
                 });
             })
             .catch(error => {
+                console.log('error in decision making', error);
                 dispatch({
                     type: ActionTypes.EXPERIMENT_DECISION.ASYNC,
                     data: {

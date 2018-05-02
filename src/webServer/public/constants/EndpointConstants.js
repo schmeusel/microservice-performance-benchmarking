@@ -1,5 +1,15 @@
 const apiPrefix = '/api/v1';
 export default {
-    STATUS: `${apiPrefix}/status`,
-    DECISION: result => `${apiPrefix}/end/${result}`
+    STATUS: {
+        method: 'get',
+        path: `${apiPrefix}/status`
+    },
+    DECISION: {
+        method: 'post',
+        path: result => `${apiPrefix}/end/${result}`
+    },
+    DOWNLOAD_LOG: {
+        method: 'get',
+        path: type => `${apiPrefix}/logs?type=${type}`
+    }
 };

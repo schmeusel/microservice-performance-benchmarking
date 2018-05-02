@@ -5,41 +5,61 @@ import LoggingService from '../services/LoggingService';
 import ExperimentRunner from './ExperimentRunner';
 import AbstractPatternResolver from '../pattern/AbstractPatternResolver';
 import WorkloadGenerator from '../workload/WorkloadGenerator';
+import Server from '../webServer/Server';
+import { EventEmitter } from 'events';
+import ApplicationState from '../services/ApplicationState';
 
-export default class BenchmarkController {
+export default class BenchmarkController extends EventEmitter {
     private specification: BenchmarkSpecification;
     private openAPIInput: string | OpenAPISpecification;
     private wasSuccessful: boolean;
+    public currentPhase: string;
 
     constructor(spec: BenchmarkSpecification, openAPISpec: string | OpenAPISpecification) {
+        super();
         this.specification = spec;
         this.openAPIInput = openAPISpec;
     }
 
     public start() {
         this.initializeServices()
-            .then(() => this.initializePatternResolver())
+            .then(() => {
+                ApplicationState.setPhase('PATTERN_RESOLUTION');
+                // TODO only start when in config specified
+                Server.start()
+                    .then(port => {
+                        LoggingService.logEvent(`Server started on port ${port}`);
+                    })
+                    .catch(err => {
+                        LoggingService.logEvent('Error starting server');
+                    });
+                return this.initializePatternResolver();
+            })
             .then(() => {
                 LoggingService.logEvent('All services initialized.');
-                this.preLoad();
+                return this.preLoad();
             })
             .then(() => {
                 LoggingService.logEvent('Pre loading finished.');
-                this.initializeWorkloadLoggers();
+                return this.initializeWorkloadLoggers();
             })
             .then(() => {
+                ApplicationState.setPhase('WORKLOAD_GENERATION');
                 LoggingService.logEvent('Loggers initialized.');
-                this.generateWorkloads();
+                return this.generateWorkloads();
             })
             .then(() => {
+                ApplicationState.setPhase('REQUEST_TRANSMISSION');
                 LoggingService.logEvent('Workloads generated.');
                 return this.runExperiment();
             })
             .then(() => {
+                ApplicationState.setPhase('MEASUREMENT_EVALUATION');
                 LoggingService.logEvent('Experiment finished.');
                 return this.processResults();
             })
             .then((wasSuccessful: boolean) => {
+                ApplicationState.setPhase('COMPLETION');
                 LoggingService.logEvent('Results processed.');
                 this.prepareShutdown(wasSuccessful);
                 return this.cleanUp();

@@ -14,7 +14,6 @@ class ExperimentRunner extends EventEmitter {
     private workersReady: number;
     private workers: { [patternName: string]: ChildProcess };
 
-    public isRunning: boolean;
     public patternStatistics: object;
 
     constructor() {
@@ -28,19 +27,11 @@ class ExperimentRunner extends EventEmitter {
 
     public initialize(patterns: Pattern[]): Promise<ExperimentRunner> {
         this.patterns = patterns;
-        return new Promise((resolve, reject) => {
-            LoggingService.logEvent('Starting the server');
-            Server.start()
-                .then(port => {
-                    LoggingService.logEvent(`Server started on port ${port}`);
-                    resolve(this);
-                })
-                .catch(reject);
-        });
+        LoggingService.logEvent('Starting the server');
+        return Promise.resolve(this);
     }
 
     public start(): Promise<void> {
-        this.isRunning = true;
         return new Promise((resolve, reject) => {
             this._resolve = resolve;
             this._reject = reject;
@@ -59,7 +50,6 @@ class ExperimentRunner extends EventEmitter {
     }
 
     public failExperiment() {
-        this.isRunning = false;
         Object.keys(this.workers).forEach(patternName => {
             this.workers[patternName].send({
                 type: IPCMessageType.ABORT
@@ -69,7 +59,6 @@ class ExperimentRunner extends EventEmitter {
     }
 
     public succeedExperiment() {
-        this.isRunning = false;
         this._resolve();
     }
 
@@ -78,7 +67,6 @@ class ExperimentRunner extends EventEmitter {
             case IPCMessageType.RESULT: {
                 // TODO use constants
                 console.log('result', message.data);
-
                 this.emit('SOCKET_MEASUREMENT', message.data);
                 LoggingService.addMeasurements(message.data);
                 break;
@@ -94,9 +82,8 @@ class ExperimentRunner extends EventEmitter {
         return () => {
             const { [patternName]: name, ...rest } = this.workers;
             this.workers = rest;
-            console.log('worker done. still alive: ', Object.keys(this.workers));
             if (Object.keys(this.workers).length === 0) {
-                this.emit('BENCHMARK_COMPLETE');
+                // TODO check config if waiting for web server necessary
                 this.succeedExperiment();
             }
         };

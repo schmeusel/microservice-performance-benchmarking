@@ -5,19 +5,10 @@ const asyncDefaultState = {
     errorCode: 0
 };
 
-export function experimentStatusReducer(state = { async: asyncDefaultState, value: { isRunning: false, stats: {} } }, action) {
+export function experimentPhaseReducer(state = null, action) {
     switch (action.type) {
-        case ActionTypes.EXPERIMENT_STATUS.ASYNC: {
-            return {
-                ...state,
-                async: action.data
-            };
-        }
-        case ActionTypes.EXPERIMENT_STATUS.RESULT: {
-            return {
-                ...state,
-                value: action.data
-            };
+        case ActionTypes.EXPERIMENT_PHASE: {
+            return action.data;
         }
     }
     return state;
