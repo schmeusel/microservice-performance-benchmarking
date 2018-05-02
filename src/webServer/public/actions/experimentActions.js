@@ -46,13 +46,13 @@ export function decideOnResult(result) {
                 isLoading: true
             }
         });
-        fetch(EndpointConstants.DECISION(result))
+        fetch(EndpointConstants.DECISION(result), {
+            method: 'POST'
+        })
             .then(() => {
                 dispatch({
                     type: ActionTypes.EXPERIMENT_DECISION.RESULT,
-                    data: {
-                        result: result
-                    }
+                    data: result
                 });
                 dispatch({
                     type: ActionTypes.EXPERIMENT_DECISION.ASYNC,

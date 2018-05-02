@@ -1,7 +1,7 @@
 import { fork, ChildProcess } from 'child_process';
 import * as path from 'path';
 import LoggingService from '../services/LoggingService';
-import { Pattern, PatternElementRequest, IPCMessage, IPCMessageType } from '../interfaces';
+import { Pattern, PatternElementRequest, IPCMessage, IPCMessageType, PatternElementOutputType } from '../interfaces';
 import OpenAPIService from '../services/OpenAPIService';
 import { EventEmitter } from 'events';
 import Server from '../webServer/Server';
@@ -11,9 +11,8 @@ class ExperimentRunner extends EventEmitter {
     private _reject: () => void;
 
     private patterns: Pattern[];
-    private workersAlive: number;
     private workersReady: number;
-    private workers: ChildProcess[];
+    private workers: { [patternName: string]: ChildProcess };
 
     public isRunning: boolean;
     public patternStatistics: object;
@@ -23,8 +22,7 @@ class ExperimentRunner extends EventEmitter {
         this.handleMessage = this.handleMessage.bind(this);
         this.handleWorkerDone = this.handleWorkerDone.bind(this);
 
-        this.workers = [];
-        this.workersAlive = 0;
+        this.workers = {};
         this.workersReady = 0;
     }
 
@@ -48,24 +46,22 @@ class ExperimentRunner extends EventEmitter {
             this._reject = reject;
             this.patterns.forEach(pattern => {
                 const worker = fork(path.resolve(__dirname, 'PatternRunner.js'));
-                this.workersAlive += 1;
+                this.workers[pattern.name] = worker;
                 worker.on('message', this.handleMessage);
-                worker.on('exit', this.handleWorkerDone);
+                worker.on('exit', this.handleWorkerDone(pattern.name));
                 // TODO handle options?
                 worker.send({
                     type: IPCMessageType.START,
                     data: { pattern, openAPISpec: OpenAPIService.specification, options: {} }
                 } as IPCMessage);
-
-                this.workers.push(worker);
             });
         });
     }
 
     public failExperiment() {
         this.isRunning = false;
-        this.workers.forEach(worker => {
-            worker.send({
+        Object.keys(this.workers).forEach(patternName => {
+            this.workers[patternName].send({
                 type: IPCMessageType.ABORT
             });
         });
@@ -94,13 +90,16 @@ class ExperimentRunner extends EventEmitter {
         }
     }
 
-    private handleWorkerDone() {
-        this.workersAlive -= 1;
-        console.log('worker done. still alive: ', this.workersAlive);
-        if (this.workersAlive === 0) {
-            this.emit('BENCHMARK_COMPLETE');
-            this.succeedExperiment();
-        }
+    private handleWorkerDone(patternName: string) {
+        return () => {
+            const { [patternName]: name, ...rest } = this.workers;
+            this.workers = rest;
+            console.log('worker done. still alive: ', Object.keys(this.workers));
+            if (Object.keys(this.workers).length === 0) {
+                this.emit('BENCHMARK_COMPLETE');
+                this.succeedExperiment();
+            }
+        };
     }
 }
 

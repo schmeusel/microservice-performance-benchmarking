@@ -6,10 +6,7 @@ class SocketService {
         this.socket.on('connect', () => {
             console.log('socket connected');
         });
-        this.socket.on('update', data => {
-            console.log('received data in socket service', data);
-            handler(data);
-        });
+        this.socket.on('update', handler);
     }
 }
 

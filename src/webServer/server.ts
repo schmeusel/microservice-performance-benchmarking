@@ -72,7 +72,7 @@ class Server {
                 stats: stats
             });
         });
-        this._app.get('/api/v1/end/:result', (req, res) => {
+        this._app.post('/api/v1/end/:result', (req, res) => {
             if (!['succeed', 'fail'].includes(req.params.result)) {
                 res.status(400).json({
                     message: 'Query param must either be "succeed" or "fail"'

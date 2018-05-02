@@ -5,7 +5,7 @@ const asyncDefaultState = {
     errorCode: 0
 };
 
-export function experimentStatusReducer(state = { async: asyncDefaultState, status: null }, action) {
+export function experimentStatusReducer(state = { async: asyncDefaultState, value: { isRunning: false, stats: {} } }, action) {
     switch (action.type) {
         case ActionTypes.EXPERIMENT_STATUS.ASYNC: {
             return {
@@ -16,14 +16,14 @@ export function experimentStatusReducer(state = { async: asyncDefaultState, stat
         case ActionTypes.EXPERIMENT_STATUS.RESULT: {
             return {
                 ...state,
-                status: action.data
+                value: action.data
             };
         }
     }
     return state;
 }
 
-export function experimentResultReducer(state = { async: asyncDefaultState, result: null }, action) {
+export function experimentResultReducer(state = { async: asyncDefaultState, value: null }, action) {
     switch (action.type) {
         case ActionTypes.EXPERIMENT_DECISION.ASYNC: {
             return {
@@ -34,7 +34,7 @@ export function experimentResultReducer(state = { async: asyncDefaultState, resu
         case ActionTypes.EXPERIMENT_DECISION.RESULT: {
             return {
                 ...state,
-                result: action.data
+                value: action.data
             };
         }
     }
@@ -45,10 +45,7 @@ export function experimentStatsReducer(state = {}, action) {
     switch (action.type) {
         case ActionTypes.MEASUREMENTS: {
             return action.data.reduce((finalState, measurement) => {
-                const round = Math.max(
-                    finalState.pattern ? finalState.pattern.roundmeasurement.round : 0,
-                    measurement.round
-                );
+                const round = Math.max(finalState.pattern ? finalState.pattern.roundmeasurement.round : 0, measurement.round);
                 return {
                     ...finalState,
                     [measurement.pattern]: {

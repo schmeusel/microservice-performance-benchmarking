@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { getExperimentStatus, decideOnResult } from '../actions/experimentActions';
 import ExperimentStatus from '../components/ExperimentStatus';
-import ExperimentDecision from '../components/ExperimentDecision';
+import ExperimentResult from '../components/ExperimentResult';
 import handleSocket from '../actions/socketActions';
 import io from 'socket.io-client';
 import SocketService from '../services/SocketService';
@@ -17,7 +17,7 @@ class Layout extends PureComponent {
         return (
             <div>
                 <ExperimentStatus status={this.props.experimentStatus} />
-                <ExperimentDecision decision={this.props.ExperimentDecision} />
+                <ExperimentResult result={this.props.experimentResult} onDecide={this.props.decideOnResult} />
             </div>
         );
     }
@@ -25,8 +25,8 @@ class Layout extends PureComponent {
 
 const mapStateToProps = state => ({
     measurements: state.measurements,
-    experimentStatus: state.experimentStatus,
-    experimentDecision: state.experimentDecision
+    experimentStatus: state.experiment.status,
+    experimentResult: state.experiment.result
 });
 
 const mapDispatchToProps = dispatch => ({
