@@ -17,7 +17,7 @@ export { default as Pattern } from './patterns/Pattern';
 export { default as PatternElement } from './patterns/PatternElement';
 export { PatternElementOutputType } from './patterns/PatternElementOutputType';
 export { default as PatternElementRequest } from './patterns/PatternElementRequest';
-export { default as PatternResultMeasurement } from './patterns/PatternResultMeasurement';
+export { default as PatternRequestMeasurement } from './patterns/PatternRequestMeasurement';
 export { default as PatternResult } from './patterns/PatternResult';
 export { RequestMethod } from './RequestMethod';
 export { default as SLACondition } from './sla/SLACondition';

@@ -1,4 +1,12 @@
-import { IPCMessage, IPCMessageType, Pattern, PatternElementRequest, OpenAPISpecification } from '../interfaces/index';
+import {
+    IPCMessage,
+    IPCMessageType,
+    Pattern,
+    PatternElementRequest,
+    OpenAPISpecification,
+    PatternRequestMeasurement,
+    PatternResult
+} from '../interfaces/index';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as readline from 'readline';
@@ -28,15 +36,7 @@ process.on('message', (message: IPCMessage) => {
 });
 
 // TOOD type options more strongly
-function handleStart({
-    openAPISpec,
-    pattern,
-    options
-}: {
-    openAPISpec: OpenAPISpecification;
-    pattern: Pattern;
-    options: object;
-}) {
+function handleStart({ openAPISpec, pattern, options }: { openAPISpec: OpenAPISpecification; pattern: Pattern; options: object }) {
     PolyfillUtil.initialize();
     OpenAPIService.initialize(openAPISpec, options)
         .then(() => {
@@ -93,10 +93,10 @@ function handleRequests(pattern: Pattern, requests: PatternElementRequest[]) {
         .catch(handleError);
 }
 
-function handleRoundDone(measurements) {
+function handleRoundDone(patternResult: PatternResult) {
     process.send({
         type: IPCMessageType.RESULT,
-        data: measurements
+        data: patternResult
     });
 }
 

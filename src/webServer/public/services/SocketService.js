@@ -5,10 +5,10 @@ class SocketService {
         this.socket = io.connect();
         this.socket
             .on('connect', () => {
-                console.log('socket connected');
+                console.log('Socket connected');
             })
             .on('disconnect', () => {
-                console.log('socket disconnected from server');
+                console.log('Socket disconnected from server');
             })
             .on('update', handler);
     }

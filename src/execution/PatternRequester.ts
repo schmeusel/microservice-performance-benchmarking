@@ -1,17 +1,11 @@
-import {
-    Pattern,
-    PatternElementRequest,
-    PatternResultMeasurement,
-    RequestMethod,
-    AbstractPatternElementOperation
-} from '../interfaces/index';
+import { Pattern, PatternElementRequest, PatternRequestMeasurement, RequestMethod, AbstractPatternElementOperation, PatternResult } from '../interfaces/index';
 import OpenAPIService from '../services/OpenAPIService';
 import LoggingService from '../services/LoggingService';
 import { mapOutputTypeAndMethodToOperation } from '../utils/OpenAPIUtil';
 import * as winston from 'winston';
 
 export default class PatternRequester {
-    private measurements: PatternResultMeasurement[];
+    private measurements: PatternRequestMeasurement[];
     private pattern: Pattern;
     private requests: PatternElementRequest[];
     private _eventLogger;
@@ -30,7 +24,7 @@ export default class PatternRequester {
         });
     }
 
-    private asyncLoop(index: number, resolve: (measurementResults: PatternResultMeasurement[]) => void, reject): void {
+    private asyncLoop(index: number, resolve: (patternResult: PatternResult) => void, reject): void {
         if (index < this.requests.length) {
             const currentRequest: PatternElementRequest = this.requests[index];
             this.sendRequest(currentRequest)
@@ -41,7 +35,11 @@ export default class PatternRequester {
                 })
                 .catch(reject);
         } else {
-            resolve(this.measurements);
+            const patternResult: PatternResult = {
+                name: this.pattern.name,
+                measurements: this.measurements
+            };
+            resolve(patternResult);
         }
     }
 
@@ -52,7 +50,7 @@ export default class PatternRequester {
                 .then(response => {
                     const method = response.request.method.toUpperCase() as RequestMethod;
                     const outputType = this.pattern.sequence[requestToSend.patternIndex].outputType;
-                    const measurement: PatternResultMeasurement = {
+                    const measurement: PatternRequestMeasurement = {
                         pattern: this.pattern.name,
                         status: response.statusCode,
                         method: method,
@@ -60,7 +58,8 @@ export default class PatternRequester {
                         url: response.request.uri.href,
                         timestampStart: response.timestampStart,
                         timestampEnd: response.timestampEnd,
-                        round: requestToSend.round
+                        round: requestToSend.round,
+                        patternIndex: requestToSend.patternIndex
                     };
                     this._eventLogger.info('adding to measurements');
                     this.addMeasurement(measurement);
@@ -68,7 +67,7 @@ export default class PatternRequester {
                 })
                 .catch(err => {
                     // TODO gather information from err
-                    const measurement: PatternResultMeasurement = {
+                    const measurement: PatternRequestMeasurement = {
                         pattern: this.pattern.name,
                         status: 400,
                         method: RequestMethod.GET,
@@ -76,7 +75,8 @@ export default class PatternRequester {
                         url: 'test',
                         timestampStart: 1,
                         timestampEnd: 300,
-                        round: requestToSend.round
+                        round: requestToSend.round,
+                        patternIndex: requestToSend.patternIndex
                     };
                     this._eventLogger.info('adding error to measurements');
                     this.addMeasurement(measurement);
@@ -85,13 +85,13 @@ export default class PatternRequester {
         });
     }
 
-    public run(): Promise<PatternResultMeasurement[]> {
+    public run(): Promise<PatternResult> {
         return new Promise((resolve, reject) => {
             this.asyncLoop(0, resolve, reject);
         });
     }
 
-    private addMeasurement(measurement: PatternResultMeasurement): void {
+    private addMeasurement(measurement: PatternRequestMeasurement): void {
         this.measurements.push(measurement);
     }
 }

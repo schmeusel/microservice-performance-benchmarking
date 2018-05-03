@@ -4,7 +4,7 @@ import * as socketIO from 'socket.io';
 import * as http from 'http';
 import * as morgan from 'morgan';
 import ExperimentRunner from '../execution/ExperimentRunner';
-import { PatternResultMeasurement } from '../interfaces';
+import { PatternRequestMeasurement, PatternResult } from '../interfaces';
 import LoggingService from '../services/LoggingService';
 import AbstractPatternResolver from '../pattern/AbstractPatternResolver';
 import ApplicationState from '../services/ApplicationState';
@@ -45,7 +45,7 @@ class Server {
     }
 
     private setUpListeners() {
-        ExperimentRunner.on('SOCKET_MEASUREMENT', this.handlePatternResultMeasurement);
+        ExperimentRunner.on('PATTERN_MEASUREMENT', this.handlePatternResultMeasurement);
         ApplicationState.on('PHASE_UPDATE', this.handleBenchmarkPhaseUpdate);
         this._io.on('connection', socket => {
             this._connectedSockets[socket.id] = socket;
@@ -59,9 +59,6 @@ class Server {
     }
 
     private setUpRoutes() {
-        this._app.get('/api/v1/status', (req, res) => {
-            res.json(this.calculateStatus());
-        });
         this._app.post('/api/v1/end/:result', (req, res) => {
             if (!['succeed', 'fail'].includes(req.params.result)) {
                 res.status(400).json({
@@ -76,9 +73,7 @@ class Server {
         this._app.get('/api/v1/logs', (req, res) => {
             const validTypes = ['measurements', 'systemEvents'];
             if (!validTypes.includes(req.query.type)) {
-                res.status(400).json({
-                    message: `No valid type. Valid types are: ${validTypes.join(', ')}`
-                });
+                res.sendStatus(404);
                 return;
             }
             res.download(path.join(config.logging.directory, `${req.query.type}.log`));
@@ -105,22 +100,8 @@ class Server {
         });
     }
 
-    private calculateStatus() {
-        // total amount of requests for each pattern
-        return AbstractPatternResolver.patterns.reduce(
-            (finalStats, pattern) => ({
-                ...finalStats,
-                [pattern.name]: {
-                    total: pattern.amount,
-                    round: 0
-                }
-            }),
-            {}
-        );
-    }
-
-    private handlePatternResultMeasurement(measurement: PatternResultMeasurement) {
-        this._io.emit('update', { type: 'MEASUREMENTS_BATCH', data: measurement });
+    private handlePatternResultMeasurement(patternResult: PatternResult) {
+        this._io.emit('update', { type: 'PATTERN_MEASUREMENT', data: patternResult });
     }
 
     private handleBenchmarkPhaseUpdate() {

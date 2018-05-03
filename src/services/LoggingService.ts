@@ -1,7 +1,7 @@
 import * as winston from 'winston';
 import * as fs from 'fs';
 import * as fse from 'fs-extra';
-import { PatternResultMeasurement, PatternElementRequest, Pattern } from '../interfaces/index';
+import { PatternRequestMeasurement, PatternElementRequest, Pattern, PatternResult } from '../interfaces/index';
 import LoggingError from '../exceptions/LoggingError';
 import config from '../config';
 import { format } from 'util';
@@ -90,8 +90,8 @@ class LoggingService {
         });
     }
 
-    public addMeasurements(patternRequestMeasurements: PatternResultMeasurement[]): void {
-        patternRequestMeasurements.forEach(measurement => {
+    public addPatternResult(patternResult: PatternResult): void {
+        patternResult.measurements.forEach(measurement => {
             this.measurementLogger.log({
                 level: 'info',
                 measurement
@@ -151,7 +151,7 @@ class LoggingService {
         return ['pattern', 'operation', 'timestampStart', 'timestampEnd'];
     }
 
-    private static getMeasurementString(measurement: PatternResultMeasurement): string {
+    private static getMeasurementString(measurement: PatternRequestMeasurement): string {
         return LoggingService.getMeasurementCSVFields().reduce((logString, propertyName) => {
             return `${!logString ? '' : logString + ','}${measurement[propertyName]}`;
         }, '');

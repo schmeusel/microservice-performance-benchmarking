@@ -9,6 +9,7 @@ export const PHASES = {
     },
     get ORDER() {
         return [
+            this.VALUES.INITIALIZATON,
             this.VALUES.PATTERN_RESOLUTION,
             this.VALUES.WORKLOAD_GENERATION,
             this.VALUES.REQUEST_TRANSMISSION,

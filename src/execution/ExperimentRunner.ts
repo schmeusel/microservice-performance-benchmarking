@@ -1,7 +1,7 @@
 import { fork, ChildProcess } from 'child_process';
 import * as path from 'path';
 import LoggingService from '../services/LoggingService';
-import { Pattern, PatternElementRequest, IPCMessage, IPCMessageType, PatternElementOutputType } from '../interfaces';
+import { Pattern, PatternElementRequest, IPCMessage, IPCMessageType, PatternElementOutputType, PatternRequestMeasurement, PatternResult } from '../interfaces';
 import OpenAPIService from '../services/OpenAPIService';
 import { EventEmitter } from 'events';
 import Server from '../webServer/Server';
@@ -65,10 +65,8 @@ class ExperimentRunner extends EventEmitter {
     private handleMessage(message: IPCMessage): void {
         switch (message.type) {
             case IPCMessageType.RESULT: {
-                // TODO use constants
-                console.log('result', message.data);
-                this.emit('SOCKET_MEASUREMENT', message.data);
-                LoggingService.addMeasurements(message.data);
+                this.emit('PATTERN_MEASUREMENT', message.data);
+                LoggingService.addPatternResult(message.data);
                 break;
             }
             case IPCMessageType.ERROR: {

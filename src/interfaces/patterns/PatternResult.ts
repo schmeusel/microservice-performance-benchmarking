@@ -1,6 +1,6 @@
-import { PatternResultMeasurement } from '../index';
+import { PatternRequestMeasurement } from '../index';
 
 export default interface PatternResult {
     name: string;
-    measurements: PatternResultMeasurement[];
-};
+    measurements: PatternRequestMeasurement[];
+}

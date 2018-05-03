@@ -1,6 +1,6 @@
 {
   "configuration": {
-    "totalPatternRequests": 10,
+    "totalPatternRequests": 5,
     "patterns": [
       {
         "name": "createResource",
@@ -9,7 +9,7 @@
             "id": "userCreate",
             "operation": "CREATE",
             "output": "createdItem",
-            "wait": 200
+            "wait": 800
           }
         ],
         "weight": 2

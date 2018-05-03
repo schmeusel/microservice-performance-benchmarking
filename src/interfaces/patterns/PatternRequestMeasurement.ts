@@ -9,4 +9,5 @@ export default interface PatternRequestMeasurement {
     timestampEnd: number;
     pattern: string;
     round: number;
+    patternIndex: number;
 }

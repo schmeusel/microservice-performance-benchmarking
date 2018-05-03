@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
+import { grey100 } from 'material-ui/styles/colors';
 import { getExperimentStatus, decideOnResult, downloadLog } from '../actions/experimentActions';
 import ExperimentPhase from '../components/ExperimentPhase';
 import ExperimentResult from '../components/ExperimentResult';
@@ -8,6 +9,7 @@ import io from 'socket.io-client';
 import SocketService from '../services/SocketService';
 import LogsDownload from '../components/LogsDownload';
 import { PHASES } from '../constants/ApplicationConstants';
+import PatternMeasurementsContainer from '../components/PatternMeasurementsContainer';
 
 class Layout extends PureComponent {
     componentDidMount() {
@@ -15,11 +17,20 @@ class Layout extends PureComponent {
     }
 
     render() {
+        const styles = {
+            container: {
+                padding: 32
+                // backgroundColor: grey100,
+                // height: '100%'
+            }
+        };
         return (
-            <div>
+            <div style={styles.container}>
+                <h1>Performance Benchmark</h1>
                 <ExperimentPhase phase={this.props.experimentPhase} />
                 <ExperimentResult result={this.props.experimentResult} onDecide={this.props.decideOnResult} />
-                {this.props.experimentPhase === PHASES.VALUES.COMPLETION && <LogsDownload />}
+                <PatternMeasurementsContainer measurements={this.props.measurements} />
+                <LogsDownload isReady={this.props.experimentPhase === PHASES.VALUES.COMPLETION} />
             </div>
         );
     }
