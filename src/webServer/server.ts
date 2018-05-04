@@ -9,6 +9,8 @@ import LoggingService from '../services/LoggingService';
 import AbstractPatternResolver from '../pattern/AbstractPatternResolver';
 import ApplicationState from '../services/ApplicationState';
 import config from '../config';
+import EmitterConstants, { APPLICATION_STATE_UPDATE_TYPE } from '../constants/EmitterConstants';
+import ActionTypes from '../constants/ActionTypes';
 
 class Server {
     private _app;
@@ -25,7 +27,7 @@ class Server {
         this._server = http.createServer(this._app);
         this._io = socketIO(this._server);
         this.handlePatternResultMeasurement = this.handlePatternResultMeasurement.bind(this);
-        this.handleBenchmarkPhaseUpdate = this.handleBenchmarkPhaseUpdate.bind(this);
+        this.handleApplicationStateUpdate = this.handleApplicationStateUpdate.bind(this);
     }
 
     public start() {
@@ -45,11 +47,12 @@ class Server {
     }
 
     private setUpListeners() {
-        ExperimentRunner.on('PATTERN_MEASUREMENT', this.handlePatternResultMeasurement);
-        ApplicationState.on('PHASE_UPDATE', this.handleBenchmarkPhaseUpdate);
+        ExperimentRunner.on(EmitterConstants.PATTERN_MEASUREMENT, this.handlePatternResultMeasurement);
+        ApplicationState.on(EmitterConstants.APPLICATION_STATE_UPDATE, this.handleApplicationStateUpdate);
         this._io.on('connection', socket => {
             this._connectedSockets[socket.id] = socket;
-            socket.emit('update', { type: 'EXPERIMENT_PHASE', data: ApplicationState.phase });
+            socket.emit('update', { type: ActionTypes.EXPERIMENT_PHASE, data: ApplicationState.phase });
+            socket.emit('update', { type: ActionTypes.PATTERNS, data: ApplicationState.patterns });
         });
     }
 
@@ -69,14 +72,23 @@ class Server {
             this.shutdown(req.params.result);
         });
 
-        // Provide download link to logs
+        // Provide download link to measurements and system event logs
         this._app.get('/api/v1/logs', (req, res) => {
             const validTypes = ['measurements', 'systemEvents'];
             if (!validTypes.includes(req.query.type)) {
                 res.sendStatus(404);
                 return;
             }
-            res.download(path.join(config.logging.directory, `${req.query.type}.log`));
+            res.download(config.logging.loggers[req.query.type].filename);
+        });
+
+        this._app.get('/api/v1/logs/workloads', (req, res) => {
+            const validWorkloads = ApplicationState.patterns.map(p => p.name);
+            if (!validWorkloads.includes(req.query.pattern)) {
+                res.sendStatus(404);
+                return;
+            }
+            res.download(path.join(config.logging.loggers.workloads.filename(req.query.pattern)));
         });
 
         this._app.get('*', (req, res) => {
@@ -101,11 +113,20 @@ class Server {
     }
 
     private handlePatternResultMeasurement(patternResult: PatternResult) {
-        this._io.emit('update', { type: 'PATTERN_MEASUREMENT', data: patternResult });
+        this._io.emit('update', { type: ActionTypes.PATTERN_MEASUREMENT, data: patternResult });
     }
 
-    private handleBenchmarkPhaseUpdate() {
-        this._io.emit('update', { type: 'EXPERIMENT_PHASE', data: ApplicationState.phase });
+    private handleApplicationStateUpdate(updateType: string): void {
+        switch (updateType) {
+            case APPLICATION_STATE_UPDATE_TYPE.PHASE: {
+                this._io.emit('update', { type: ActionTypes.EXPERIMENT_PHASE, data: ApplicationState.phase });
+                break;
+            }
+            case APPLICATION_STATE_UPDATE_TYPE.PATTERNS: {
+                this._io.emit('update', { type: ActionTypes.PATTERNS, data: ApplicationState.patterns });
+                break;
+            }
+        }
     }
 
     private destroySocketConnections(): void {

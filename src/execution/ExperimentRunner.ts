@@ -5,6 +5,7 @@ import { Pattern, PatternElementRequest, IPCMessage, IPCMessageType, PatternElem
 import OpenAPIService from '../services/OpenAPIService';
 import { EventEmitter } from 'events';
 import Server from '../webServer/Server';
+import EmitterConstants from '../constants/EmitterConstants';
 
 class ExperimentRunner extends EventEmitter {
     private _resolve: () => void;
@@ -65,7 +66,7 @@ class ExperimentRunner extends EventEmitter {
     private handleMessage(message: IPCMessage): void {
         switch (message.type) {
             case IPCMessageType.RESULT: {
-                this.emit('PATTERN_MEASUREMENT', message.data);
+                this.emit(EmitterConstants.PATTERN_MEASUREMENT, message.data);
                 LoggingService.addPatternResult(message.data);
                 break;
             }

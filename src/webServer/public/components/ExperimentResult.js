@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Paper, RaisedButton } from 'material-ui';
+import { RaisedButton } from 'material-ui';
 import { AsyncPropTypes } from '../constants/CustomPropTypes';
 import ExperimentResultText from './ExperimentResultText';
+import PaperContainer from '../containers/PaperContainer';
 
 const ExperimentResult = props => {
     const onDecide = result => () => {
@@ -10,12 +11,6 @@ const ExperimentResult = props => {
     };
 
     const styles = {
-        container: {
-            padding: 16,
-            display: 'flex',
-            flexDirection: 'column',
-            marginBottom: 32
-        },
         buttonContainer: {
             display: 'flex'
         },
@@ -29,8 +24,7 @@ const ExperimentResult = props => {
         result: { value, async }
     } = props;
     return (
-        <Paper style={styles.container}>
-            <h2>Decide on Result</h2>
+        <PaperContainer heading={'Decide on Result'}>
             {
                 <div style={styles.buttonContainer}>
                     {(!value || value === 'fail') && (
@@ -54,7 +48,7 @@ const ExperimentResult = props => {
                 </div>
             }
             <ExperimentResultText result={value} />
-        </Paper>
+        </PaperContainer>
     );
 };
 

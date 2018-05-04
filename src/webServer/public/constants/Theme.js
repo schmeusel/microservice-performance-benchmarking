@@ -1,4 +1,4 @@
-import { grey100, grey400, grey500, teal500, teal700, orange200 } from 'material-ui/styles/colors';
+import { grey100, grey400, grey500, teal500, teal700, red200 as orange200 } from 'material-ui/styles/colors';
 
 export const Palette = {
     primary1Color: teal500,

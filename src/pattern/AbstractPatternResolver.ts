@@ -13,6 +13,7 @@ import * as IntervalDistributionService from '../services/IntervalDistributionSe
 import PatternResolverError from '../exceptions/PatternResolverError';
 import { AbstractPatternElementExtended } from '../interfaces/patterns/AbstractPatternElement';
 import OpenAPIService from '../services/OpenAPIService';
+import ApplicationState from '../services/ApplicationState';
 
 class AbstractPatternResolver {
     private _totalRequests: number;
@@ -52,7 +53,7 @@ class AbstractPatternResolver {
 
         this.checkUniquessOfPatternNames(abstractPatterns);
         this._patterns = abstractPatterns.map(this.resolveAbstractPattern);
-
+        ApplicationState.setPatterns(this._patterns);
         return Promise.resolve();
     }
 

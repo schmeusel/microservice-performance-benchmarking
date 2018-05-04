@@ -13,12 +13,12 @@ export default class BenchmarkController extends EventEmitter {
     private specification: BenchmarkSpecification;
     private openAPIInput: string | OpenAPISpecification;
     private wasSuccessful: boolean;
-    public currentPhase: string;
 
     constructor(spec: BenchmarkSpecification, openAPISpec: string | OpenAPISpecification) {
         super();
         this.specification = spec;
         this.openAPIInput = openAPISpec;
+        ApplicationState.setAbstractPatterns(spec.configuration.patterns);
     }
 
     public start() {

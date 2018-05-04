@@ -1362,12 +1362,20 @@ chardet@^0.4.0:
   version "0.4.2"
   resolved "https://registry.yarnpkg.com/chardet/-/chardet-0.4.2.tgz#b5473b33dc97c424e5d98dc87d55d4d8a29c8bf2"
 
-chart.js@^2.7.2:
+chart.js@^2.7.0, chart.js@^2.7.2:
   version "2.7.2"
   resolved "https://registry.yarnpkg.com/chart.js/-/chart.js-2.7.2.tgz#3c9fde4dc5b95608211bdefeda7e5d33dffa5714"
   dependencies:
     chartjs-color "^2.1.0"
     moment "^2.10.2"
+
+chartjs-chart-box-and-violin-plot@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/chartjs-chart-box-and-violin-plot/-/chartjs-chart-box-and-violin-plot-1.0.0.tgz#4826b4bbe78e012c74191ebfa867840cabf64c39"
+  dependencies:
+    chart.js "^2.7.0"
+    d3-array "^1.2.1"
+    science "github:sgratzl/science.js"
 
 chartjs-color-string@^0.5.0:
   version "0.5.0"
@@ -1771,6 +1779,10 @@ css-in-js-utils@^2.0.0:
 cyclist@~0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/cyclist/-/cyclist-0.2.2.tgz#1b33792e11e914a2fd6d6ed6447464444e5fa640"
+
+d3-array@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/d3-array/-/d3-array-1.2.1.tgz#d1ca33de2f6ac31efadb8e050a021d7e2396d5dc"
 
 dargs@^5.1.0:
   version "5.1.0"
@@ -5067,6 +5079,10 @@ schema-utils@^0.4.4, schema-utils@^0.4.5:
   dependencies:
     ajv "^6.1.0"
     ajv-keywords "^3.1.0"
+
+"science@github:sgratzl/science.js":
+  version "1.9.3"
+  resolved "https://codeload.github.com/sgratzl/science.js/tar.gz/eef07e740aeaf2a481bf99fcd98711f57c8d656e"
 
 scoped-regex@^1.0.0:
   version "1.0.0"

@@ -7,7 +7,7 @@ import ExperimentResult from '../components/ExperimentResult';
 import handleSocket from '../actions/socketActions';
 import io from 'socket.io-client';
 import SocketService from '../services/SocketService';
-import LogsDownload from '../components/LogsDownload';
+import Downloads from '../components/downloads/Downloads';
 import { PHASES } from '../constants/ApplicationConstants';
 import PatternMeasurementsContainer from '../components/PatternMeasurementsContainer';
 
@@ -20,24 +20,49 @@ class Layout extends PureComponent {
         const styles = {
             container: {
                 padding: 32
-                // backgroundColor: grey100,
-                // height: '100%'
             }
         };
+
         return (
             <div style={styles.container}>
                 <h1>Performance Benchmark</h1>
                 <ExperimentPhase phase={this.props.experimentPhase} />
-                <ExperimentResult result={this.props.experimentResult} onDecide={this.props.decideOnResult} />
                 <PatternMeasurementsContainer measurements={this.props.measurements} />
-                <LogsDownload isReady={this.props.experimentPhase === PHASES.VALUES.COMPLETION} />
+                <ExperimentResult result={this.props.experimentResult} onDecide={this.props.decideOnResult} />
+                <Downloads patterns={this.props.patterns.map(pattern => pattern.name)} phase={this.props.experimentPhase} />
             </div>
         );
     }
 }
 
+const length = 50;
+const mapToRandom = () => parseFloat((Math.random() * 50 + 200).toFixed(2));
+const patternNames = ['createResource', 'getItem', 'updateCreateRead', 'justDoIt'];
+const buildRandomStepValues = () => ({
+    operation: 'CREATE',
+    latencies: {
+        success: Array.from({ length }).map(mapToRandom),
+        error: Array.from({ length }).map(mapToRandom)
+    }
+});
+const measurements = patternNames.reduce((obj, name) => {
+    return {
+        ...obj,
+        [name]: {
+            0: buildRandomStepValues(),
+            1: buildRandomStepValues(),
+            2: buildRandomStepValues(),
+            3: buildRandomStepValues(),
+            4: buildRandomStepValues(),
+            5: buildRandomStepValues()
+        }
+    };
+}, {});
+
 const mapStateToProps = state => ({
-    measurements: state.measurements,
+    // measurements: state.measurements,
+    measurements: measurements,
+    patterns: state.patterns,
     experimentPhase: state.experiment.phase,
     experimentResult: state.experiment.result
 });

@@ -1,38 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Line } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
+import MeasurementsBoxPlot from './charts/MeasurementsBoxPlot';
 
 const PatternMeasurement = props => {
     const { measurements, name } = props;
     const styles = {
         container: {
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            paddingTop: 16,
+            flexWrap: 'wrap'
         }
     };
-    const latencyRow = Object.keys(Object.keys(measurements).map(index => measurements[index].latencies)).reduce((latencies, errOrSucc, arr) => [
-        ...latencies,
-        ...arr[errOrSucc]
-    ]);
-    console.log('latency row', latencyRow);
-    const data = {
-        datasets: [
-            {
-                label: 'success',
-                fillColor: 'rgba(220,220,220,0.2)',
-                strokeColor: 'rgba(220,220,220,1)',
-                pointColor: 'rgba(220,220,220,1)',
-                pointStrokeColor: '#fff',
-                pointHighlightFill: '#fff',
-                pointHighlightStroke: 'rgba(220,220,220,1)',
-                data: latencyRow
-            }
-        ]
-    };
+
     return (
         <div style={styles.container}>
-            <h4>{name}</h4>
-            <Line data={data} />
+            <MeasurementsBoxPlot patternName={name} measurements={measurements} />
         </div>
     );
 };

@@ -103,7 +103,7 @@ class LoggingService {
         if (!patternRequests.length) {
             throw new LoggingError('saveGeneratedRequests was called with an empty array.');
         }
-        patternRequests.forEach((patternRequest, i) => {
+        patternRequests.forEach(patternRequest => {
             this[`_${patternRequest.patternName}Logger`].log({
                 level: 'info',
                 request: patternRequest
@@ -148,7 +148,7 @@ class LoggingService {
     }
 
     private static getMeasurementCSVFields(): string[] {
-        return ['pattern', 'operation', 'timestampStart', 'timestampEnd'];
+        return ['pattern', 'operation', 'timestampStart', 'timestampEnd', 'url', 'patternIndex', 'round'];
     }
 
     private static getMeasurementString(measurement: PatternRequestMeasurement): string {

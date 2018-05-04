@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Stepper, Step, StepLabel, StepContent, Paper } from 'material-ui';
+import { Stepper, Step, StepLabel, StepContent } from 'material-ui';
 import { AsyncPropTypes, StatsPropTypes } from '../constants/CustomPropTypes';
 import { PHASES } from '../constants/ApplicationConstants';
+import PaperContainer from '../containers/PaperContainer';
 
 const ExperimentPhase = ({ phase }) => {
     function isDisabled(phaseInOrder) {
@@ -32,17 +33,8 @@ const ExperimentPhase = ({ phase }) => {
             'The benchmarking process is done. In case of manual evaluation, decide now whether you want the integration step to succeed or fail.'
     };
 
-    const styles = {
-        container: {
-            display: 'flex',
-            flexDirection: 'column',
-            padding: 16,
-            marginBottom: 32
-        }
-    };
     return (
-        <Paper style={styles.container}>
-            <h2>Current Phase of the Experiment</h2>
+        <PaperContainer heading={'Current Phase of the Experiment'}>
             <Stepper activeStep={PHASES.ORDER.indexOf(phase)}>
                 {PHASES.ORDER.map(phaseName => (
                     <Step key={phaseName} disabled={isDisabled(phaseName)}>
@@ -51,7 +43,7 @@ const ExperimentPhase = ({ phase }) => {
                 ))}
             </Stepper>
             <p>{content[phase]}</p>
-        </Paper>
+        </PaperContainer>
     );
 };
 

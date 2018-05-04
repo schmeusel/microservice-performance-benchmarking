@@ -11,5 +11,9 @@ export default {
     DOWNLOAD_LOG: {
         method: 'get',
         path: type => `${apiPrefix}/logs?type=${type}`
+    },
+    DOWNLOAD_WORKLOAD: {
+        method: 'get',
+        path: pattern => `${apiPrefix}/logs/workloads?pattern=${pattern}`
     }
 };

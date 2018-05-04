@@ -5,6 +5,7 @@ import OpenAPISpecification, { OperationObject, PathsObject } from '../interface
 import { OpenAPIClient, AbstractPatternElementOperation, Resource } from '../interfaces/index';
 import { RequestMethod } from '../interfaces/RequestMethod';
 import { mapHttpMethodToElementOperation } from '../utils/OpenAPIUtil';
+import ApplicationState from './ApplicationState';
 
 class OpenAPIService {
     private _client: OpenAPIClient;
@@ -38,6 +39,7 @@ class OpenAPIService {
                 .then(client => {
                     this._client = client;
                     this._resources = this.hierarchizeResources();
+                    ApplicationState.setOpenAPISpecification(this._client.spec);
                     resolve();
                 })
                 .catch(reject);
