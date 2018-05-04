@@ -34,11 +34,13 @@ export default class ExperimentPhase extends PureComponent {
 
     getLabel(phaseName) {
         if (phaseName !== this.state.visiblePhase && phaseName !== this.props.phase) {
-            return null;
+            return PHASES.ABBREV(phaseName)
+                .split('')
+                .map((letter, i) => (i === 0 ? letter.toUpperCase() : letter.toLowerCase()))
+                .join('');
         }
         return phaseName
-            .replace('_', ' ')
-            .split(' ')
+            .split('_')
             .map(str => str.toLowerCase())
             .map(str => str.charAt(0).toUpperCase() + str.slice(1))
             .join(' ');
@@ -78,7 +80,13 @@ export default class ExperimentPhase extends PureComponent {
             <PaperContainer heading={'Current Phase of the Experiment'}>
                 <Stepper activeStep={PHASES.ORDER.indexOf(phase)}>
                     {PHASES.ORDER.map(phaseName => (
-                        <Step key={phaseName} completed={this.isCompleted(phaseName)} onClick={this.onChangeVisible(phaseName)} style={styles.step}>
+                        <Step
+                            key={phaseName}
+                            disabled={this.isCompleted(phaseName)}
+                            completed={this.isCompleted(phaseName)}
+                            onClick={this.onChangeVisible(phaseName)}
+                            style={styles.step}
+                        >
                             <StepLabel>{this.getLabel(phaseName)}</StepLabel>
                         </Step>
                     ))}
