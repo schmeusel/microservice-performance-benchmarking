@@ -1,31 +1,25 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { fade } from 'material-ui/utils/colorManipulator';
-import { Palette } from '../../constants/Theme';
+import { Palette } from '../../../constants/Theme';
 import 'chartjs-chart-box-and-violin-plot';
 import 'chart.js';
+import { MeasurementsPropTypes } from '../../../constants/CustomPropTypes';
 
 export default class MeasurementsBoxPlot extends PureComponent {
     static propTypes = {
         patternName: PropTypes.string.isRequired,
-        measurements: PropTypes.objectOf(
-            PropTypes.shape({
-                operation: PropTypes.oneOf(['READ', 'UPDATE', 'SCAN', 'DELETE', 'CREATE']).isRequired,
-                latencies: PropTypes.shape({
-                    error: PropTypes.arrayOf(PropTypes.number).isRequired,
-                    success: PropTypes.arrayOf(PropTypes.number).isRequired
-                }).isRequired
-            })
-        ).isRequired
+        measurements: PropTypes.objectOf(MeasurementsPropTypes).isRequired
     };
 
     constructor(props) {
         super(props);
         this.chart = null;
+        this.canvasId = `${props.patternName}_boxplot`;
     }
 
     componentDidMount() {
-        const ctx = document.getElementById(this.props.patternName).getContext('2d');
+        const ctx = document.getElementById(this.canvasId).getContext('2d');
         this.chart = new Chart(ctx, {
             type: 'boxplot',
             data: this.getChartsData(this.props),
@@ -46,7 +40,7 @@ export default class MeasurementsBoxPlot extends PureComponent {
         const latencies = Object.keys(measurements).map(index => measurements[index].latencies);
 
         return {
-            labels: Object.keys(measurements).map(round => `#${round}`),
+            labels: Object.keys(measurements).map(round => `#${parseInt(round) + 1}`),
             datasets: [
                 {
                     label: 'Erroneous Requests',
@@ -82,11 +76,13 @@ export default class MeasurementsBoxPlot extends PureComponent {
                     {
                         scaleLabel: {
                             display: true,
-                            labelString: 'Latency [ms]'
+                            labelString: 'Latency [ms]',
+                            fontStyle: 'bold'
                         },
                         ticks: {
                             suggestedMin: 180,
-                            suggestedMax: 280
+                            suggestedMax: 280,
+                            fontSize: 10
                         }
                     }
                 ],
@@ -94,7 +90,11 @@ export default class MeasurementsBoxPlot extends PureComponent {
                     {
                         scaleLabel: {
                             display: true,
-                            labelString: 'Sequence Step'
+                            labelString: 'Sequence Step',
+                            fontStyle: 'bold'
+                        },
+                        ticks: {
+                            fontSize: 10
                         }
                     }
                 ]
@@ -103,6 +103,6 @@ export default class MeasurementsBoxPlot extends PureComponent {
     }
 
     render() {
-        return <canvas id={this.props.patternName} />;
+        return <canvas id={this.canvasId} />;
     }
 }

@@ -9,7 +9,7 @@ import io from 'socket.io-client';
 import SocketService from '../services/SocketService';
 import Downloads from '../components/downloads/Downloads';
 import { PHASES } from '../constants/ApplicationConstants';
-import PatternMeasurementsContainer from '../components/PatternMeasurementsContainer';
+import PatternMeasurementsContainer from '../components/measurements/PatternMeasurementsContainer';
 
 class Layout extends PureComponent {
     componentDidMount() {

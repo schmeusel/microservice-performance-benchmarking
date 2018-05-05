@@ -2,9 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Tabs, Tab } from 'material-ui';
 import PatternMeasurement from './PatternMeasurement';
-import PaperContainer from '../containers/PaperContainer';
+import PaperContainer from '../../containers/PaperContainer';
 import { grey200 } from 'material-ui/styles/colors';
-import { Palette } from '../constants/Theme';
+import { Palette } from '../../constants/Theme';
+import { MeasurementsPropTypes } from '../../constants/CustomPropTypes';
 
 const PatternMeasurementsContainer = ({ measurements }) => {
     if (!Object.keys(measurements).length) {
@@ -37,17 +38,7 @@ const PatternMeasurementsContainer = ({ measurements }) => {
 };
 
 PatternMeasurementsContainer.propTypes = {
-    measurements: PropTypes.objectOf(
-        PropTypes.objectOf(
-            PropTypes.shape({
-                operation: PropTypes.oneOf(['READ', 'UPDATE', 'SCAN', 'DELETE', 'CREATE']).isRequired,
-                latencies: PropTypes.shape({
-                    error: PropTypes.arrayOf(PropTypes.number).isRequired,
-                    success: PropTypes.arrayOf(PropTypes.number).isRequired
-                }).isRequired
-            })
-        )
-    )
+    measurements: PropTypes.objectOf(PropTypes.objectOf(MeasurementsPropTypes))
 };
 
 export default PatternMeasurementsContainer;
