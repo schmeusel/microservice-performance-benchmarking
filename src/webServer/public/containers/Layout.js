@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { grey100 } from 'material-ui/styles/colors';
 import { getExperimentStatus, decideOnResult, downloadLog } from '../actions/experimentActions';
-import ExperimentPhase from '../components/ExperimentPhase';
+import ExperimentPhase from '../components/experimentPhase/ExperimentPhase';
 import ExperimentResult from '../components/ExperimentResult';
 import handleSocket from '../actions/socketActions';
 import io from 'socket.io-client';
@@ -29,7 +29,10 @@ class Layout extends PureComponent {
                 <ExperimentPhase phase={this.props.experimentPhase} />
                 <PatternMeasurementsContainer measurements={this.props.measurements} />
                 <ExperimentResult result={this.props.experimentResult} onDecide={this.props.decideOnResult} />
-                <Downloads patterns={this.props.patterns.map(pattern => pattern.name)} phase={this.props.experimentPhase} />
+                <Downloads
+                    patterns={this.props.patterns.map(pattern => pattern.name)}
+                    phase={this.props.experimentPhase}
+                />
             </div>
         );
     }
