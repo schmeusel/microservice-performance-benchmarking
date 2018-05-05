@@ -7,24 +7,6 @@ export const PHASES = {
         MEASUREMENT_EVALUATION: 'MEASUREMENT_EVALUATION',
         COMPLETION: 'COMPLETION'
     },
-    get ABBREV() {
-        return phase => {
-            switch (phase) {
-                case this.VALUES.INITIALIZATON:
-                    return 'INIT';
-                case this.VALUES.PATTERN_RESOLUTION:
-                    return 'RES';
-                case this.VALUES.WORKLOAD_GENERATION:
-                    return 'WORK';
-                case this.VALUES.REQUEST_TRANSMISSION:
-                    return 'REQ';
-                case this.VALUES.MEASUREMENT_EVALUATION:
-                    return 'EVAL';
-                case this.VALUES.COMPLETION:
-                    return 'COMPL';
-            }
-        };
-    },
     get ORDER() {
         return [
             this.VALUES.INITIALIZATON,
