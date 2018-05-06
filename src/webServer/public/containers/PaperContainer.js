@@ -15,7 +15,7 @@ const PaperContainer = ({ heading, children, style }) => {
         return null;
     }
     return (
-        <Paper style={paperStyle}>
+        <Paper style={paperStyle} zDepth={0}>
             {!!heading && <h2>{heading}</h2>}
             {children}
         </Paper>

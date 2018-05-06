@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import { grey100 } from 'material-ui/styles/colors';
-import { getExperimentStatus, decideOnResult, downloadLog } from '../actions/experimentActions';
+import { decideOnResult } from '../actions/experimentActions';
+import { onGroupingDistanceChange } from '../actions/applicationActions';
 import ExperimentPhase from '../components/experimentPhase/ExperimentPhase';
 import ExperimentResult from '../components/ExperimentResult';
 import handleSocket from '../actions/socketActions';
@@ -13,7 +13,7 @@ import PatternMeasurementsContainer from '../components/measurements/PatternMeas
 
 class Layout extends PureComponent {
     componentDidMount() {
-        SocketService.listen(this.props.handleSocket);
+        // SocketService.listen(this.props.handleSocket);
     }
 
     render() {
@@ -26,9 +26,13 @@ class Layout extends PureComponent {
         return (
             <div style={styles.container}>
                 <h1>Performance Benchmark</h1>
-                <ExperimentPhase phase={this.props.experimentPhase} />
-                <PatternMeasurementsContainer measurements={this.props.measurements} />
-                <ExperimentResult result={this.props.experimentResult} onDecide={this.props.decideOnResult} />
+                <ExperimentPhase phase={this.props.experiment.phase} />
+                <PatternMeasurementsContainer
+                    measurements={this.props.measurements}
+                    groupingDistance={this.props.settings.groupingDistance}
+                    onGroupingDistanceChange={this.props.onGroupingDistanceChange}
+                />
+                <ExperimentResult result={this.props.experiment.result} onDecide={this.props.decideOnResult} />
                 <Downloads
                     patterns={this.props.patterns.map(pattern => pattern.name)}
                     phase={this.props.experimentPhase}
@@ -66,13 +70,14 @@ const mapStateToProps = state => ({
     // measurements: state.measurements,
     measurements: measurements,
     patterns: state.patterns,
-    experimentPhase: state.experiment.phase,
-    experimentResult: state.experiment.result
+    experiment: state.experiment,
+    settings: state.application.settings
 });
 
 const mapDispatchToProps = dispatch => ({
     decideOnResult: result => dispatch(decideOnResult(result)),
-    handleSocket: data => dispatch(handleSocket(data))
+    handleSocket: data => dispatch(handleSocket(data)),
+    onGroupingDistanceChange: value => dispatch(onGroupingDistanceChange(value))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout);

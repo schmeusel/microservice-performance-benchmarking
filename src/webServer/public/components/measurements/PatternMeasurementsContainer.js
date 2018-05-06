@@ -7,7 +7,7 @@ import { grey200 } from 'material-ui/styles/colors';
 import { Palette } from '../../constants/Theme';
 import { MeasurementsPropTypes } from '../../constants/CustomPropTypes';
 
-const PatternMeasurementsContainer = ({ measurements }) => {
+const PatternMeasurementsContainer = ({ measurements, groupingDistance, onGroupingDistanceChange }) => {
     if (!Object.keys(measurements).length) {
         return null;
     }
@@ -28,7 +28,12 @@ const PatternMeasurementsContainer = ({ measurements }) => {
                 {Object.keys(measurements).map(patternName => {
                     return (
                         <Tab key={patternName} label={patternName} buttonStyle={styles.tabButton}>
-                            <PatternMeasurement name={patternName} measurements={measurements[patternName]} />
+                            <PatternMeasurement
+                                name={patternName}
+                                measurements={measurements[patternName]}
+                                groupingDistance={groupingDistance}
+                                onGroupingDistanceChange={onGroupingDistanceChange}
+                            />
                         </Tab>
                     );
                 })}
@@ -38,7 +43,9 @@ const PatternMeasurementsContainer = ({ measurements }) => {
 };
 
 PatternMeasurementsContainer.propTypes = {
-    measurements: PropTypes.objectOf(PropTypes.objectOf(MeasurementsPropTypes))
+    measurements: PropTypes.objectOf(PropTypes.objectOf(MeasurementsPropTypes)),
+    groupingDistance: PropTypes.number.isRequired,
+    onGroupingDistanceChange: PropTypes.func.isRequired
 };
 
 export default PatternMeasurementsContainer;

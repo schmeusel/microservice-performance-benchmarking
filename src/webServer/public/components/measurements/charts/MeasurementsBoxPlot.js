@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { fade } from 'material-ui/utils/colorManipulator';
 import { Palette } from '../../../constants/Theme';
@@ -103,6 +103,11 @@ export default class MeasurementsBoxPlot extends PureComponent {
     }
 
     render() {
-        return <canvas id={this.canvasId} />;
+        return (
+            <Fragment>
+                <h4>Box Plots</h4>
+                <canvas id={this.canvasId} />
+            </Fragment>
+        );
     }
 }
