@@ -10,6 +10,7 @@ import SocketService from '../services/SocketService';
 import Downloads from '../components/downloads/Downloads';
 import { PHASES } from '../constants/ApplicationConstants';
 import PatternMeasurementsContainer from '../components/measurements/PatternMeasurementsContainer';
+import FeedbackSnackbar from '../components/FeedbackSnackbar';
 
 class Layout extends PureComponent {
     componentDidMount() {
@@ -37,6 +38,7 @@ class Layout extends PureComponent {
                     patterns={this.props.patterns.map(pattern => pattern.name)}
                     phase={this.props.experimentPhase}
                 />
+                <FeedbackSnackbar message={this.props.feedbackMessage} />
             </div>
         );
     }
@@ -71,7 +73,8 @@ const mapStateToProps = state => ({
     measurements: measurements,
     patterns: state.patterns,
     experiment: state.experiment,
-    settings: state.application.settings
+    settings: state.application.settings,
+    feedbackMessage: state.application.feedbackMessage
 });
 
 const mapDispatchToProps = dispatch => ({

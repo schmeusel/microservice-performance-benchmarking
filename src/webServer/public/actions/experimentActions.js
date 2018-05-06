@@ -1,5 +1,6 @@
 import ActionTypes from '../constants/ActionTypes';
 import EndpointConstants from '../constants/EndpointConstants';
+import { showSnackbarFeedback } from './applicationActions';
 
 export function decideOnResult(result) {
     const { DECISION } = EndpointConstants;
@@ -26,9 +27,9 @@ export function decideOnResult(result) {
                         isLoading: false
                     }
                 });
+                dispatch(showSnackbarFeedback('Decision successfully made'));
             })
             .catch(error => {
-                console.log('error in decision making', error);
                 dispatch({
                     type: ActionTypes.EXPERIMENT_DECISION.ASYNC,
                     data: {
