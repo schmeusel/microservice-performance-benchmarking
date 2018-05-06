@@ -29,10 +29,10 @@ const ExperimentResult = props => {
                 <div style={styles.buttonContainer}>
                     {(!value || value === 'fail') && (
                         <RaisedButton
-                            onClick={onDecide('succeed')}
+                            onClick={onDecide('fail')}
                             disabled={async.isLoading || !!value}
                             secondary
-                            label={value === 'fail' ? 'Failed' : 'Fail'}
+                            label={value === 'fail' ? 'Experiment Failed' : 'Fail'}
                             style={styles.buttonStyle}
                         />
                     )}
@@ -41,7 +41,7 @@ const ExperimentResult = props => {
                             onClick={onDecide('fail')}
                             disabled={async.isLoading || !!value}
                             primary
-                            label={value === 'succeed' ? 'Succeeded' : 'Succeed'}
+                            label={value === 'succeed' ? 'Experiment Succeeded' : 'Succeed'}
                             style={styles.buttonStyle}
                         />
                     )}
