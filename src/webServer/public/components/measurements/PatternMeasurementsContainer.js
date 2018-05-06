@@ -2,11 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Tabs, Tab } from 'material-ui';
 import PatternMeasurement from './PatternMeasurement';
-import PaperContainer from '../containers/PaperContainer';
+import PaperContainer from '../../containers/PaperContainer';
 import { grey200 } from 'material-ui/styles/colors';
-import { Palette } from '../constants/Theme';
+import { Palette } from '../../constants/Theme';
+import { MeasurementsPropTypes } from '../../constants/CustomPropTypes';
 
-const PatternMeasurementsContainer = ({ measurements }) => {
+const PatternMeasurementsContainer = ({ measurements, groupingDistance, onGroupingDistanceChange }) => {
     if (!Object.keys(measurements).length) {
         return null;
     }
@@ -27,7 +28,12 @@ const PatternMeasurementsContainer = ({ measurements }) => {
                 {Object.keys(measurements).map(patternName => {
                     return (
                         <Tab key={patternName} label={patternName} buttonStyle={styles.tabButton}>
-                            <PatternMeasurement name={patternName} measurements={measurements[patternName]} />
+                            <PatternMeasurement
+                                name={patternName}
+                                measurements={measurements[patternName]}
+                                groupingDistance={groupingDistance}
+                                onGroupingDistanceChange={onGroupingDistanceChange}
+                            />
                         </Tab>
                     );
                 })}
@@ -37,17 +43,9 @@ const PatternMeasurementsContainer = ({ measurements }) => {
 };
 
 PatternMeasurementsContainer.propTypes = {
-    measurements: PropTypes.objectOf(
-        PropTypes.objectOf(
-            PropTypes.shape({
-                operation: PropTypes.oneOf(['READ', 'UPDATE', 'SCAN', 'DELETE', 'CREATE']).isRequired,
-                latencies: PropTypes.shape({
-                    error: PropTypes.arrayOf(PropTypes.number).isRequired,
-                    success: PropTypes.arrayOf(PropTypes.number).isRequired
-                }).isRequired
-            })
-        )
-    )
+    measurements: PropTypes.objectOf(PropTypes.objectOf(MeasurementsPropTypes)),
+    groupingDistance: PropTypes.number.isRequired,
+    onGroupingDistanceChange: PropTypes.func.isRequired
 };
 
 export default PatternMeasurementsContainer;
