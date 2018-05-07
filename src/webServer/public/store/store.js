@@ -1,8 +1,8 @@
 import { createStore, applyMiddleware, combineReducers } from 'redux';
-import measurementsReducer from '../reducers/measurementReducer';
+import measurementsReducer from '../reducers/measurementsReducer';
 import patternsReducer from '../reducers/patternsReducer';
-import { experimentPhaseReducer, experimentResultReducer } from '../reducers/experimentReducer';
-import { settingsReducer, feedbackMessageReducer } from '../reducers/applicationReducer';
+import { experimentPhaseReducer, experimentResultReducer } from '../reducers/experimentReducers';
+import { settingsReducer, feedbackMessageReducer } from '../reducers/applicationReducers';
 import thunk from 'redux-thunk';
 import logger from 'redux-logger';
 

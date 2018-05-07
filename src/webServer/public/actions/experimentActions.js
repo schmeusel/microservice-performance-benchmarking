@@ -6,7 +6,7 @@ export function decideOnResult(result) {
     const { DECISION } = EndpointConstants;
     return dispatch => {
         dispatch({
-            type: ActionTypes.EXPERIMENT_DECISION.ASYNC,
+            type: ActionTypes.EXPERIMENT.DECISION.ASYNC,
             data: {
                 errorCode: 0,
                 isLoading: true
@@ -17,11 +17,11 @@ export function decideOnResult(result) {
         })
             .then(() => {
                 dispatch({
-                    type: ActionTypes.EXPERIMENT_DECISION.RESULT,
+                    type: ActionTypes.EXPERIMENT.DECISION.RESULT,
                     data: result
                 });
                 dispatch({
-                    type: ActionTypes.EXPERIMENT_DECISION.ASYNC,
+                    type: ActionTypes.EXPERIMENT.DECISION.ASYNC,
                     data: {
                         errorCode: 0,
                         isLoading: false
@@ -31,7 +31,7 @@ export function decideOnResult(result) {
             })
             .catch(error => {
                 dispatch({
-                    type: ActionTypes.EXPERIMENT_DECISION.ASYNC,
+                    type: ActionTypes.EXPERIMENT.DECISION.ASYNC,
                     data: {
                         errorCode: error.status,
                         isLoading: false
