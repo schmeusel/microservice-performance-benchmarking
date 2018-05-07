@@ -1,0 +1,45 @@
+version: 2
+
+jobs:
+    dependencies:
+        docker:
+            - image: circleci/node:9
+        steps:
+            - checkout
+            - restore_cache:
+                keys:
+                    - js-cache-{{ checksum "yarn.lock" }}
+            - run:
+                name: Installing JavaScript packages
+                command: yarn
+            - save_cache:
+                key: js-cache-{{ checksum "yarn.lock" }}
+                paths:
+                    - ./node_modules
+
+    test:
+        docker:
+            - image: circleci/node:9
+        steps:
+            - checkout
+            - restore_cache:
+                keys:
+                    - js-cache-{{ checksum "yarn.lock" }}
+            - run:
+                name: Testing Frontend
+                command: yarn run test-frontend
+            - run:
+                name: Testing Backend
+                command: yarn run test-backend
+
+workflows:
+    version: 2
+    misc-deploy:
+        jobs:
+            - dependencies
+            - test:
+                requires:
+                    - dependencies
+            - build:
+                requires:
+                    - dependencies
