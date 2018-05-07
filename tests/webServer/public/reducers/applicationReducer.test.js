@@ -14,7 +14,7 @@ describe('Test applicationReducers', () => {
             const distanceStub = 1;
             const actionStub = {
                 type: ActionTypes.APPLICATION.SETTINGS.GROUPING_DISTANCE,
-                value: distanceStub
+                data: distanceStub
             };
             const result = settingsReducer({}, actionStub);
             expect(result).toEqual({
