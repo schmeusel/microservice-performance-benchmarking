@@ -23,6 +23,7 @@ const DownloadLinkContainer = ({ heading, children }) => {
 };
 
 DownloadLinkContainer.propTypes = {
+    heading: PropTypes.string.isRequired,
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
 };
 
