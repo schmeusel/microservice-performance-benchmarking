@@ -6,12 +6,24 @@
   "author": "Lukas <meusel.lukas@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test": "mocha --require ts-node/register ./test/**/*.test.ts",
+    "test-backend": "mocha --require ts-node/register ./tests/**/*.test.ts",
+    "test-frontend": "jest",
     "build-server": "tsc",
-    "build-client": "webpack --config webpack.config.js && cp ./src/webServer/public/index.html ./build/webServer/public/index.html",
-    "build-client-watch": "cp ./src/webServer/public/index.html ./build/webServer/public/index.html && webpack --config webpack.config.js --watch",
+    "build-client":
+      "webpack --config webpack.config.js && cp ./src/webServer/public/index.html ./build/webServer/public/index.html",
+    "build-client-watch":
+      "cp ./src/webServer/public/index.html ./build/webServer/public/index.html && webpack --config webpack.config.js --watch",
     "build": "yarn run build-server && yarn run build-client",
-    "start": "yarn run build && node ./build/app.js --json ./assets/sampleAPI_extended.json --spec ./assets/benchmarkSpec.json"
+    "start":
+      "yarn run build && node ./build/app.js --json ./assets/sampleAPI_extended.json --spec ./assets/benchmarkSpec.json"
+  },
+  "jest": {
+    "verbose": true,
+    "testRegex": "/tests/webServer/.*\\.test\\.(js)$",
+    "transform": {
+      ".js": "./node_modules/babel-jest"
+    },
+    "setupTestFrameworkScriptFile": "./tests/webServer/public/setup.js"
   },
   "dependencies": {
     "chart.js": "^2.7.2",
@@ -41,17 +53,24 @@
   },
   "devDependencies": {
     "@types/chai": "^4.1.2",
+    "@types/enzyme": "^3.1.10",
+    "@types/jest": "^22.2.3",
     "@types/minimist": "^1.2.0",
     "@types/mocha": "^5.0.0",
     "@types/node": "^9.4.7",
     "@types/request": "^2.47.0",
     "@types/sinon": "^4.3.1",
     "babel-core": "^6.26.0",
+    "babel-jest": "^22.4.3",
     "babel-loader": "^7.1.4",
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
     "chai": "^4.1.2",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
+    "jest": "^22.4.3",
+    "jest-enzyme": "^6.0.0",
     "mocha": "^5.0.5",
     "proxyquire": "^2.0.1",
     "sinon": "^4.5.0",

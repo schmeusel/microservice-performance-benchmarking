@@ -1,11 +1,12 @@
 import ActionTypes from '../constants/ActionTypes';
+import { PHASES } from '../constants/ApplicationConstants';
 
 const asyncDefaultState = {
     isLoading: false,
     errorCode: 0
 };
 
-export function experimentPhaseReducer(state = null, action) {
+export function experimentPhaseReducer(state = PHASES.ORDER.shift(), action) {
     switch (action.type) {
         case ActionTypes.EXPERIMENT_PHASE: {
             return action.data;
