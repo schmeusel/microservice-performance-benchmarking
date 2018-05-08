@@ -4,7 +4,7 @@ import { decideOnResult } from '../actions/experimentActions';
 import { onGroupingDistanceChange } from '../actions/applicationActions';
 import ExperimentPhase from '../components/experimentPhase/ExperimentPhase';
 import ExperimentResult from '../components/ExperimentResult';
-import handleSocket from '../actions/socketActions';
+import { handleSocket } from '../actions/socketActions';
 import SocketService from '../services/SocketService';
 import Downloads from '../components/downloads/Downloads';
 import PatternMeasurementsContainer from '../components/measurements/PatternMeasurementsContainer';
@@ -18,8 +18,8 @@ class Layout extends PureComponent {
     render() {
         const styles = {
             container: {
-                padding: 32
-            }
+                padding: 32,
+            },
         };
 
         return (
@@ -44,25 +44,27 @@ class Layout extends PureComponent {
 
 const length = 50;
 const mapToRandom = () => parseFloat((Math.random() * 50 + 200).toFixed(2));
-const patternNames = ['createResource', 'getItem', 'updateCreateRead', 'justDoIt'];
+const patternNames = [ 'createResource', 'getItem', 'updateCreateRead', 'justDoIt' ];
 const buildRandomStepValues = () => ({
     operation: 'CREATE',
     latencies: {
-        success: Array.from({ length }).map(mapToRandom),
-        error: Array.from({ length }).map(mapToRandom)
-    }
+        success: Array.from({ length })
+            .map(mapToRandom),
+        error: Array.from({ length })
+            .map(mapToRandom),
+    },
 });
 const measurements = patternNames.reduce((obj, name) => {
     return {
         ...obj,
-        [name]: {
+        [ name ]: {
             0: buildRandomStepValues(),
             1: buildRandomStepValues(),
             2: buildRandomStepValues(),
             3: buildRandomStepValues(),
             4: buildRandomStepValues(),
-            5: buildRandomStepValues()
-        }
+            5: buildRandomStepValues(),
+        },
     };
 }, {});
 
@@ -72,13 +74,13 @@ const mapStateToProps = state => ({
     patterns: state.patterns,
     experiment: state.experiment,
     settings: state.application.settings,
-    feedbackMessage: state.application.feedbackMessage
+    feedbackMessage: state.application.feedbackMessage,
 });
 
 const mapDispatchToProps = dispatch => ({
     decideOnResult: result => dispatch(decideOnResult(result)),
     handleSocket: data => dispatch(handleSocket(data)),
-    onGroupingDistanceChange: value => dispatch(onGroupingDistanceChange(value))
+    onGroupingDistanceChange: value => dispatch(onGroupingDistanceChange(value)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout);

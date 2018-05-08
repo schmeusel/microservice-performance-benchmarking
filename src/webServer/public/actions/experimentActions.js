@@ -12,7 +12,7 @@ export function decideOnResult(result) {
                 isLoading: true
             }
         });
-        fetch(DECISION.path(result), {
+        return fetch(DECISION.path(result), {
             method: DECISION.method
         })
             .then(() => {
