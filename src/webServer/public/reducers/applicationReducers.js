@@ -20,3 +20,12 @@ export function feedbackMessageReducer(state = '', action) {
     }
     return state;
 }
+
+export function connectedReducer(state = false, action) {
+    switch (action.type) {
+        case ActionTypes.APPLICATION.CONNECTED: {
+            return action.data;
+        }
+    }
+    return state;
+}
