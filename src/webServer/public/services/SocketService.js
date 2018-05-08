@@ -1,16 +1,17 @@
 import io from 'socket.io-client';
+import {setConnectionFlag} from "../actions/applicationActions";
 
 class SocketService {
-    listen(handler) {
+    listen(socketHandler) {
         this.socket = io.connect();
         this.socket
             .on('connect', () => {
-                console.log('Socket connected');
+                socketHandler(setConnectionFlag(true));
             })
             .on('disconnect', () => {
-                console.log('Socket disconnected from server');
+                socketHandler(setConnectionFlag(false));
             })
-            .on('update', handler);
+            .on('update', socketHandler);
     }
 }
 

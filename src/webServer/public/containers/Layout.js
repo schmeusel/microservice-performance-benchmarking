@@ -5,16 +5,14 @@ import { onGroupingDistanceChange } from '../actions/applicationActions';
 import ExperimentPhase from '../components/experimentPhase/ExperimentPhase';
 import ExperimentResult from '../components/ExperimentResult';
 import handleSocket from '../actions/socketActions';
-import io from 'socket.io-client';
 import SocketService from '../services/SocketService';
 import Downloads from '../components/downloads/Downloads';
-import { PHASES } from '../constants/ApplicationConstants';
 import PatternMeasurementsContainer from '../components/measurements/PatternMeasurementsContainer';
 import FeedbackSnackbar from '../components/FeedbackSnackbar';
 
 class Layout extends PureComponent {
     componentDidMount() {
-        // SocketService.listen(this.props.handleSocket);
+        SocketService.listen(this.props.handleSocket);
     }
 
     render() {
@@ -36,7 +34,7 @@ class Layout extends PureComponent {
                 <ExperimentResult result={this.props.experiment.result} onDecide={this.props.decideOnResult} />
                 <Downloads
                     patterns={this.props.patterns.map(pattern => pattern.name)}
-                    phase={this.props.experimentPhase}
+                    phase={this.props.experiment.phase}
                 />
                 <FeedbackSnackbar message={this.props.feedbackMessage} />
             </div>
