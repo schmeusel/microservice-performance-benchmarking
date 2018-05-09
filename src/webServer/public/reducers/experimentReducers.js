@@ -1,9 +1,9 @@
 import ActionTypes from '../constants/ActionTypes';
-import {PHASES} from '../constants/ApplicationConstants';
+import { PHASES } from '../constants/ApplicationConstants';
 
 const asyncDefaultState = {
     isLoading: false,
-    errorCode: 0
+    errorCode: 0,
 };
 
 export function experimentPhaseReducer(state = PHASES.ORDER.shift(), action) {
@@ -15,12 +15,12 @@ export function experimentPhaseReducer(state = PHASES.ORDER.shift(), action) {
     return state;
 }
 
-export function experimentResultReducer(state = {async: asyncDefaultState, value: null}, action) {
+export function experimentResultReducer(state = { async: asyncDefaultState, value: null }, action) {
     switch (action.type) {
         case ActionTypes.EXPERIMENT.DECISION.ASYNC: {
             return {
                 ...state,
-                async: action.data
+                async: action.data,
             };
         }
         case ActionTypes.EXPERIMENT.DECISION.RESULT: {
@@ -29,7 +29,7 @@ export function experimentResultReducer(state = {async: asyncDefaultState, value
             }
             return {
                 ...state,
-                value: action.data
+                value: action.data,
             };
         }
     }

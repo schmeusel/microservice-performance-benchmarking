@@ -14,14 +14,14 @@ const ExperimentPhaseContent = ({ phase }) => {
         [PHASES.VALUES.MEASUREMENT_EVALUATION]:
             'After all requests have been sent, it is time to evaluated the metrics.',
         [PHASES.VALUES.COMPLETION]:
-            'The benchmarking process is done. In case of manual evaluation, decide now whether you want the integration step to succeed or fail.'
+            'The benchmarking process is done. In case of manual evaluation, decide now whether you want the integration step to succeed or fail.',
     };
 
     return <p>{content[phase]}</p>;
 };
 
 ExperimentPhaseContent.propTypes = {
-    phase: PropTypes.oneOf(PHASES.ORDER)
+    phase: PropTypes.oneOf(PHASES.ORDER),
 };
 
 export default ExperimentPhaseContent;

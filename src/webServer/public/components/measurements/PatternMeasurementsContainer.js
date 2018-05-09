@@ -13,30 +13,28 @@ const PatternMeasurementsContainer = ({ measurements, groupingDistance, onGroupi
     }
     const styles = {
         inkBar: {
-            backgroundColor: Palette.accent3Color
+            backgroundColor: Palette.accent3Color,
         },
         tabButton: {
             backgroundColor: 'white',
             color: 'black',
             borderBottom: `2px solid ${grey200}`,
-            textTransform: 'none'
-        }
+            textTransform: 'none',
+        },
     };
     return (
         <PaperContainer heading={'Pattern Measurements'}>
             <Tabs inkBarStyle={styles.inkBar}>
-                {Object.keys(measurements).map(patternName => {
-                    return (
-                        <Tab key={patternName} label={patternName} buttonStyle={styles.tabButton}>
-                            <PatternMeasurement
-                                name={patternName}
-                                measurements={measurements[patternName]}
-                                groupingDistance={groupingDistance}
-                                onGroupingDistanceChange={onGroupingDistanceChange}
-                            />
-                        </Tab>
-                    );
-                })}
+                {Object.keys(measurements).map(patternName => (
+                    <Tab key={patternName} label={patternName} buttonStyle={styles.tabButton}>
+                        <PatternMeasurement
+                            name={patternName}
+                            measurements={measurements[patternName]}
+                            groupingDistance={groupingDistance}
+                            onGroupingDistanceChange={onGroupingDistanceChange}
+                        />
+                    </Tab>
+                ))}
             </Tabs>
         </PaperContainer>
     );
@@ -45,7 +43,7 @@ const PatternMeasurementsContainer = ({ measurements, groupingDistance, onGroupi
 PatternMeasurementsContainer.propTypes = {
     measurements: PropTypes.objectOf(PropTypes.objectOf(MeasurementsPropTypes)),
     groupingDistance: PropTypes.number.isRequired,
-    onGroupingDistanceChange: PropTypes.func.isRequired
+    onGroupingDistanceChange: PropTypes.func.isRequired,
 };
 
 export default PatternMeasurementsContainer;

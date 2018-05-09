@@ -26,20 +26,20 @@ export default function reducer(state = {}, action) {
             const intermediate = {
                 ...state,
                 [action.data.name]: {
-                    ...(state[action.data.name] || {})
-                }
+                    ...(state[action.data.name] || {}),
+                },
             };
 
             // TODO make more functional with reduce with starting accu "intermediate"
-            action.data.measurements.forEach(measurement => {
+            action.data.measurements.forEach((measurement) => {
                 const latency = measurement.timestampEnd - measurement.timestampStart;
                 if (!intermediate[action.data.name][measurement.patternIndex]) {
                     intermediate[action.data.name][measurement.patternIndex] = {
                         operation: measurement.operation,
                         latencies: {
                             error: [],
-                            success: []
-                        }
+                            success: [],
+                        },
                     };
                 }
                 if (measurement.status < 300) {

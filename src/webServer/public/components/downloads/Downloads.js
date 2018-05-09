@@ -9,8 +9,8 @@ const Downloads = ({ patterns, phase }) => {
     const styles = {
         linksContainer: {
             display: 'flex',
-            flexWrap: 'wrap'
-        }
+            flexWrap: 'wrap',
+        },
     };
     return (
         <PaperContainer heading={'Downloads'}>
@@ -39,11 +39,11 @@ const Downloads = ({ patterns, phase }) => {
 
 Downloads.propTypes = {
     phase: PropTypes.oneOf(PHASES.ORDER),
-    patterns: PropTypes.arrayOf(PropTypes.string)
+    patterns: PropTypes.arrayOf(PropTypes.string),
 };
 
 Downloads.defaultProps = {
-    patterns: []
+    patterns: [],
 };
 
 export default Downloads;

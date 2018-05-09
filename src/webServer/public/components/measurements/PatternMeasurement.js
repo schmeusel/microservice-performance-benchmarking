@@ -5,15 +5,17 @@ import MeasurementsBoxPlot from './charts/MeasurementsBoxPlot';
 import MeasurementsHistogramContainer from './MeasurementsHistogramContainer';
 import { MeasurementsPropTypes } from '../../constants/CustomPropTypes';
 
-const PatternMeasurement = props => {
-    const { measurements, name, groupingDistance, onGroupingDistanceChange } = props;
+const PatternMeasurement = (props) => {
+    const {
+        measurements, name, groupingDistance, onGroupingDistanceChange,
+    } = props;
     const styles = {
         container: {
             display: 'flex',
             flexDirection: 'column',
             paddingTop: 12,
-            flexWrap: 'wrap'
-        }
+            flexWrap: 'wrap',
+        },
     };
 
     return (
@@ -34,7 +36,7 @@ PatternMeasurement.propTypes = {
     measurements: PropTypes.objectOf(MeasurementsPropTypes).isRequired,
     groupingDistance: PropTypes.number.isRequired,
     onGroupingDistanceChange: PropTypes.func.isRequired,
-    total: PropTypes.number
+    total: PropTypes.number,
 };
 
 export default PatternMeasurement;

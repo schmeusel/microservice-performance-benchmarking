@@ -9,6 +9,7 @@ const ExperimentResultText = ({ result }) => {
             case 'succeed':
                 return 'After manually succeeding the experiment, the server has been shut down. Logs can still be accessed manually on the benchmark instance.';
         }
+        throw new Error(`Result has to be one of "fail" or "succeed". Provided was "${result}"`);
     }
     if (!result) {
         return null;
@@ -18,7 +19,7 @@ const ExperimentResultText = ({ result }) => {
 };
 
 ExperimentResultText.propTypes = {
-    result: PropTypes.oneOf(['fail', 'succeed'])
+    result: PropTypes.oneOf(['fail', 'succeed']),
 };
 
 export default ExperimentResultText;

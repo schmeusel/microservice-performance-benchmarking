@@ -10,7 +10,7 @@ import ExperimentPhaseContent from './ExperimentPhaseContent';
 
 export default class ExperimentPhase extends PureComponent {
     static propTypes = {
-        phase: PropTypes.oneOf(PHASES.ORDER)
+        phase: PropTypes.oneOf(PHASES.ORDER),
     };
 
     isCompleted(phaseName) {

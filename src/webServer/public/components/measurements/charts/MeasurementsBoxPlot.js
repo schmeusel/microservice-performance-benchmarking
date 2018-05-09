@@ -1,15 +1,15 @@
 import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { fade } from 'material-ui/utils/colorManipulator';
-import { Palette } from '../../../constants/Theme';
 import 'chartjs-chart-box-and-violin-plot';
 import 'chart.js';
+import { Palette } from '../../../constants/Theme';
 import { MeasurementsPropTypes } from '../../../constants/CustomPropTypes';
 
 export default class MeasurementsBoxPlot extends PureComponent {
     static propTypes = {
         patternName: PropTypes.string.isRequired,
-        measurements: PropTypes.objectOf(MeasurementsPropTypes).isRequired
+        measurements: PropTypes.objectOf(MeasurementsPropTypes).isRequired,
     };
 
     constructor(props) {
@@ -23,7 +23,7 @@ export default class MeasurementsBoxPlot extends PureComponent {
         this.chart = new Chart(ctx, {
             type: 'boxplot',
             data: this.getChartsData(this.props),
-            options: this.getChartOptions(this.props)
+            options: this.getChartOptions(this.props),
         });
     }
 
@@ -48,7 +48,7 @@ export default class MeasurementsBoxPlot extends PureComponent {
                     borderColor: Palette.accent1Color,
                     borderWidth: 1,
                     data: latencies.map(errAndSuccess => errAndSuccess.error.map(num => parseFloat(num.toFixed(2)))),
-                    padding: 20
+                    padding: 20,
                 },
                 {
                     label: 'Successful Requests',
@@ -56,9 +56,9 @@ export default class MeasurementsBoxPlot extends PureComponent {
                     borderColor: Palette.primary1Color,
                     borderWidth: 1,
                     data: latencies.map(errAndSuccess => errAndSuccess.success.map(num => parseFloat(num.toFixed(2)))),
-                    padding: 20
-                }
-            ]
+                    padding: 20,
+                },
+            ],
         };
     }
 
@@ -68,8 +68,8 @@ export default class MeasurementsBoxPlot extends PureComponent {
             legend: {
                 position: 'top',
                 labels: {
-                    defaultFontFamily: "'Roboto', sans-serif"
-                }
+                    defaultFontFamily: '\'Roboto\', sans-serif',
+                },
             },
             scales: {
                 yAxes: [
@@ -77,28 +77,28 @@ export default class MeasurementsBoxPlot extends PureComponent {
                         scaleLabel: {
                             display: true,
                             labelString: 'Latency [ms]',
-                            fontStyle: 'bold'
+                            fontStyle: 'bold',
                         },
                         ticks: {
                             suggestedMin: 180,
                             suggestedMax: 280,
-                            fontSize: 10
-                        }
-                    }
+                            fontSize: 10,
+                        },
+                    },
                 ],
                 xAxes: [
                     {
                         scaleLabel: {
                             display: true,
                             labelString: 'Sequence Step',
-                            fontStyle: 'bold'
+                            fontStyle: 'bold',
                         },
                         ticks: {
-                            fontSize: 10
-                        }
-                    }
-                ]
-            }
+                            fontSize: 10,
+                        },
+                    },
+                ],
+            },
         };
     }
 

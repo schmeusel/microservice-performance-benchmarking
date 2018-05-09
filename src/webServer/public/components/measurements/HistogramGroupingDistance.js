@@ -3,21 +3,21 @@ import PropTypes from 'prop-types';
 import { IconButton, Slider } from 'material-ui';
 import { ActionSettings } from 'material-ui/svg-icons';
 
-const HistogramGroupingDistance = props => {
+const HistogramGroupingDistance = (props) => {
     const styles = {
         container: {
             display: 'flex',
             flexDirection: 'column',
             width: '100%',
-            marginBottom: 12
+            marginBottom: 12,
         },
         slider: {
             marginBottom: 8,
-            marginTop: 8
+            marginTop: 8,
         },
         text: {
-            fontSize: '0.8rem'
-        }
+            fontSize: '0.8rem',
+        },
     };
 
     const onGroupingDistanceChange = (e, value) => {
@@ -42,7 +42,7 @@ const HistogramGroupingDistance = props => {
 
 HistogramGroupingDistance.propTypes = {
     groupingDistance: PropTypes.number.isRequired,
-    onGroupingDistanceChange: PropTypes.func.isRequired
+    onGroupingDistanceChange: PropTypes.func.isRequired,
 };
 
 export default HistogramGroupingDistance;

@@ -16,17 +16,17 @@ describe('Test measurementsReducer', () => {
             timestampEnd: timestampEndStub,
             patternIndex: i,
             operation: operationStub,
-            status
+            status,
         });
         const nameStubFirst = 'test';
         const firstIndexStub = 1;
         const dataStub = (name, index) => ({
-            name: name,
-            measurements: [measurementStub(200, index), measurementStub(400, index)]
+            name,
+            measurements: [measurementStub(200, index), measurementStub(400, index)],
         });
         const actionStub = (name, index) => ({
             type: ActionTypes.MEASUREMENTS,
-            data: dataStub(name, index)
+            data: dataStub(name, index),
         });
         const result = measurementsReducer({}, actionStub(nameStubFirst, firstIndexStub));
         const latencyResult = timestampEndStub - timestampStartSub;
@@ -36,10 +36,10 @@ describe('Test measurementsReducer', () => {
                     operation: operationStub,
                     latencies: {
                         success: [latencyResult],
-                        error: [latencyResult]
-                    }
-                }
-            }
+                        error: [latencyResult],
+                    },
+                },
+            },
         });
 
         const secondIndexStub = 2;
@@ -51,24 +51,24 @@ describe('Test measurementsReducer', () => {
                     operation: operationStub,
                     latencies: {
                         success: [latencyResult],
-                        error: [latencyResult]
-                    }
-                }
+                        error: [latencyResult],
+                    },
+                },
             },
             [nameStubSecond]: {
                 [secondIndexStub]: {
                     operation: operationStub,
                     latencies: {
                         success: [latencyResult],
-                        error: [latencyResult]
-                    }
-                }
-            }
+                        error: [latencyResult],
+                    },
+                },
+            },
         });
 
         const resultWithPreviousSameName = measurementsReducer(
             resultWithPreviousMap,
-            actionStub(nameStubFirst, firstIndexStub)
+            actionStub(nameStubFirst, firstIndexStub),
         );
         expect(resultWithPreviousSameName).toEqual({
             [nameStubFirst]: {
@@ -76,19 +76,19 @@ describe('Test measurementsReducer', () => {
                     operation: operationStub,
                     latencies: {
                         success: [latencyResult, latencyResult],
-                        error: [latencyResult, latencyResult]
-                    }
-                }
+                        error: [latencyResult, latencyResult],
+                    },
+                },
             },
             [nameStubSecond]: {
                 [secondIndexStub]: {
                     operation: operationStub,
                     latencies: {
                         success: [latencyResult],
-                        error: [latencyResult]
-                    }
-                }
-            }
+                        error: [latencyResult],
+                    },
+                },
+            },
         });
     });
 });

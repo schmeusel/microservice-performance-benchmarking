@@ -8,7 +8,7 @@ const PaperContainer = ({ heading, children, style }) => {
         marginBottom: 32,
         display: 'flex',
         flexDirection: 'column',
-        ...style
+        ...style,
     };
 
     if (!children) {
@@ -25,11 +25,11 @@ const PaperContainer = ({ heading, children, style }) => {
 PaperContainer.propTypes = {
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
     heading: PropTypes.string,
-    style: PropTypes.object
+    style: PropTypes.object,
 };
 
 PaperContainer.defaultProps = {
-    style: {}
+    style: {},
 };
 
 export default PaperContainer;

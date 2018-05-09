@@ -69,7 +69,7 @@ describe('Test applicationReducers', () => {
             };
             const resultWithTrueState = connectedReducer(true, actionStub);
             const resultWithFalseState = connectedReducer(false, actionStub);
-            [ resultWithTrueState, resultWithFalseState ].forEach((result) => {
+            [resultWithTrueState, resultWithFalseState].forEach((result) => {
                 expect(result)
                     .toEqual(connectedStub);
             });

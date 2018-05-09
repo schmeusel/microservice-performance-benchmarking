@@ -18,8 +18,8 @@ class Layout extends PureComponent {
     render() {
         const styles = {
             container: {
-                padding: 32
-            }
+                padding: 32,
+            },
         };
 
         return (
@@ -49,36 +49,34 @@ const buildRandomStepValues = () => ({
     operation: 'CREATE',
     latencies: {
         success: Array.from({ length }).map(mapToRandom),
-        error: Array.from({ length }).map(mapToRandom)
-    }
+        error: Array.from({ length }).map(mapToRandom),
+    },
 });
-const measurements = patternNames.reduce((obj, name) => {
-    return {
-        ...obj,
-        [name]: {
-            0: buildRandomStepValues(),
-            1: buildRandomStepValues(),
-            2: buildRandomStepValues(),
-            3: buildRandomStepValues(),
-            4: buildRandomStepValues(),
-            5: buildRandomStepValues()
-        }
-    };
-}, {});
+const measurements = patternNames.reduce((obj, name) => ({
+    ...obj,
+    [name]: {
+        0: buildRandomStepValues(),
+        1: buildRandomStepValues(),
+        2: buildRandomStepValues(),
+        3: buildRandomStepValues(),
+        4: buildRandomStepValues(),
+        5: buildRandomStepValues(),
+    },
+}), {});
 
 const mapStateToProps = state => ({
     // measurements: state.measurements,
-    measurements: measurements,
+    measurements,
     patterns: state.patterns,
     experiment: state.experiment,
     settings: state.application.settings,
-    feedbackMessage: state.application.feedbackMessage
+    feedbackMessage: state.application.feedbackMessage,
 });
 
 const mapDispatchToProps = dispatch => ({
     decideOnResult: result => dispatch(decideOnResult(result)),
     handleSocket: data => dispatch(handleSocket(data)),
-    onGroupingDistanceChange: value => dispatch(onGroupingDistanceChange(value))
+    onGroupingDistanceChange: value => dispatch(onGroupingDistanceChange(value)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout);

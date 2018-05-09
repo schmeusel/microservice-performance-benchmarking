@@ -9,7 +9,7 @@ describe('Test patternReducer', () => {
     });
 
     it('should handle PATTERNS', () => {
-        const dataStub = [ 'test', 'hello' ];
+        const dataStub = ['test', 'hello'];
         const actionStub = {
             type: ActionTypes.PATTERNS,
             data: dataStub,
@@ -18,7 +18,7 @@ describe('Test patternReducer', () => {
         expect(resultWithEmptyState)
             .toEqual(dataStub);
 
-        const resultWithPreviousElements = patternsReducer([ 'build' ], actionStub);
+        const resultWithPreviousElements = patternsReducer(['build'], actionStub);
         expect(resultWithPreviousElements)
             .toEqual(dataStub);
     });

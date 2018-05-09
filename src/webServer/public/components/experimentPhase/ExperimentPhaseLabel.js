@@ -6,7 +6,7 @@ import {
     ActionHome,
     EditorShowChart,
     ImageTransform,
-    NotificationNetworkCheck
+    NotificationNetworkCheck,
 } from 'material-ui/svg-icons';
 import { IconButton } from 'material-ui';
 import { PHASES } from '../../constants/ApplicationConstants';
@@ -27,15 +27,15 @@ const ExperimentPhaseLabel = ({ phase, completed, disabled }) => {
             [PHASES.VALUES.WORKLOAD_GENERATION]: <ActionBuild />,
             [PHASES.VALUES.REQUEST_TRANSMISSION]: <NotificationNetworkCheck />,
             [PHASES.VALUES.MEASUREMENT_EVALUATION]: <EditorShowChart />,
-            [PHASES.VALUES.COMPLETION]: <ActionDoneAll />
+            [PHASES.VALUES.COMPLETION]: <ActionDoneAll />,
         };
         const styles = {
             buttonStyle: {
                 padding: 0,
                 cursor: 'default',
                 height: 24,
-                width: 24
-            }
+                width: 24,
+            },
         };
         return (
             <IconButton
@@ -59,7 +59,7 @@ const ExperimentPhaseLabel = ({ phase, completed, disabled }) => {
 ExperimentPhaseLabel.propTypes = {
     completed: PropTypes.bool.isRequired,
     disabled: PropTypes.bool.isRequired,
-    phase: PropTypes.oneOf(PHASES.ORDER).isRequired
+    phase: PropTypes.oneOf(PHASES.ORDER).isRequired,
 };
 
 export default ExperimentPhaseLabel;

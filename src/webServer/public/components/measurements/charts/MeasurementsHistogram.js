@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { MeasurementsPropTypes } from '../../../constants/CustomPropTypes';
 import 'chart.js';
 import { fade } from 'material-ui/utils/colorManipulator';
+import { MeasurementsPropTypes } from '../../../constants/CustomPropTypes';
 import { Palette } from '../../../constants/Theme';
 
 export default class MeasurementsHistogram extends React.PureComponent {
@@ -10,7 +10,7 @@ export default class MeasurementsHistogram extends React.PureComponent {
         name: PropTypes.string.isRequired,
         sequenceIndex: PropTypes.number.isRequired,
         measurements: MeasurementsPropTypes.isRequired,
-        groupingDistance: PropTypes.number.isRequired
+        groupingDistance: PropTypes.number.isRequired,
     };
 
     constructor(props) {
@@ -24,7 +24,7 @@ export default class MeasurementsHistogram extends React.PureComponent {
         this.chart = new Chart(ctx, {
             type: 'bar',
             data: this.getChartsData(this.props),
-            options: this.getChartOptions(this.props)
+            options: this.getChartOptions(this.props),
         });
     }
 
@@ -41,7 +41,7 @@ export default class MeasurementsHistogram extends React.PureComponent {
             const key = Math.floor(num / groupingDistance) * groupingDistance;
             return {
                 ...map,
-                [key]: (map[key] || 0) + 1
+                [key]: (map[key] || 0) + 1,
             };
         }, keysMap);
     }
@@ -50,7 +50,7 @@ export default class MeasurementsHistogram extends React.PureComponent {
         const max = Math.max(...latencies.success, ...latencies.error);
         const min = Math.floor(Math.min(...latencies.success, ...latencies.error));
         const amount = Math.round((max - min) / groupingDistance);
-        const keys = Array.from({ length: amount }).map((_, i) => (i === 0 ? min : min + i * groupingDistance));
+        const keys = Array.from({ length: amount }).map((_, i) => (i === 0 ? min : min + (i * groupingDistance)));
 
         return keys.reduce((final, key) => ({ ...final, [key]: 0 }), {});
     }
@@ -70,15 +70,15 @@ export default class MeasurementsHistogram extends React.PureComponent {
                     label: 'Erroneous Requests',
                     backgroundColor: fade(Palette.accent1Color, 0.3),
                     borderWidth: 0,
-                    data: Object.keys(errorLatencyMap).map(key => errorLatencyMap[key])
+                    data: Object.keys(errorLatencyMap).map(key => errorLatencyMap[key]),
                 },
                 {
                     label: 'Successful Requests',
                     backgroundColor: fade(Palette.primary1Color, 0.3),
                     borderWidth: 0,
-                    data: Object.keys(successLatencyMap).map(key => successLatencyMap[key])
-                }
-            ]
+                    data: Object.keys(successLatencyMap).map(key => successLatencyMap[key]),
+                },
+            ],
         };
     }
 
@@ -88,14 +88,14 @@ export default class MeasurementsHistogram extends React.PureComponent {
             title: {
                 display: true,
                 text: `Sequence Step #${props.sequenceIndex + 1}`,
-                position: 'top'
+                position: 'top',
             },
             legend: {
                 position: 'top',
                 labels: {
-                    fontFamily: "'Roboto', sans-serif",
-                    fontSize: 8
-                }
+                    fontFamily: '\'Roboto\', sans-serif',
+                    fontSize: 8,
+                },
             },
             scales: {
                 yAxes: [
@@ -104,13 +104,13 @@ export default class MeasurementsHistogram extends React.PureComponent {
                             display: true,
                             labelString: 'Frequency',
                             fontSize: 10,
-                            fontStyle: 'bold'
+                            fontStyle: 'bold',
                         },
                         ticks: {
-                            fontSize: 8
+                            fontSize: 8,
                         },
-                        stacked: true
-                    }
+                        stacked: true,
+                    },
                 ],
                 xAxes: [
                     {
@@ -118,21 +118,21 @@ export default class MeasurementsHistogram extends React.PureComponent {
                             display: true,
                             labelString: 'Latency [ms]',
                             fontSize: 10,
-                            fontStyle: 'bold'
+                            fontStyle: 'bold',
                         },
                         categoryPercentage: 1.0,
                         barPercentage: 1.0,
                         gridLines: {
                             display: false,
-                            lineWidth: 0
+                            lineWidth: 0,
                         },
                         ticks: {
-                            fontSize: 8
+                            fontSize: 8,
                         },
-                        stacked: true
-                    }
-                ]
-            }
+                        stacked: true,
+                    },
+                ],
+            },
         };
     }
 
@@ -144,8 +144,8 @@ export default class MeasurementsHistogram extends React.PureComponent {
                 maxWidth: 700,
                 flex: 1,
                 marginRight: 12,
-                marginBottom: 12
-            }
+                marginBottom: 12,
+            },
         };
         return (
             <div style={styles.container}>

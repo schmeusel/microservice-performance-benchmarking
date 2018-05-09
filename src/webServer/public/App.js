@@ -7,7 +7,7 @@ import { MuiThemeProvider, getMuiTheme } from 'material-ui/styles';
 import { Palette } from './constants/Theme';
 
 const muiTheme = getMuiTheme({
-    palette: Palette
+    palette: Palette,
 });
 
 export default () => (
