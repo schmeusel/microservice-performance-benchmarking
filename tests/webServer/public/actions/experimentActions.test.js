@@ -5,7 +5,7 @@ import EndpointConstants from '../../../../src/webServer/public/constants/Endpoi
 import { decideOnResult } from '../../../../src/webServer/public/actions/experimentActions';
 import ActionTypes from '../../../../src/webServer/public/constants/ActionTypes';
 
-const mockStore = configureMockStore([ thunk ]);
+const mockStore = configureMockStore([thunk]);
 
 describe('Test experimentActions', () => {
     describe('decideOnResult(...)', () => {
@@ -15,7 +15,7 @@ describe('Test experimentActions', () => {
             const resultStub = 'succeed';
             const path = EndpointConstants.DECISION.path(resultStub);
             fetchMock
-                .postOnce(path, 200);
+                .postOnce(path, 200, { overwriteRoutes: true });
             const expectedFirstAction = {
                 type: ActionTypes.EXPERIMENT.DECISION.ASYNC,
                 data: {
@@ -25,9 +25,8 @@ describe('Test experimentActions', () => {
             };
             store.dispatch(decideOnResult(resultStub))
                 .then(() => {
-
                     expect(store.getActions())
-                        .toEqual([ expectedFirstAction,
+                        .toEqual([expectedFirstAction,
                             {
                                 type: ActionTypes.EXPERIMENT.DECISION.RESULT,
                                 data: resultStub,
@@ -52,7 +51,7 @@ describe('Test experimentActions', () => {
             const errorCodeStub = 500;
             const path = EndpointConstants.DECISION.path(resultStub);
             fetchMock
-                .postOnce(path, errorCodeStub);
+                .postOnce(path, errorCodeStub, { overwriteRoutes: true });
             const expectedFirstAction = {
                 type: ActionTypes.EXPERIMENT.DECISION.ASYNC,
                 data: {
@@ -63,7 +62,7 @@ describe('Test experimentActions', () => {
             store.dispatch(decideOnResult(resultStub))
                 .catch(() => {
                     expect(store.getActions())
-                        .toEqual([ expectedFirstAction,
+                        .toEqual([expectedFirstAction,
                             {
                                 type: ActionTypes.EXPERIMENT.DECISION.ASYNC,
                                 data: {
