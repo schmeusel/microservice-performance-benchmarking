@@ -9,14 +9,14 @@ describe('Test DownloadLinkContainer', () => {
             const wrapper = shallow(
                 <DownloadLinkContainer heading={headingStub}>
                     <span>child</span>
-                </DownloadLinkContainer>
+                </DownloadLinkContainer>,
             );
             expect(wrapper.is('div')).toBeTruthy();
             expect(wrapper.find('div').prop('style')).toEqual({
                 display: 'flex',
                 flexDirection: 'column',
                 marginBottom: 8,
-                marginRight: 16
+                marginRight: 16,
             });
             expect(wrapper.childAt(0).is('h4')).toBeTruthy();
             expect(wrapper.find('h4')).toHaveLength(1);

@@ -1,0 +1,104 @@
+{
+    "extends": "airbnb",
+    // Define the babel-eslint paser. Otherwise we cannot use static prop-types
+    "parser": "babel-eslint",
+    // Define browser environment, e.g. localStorage throws no error
+    "env": {
+        "browser": true,
+        "jest": true
+    },
+    // Define our own global functions
+    "globals": {
+        "logException": true
+    },
+    "rules": {
+        // Enforce single quotes for strings
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "indent": [
+            "error",
+            4,
+            {
+                "SwitchCase": 1
+            }
+        ],
+        "react/jsx-indent": [
+            "error",
+            4
+        ],
+        "react/jsx-indent-props": [
+            "error",
+            4
+        ],
+        "react/jsx-curly-brace-presence": [
+            "error",
+            {
+                "props": "always",
+                "children": "ignore"
+            }
+        ],
+        "function-paren-newline": "off",
+        //Workaround to properly define class methods
+        "class-methods-use-this": "off",
+        // Workaround to fix href-no-hash rule
+        "jsx-a11y/href-no-hash": "off",
+        "jsx-a11y/anchor-is-valid": [
+            "warn",
+            {
+                "aspects": [
+                    "invalidHref"
+                ]
+            }
+        ],
+        // We do not care about *.jsx files
+        "react/jsx-filename-extension": "off",
+        // Max line collumn count, default Airbnb length
+        "max-len": [
+            "error",
+            {
+                "code": 256,
+                "ignoreRegExpLiterals": true
+            }
+        ],
+        // Allow undescore dangle for private functions etc.
+        "no-underscore-dangle": "off",
+        // Since JSX statements are sometimes more usefull with nested ternary operators, we allow them
+        "no-nested-ternary": "off",
+        // Some prop-types are not needed to be defined, since they are react defaults, e.g. style
+        "react/prop-types": [
+            "error",
+            {
+                "ignore": [
+                    "style"
+                ]
+            }
+        ],
+        // Usualy we use decimal numbers
+        "radix": [
+            "error",
+            "as-needed"
+        ],
+        "import/no-extraneous-dependencies": "off",
+        // Ignore escapes
+        "no-irregular-whitespace": [
+            "error",
+            {
+                "skipComments": true
+            }
+        ],
+        "no-useless-escape": "off",
+        "import/prefer-default-export": "off",
+        "no-bitwise": "off",
+        "no-extend-native": "off",
+        "prefer-rest-params": "off",
+        "jsx-a11y/no-static-element-interactions": "off",
+        "react/forbid-prop-types": "off",
+        "react/no-find-dom-node": "off",
+        "react/no-multi-comp": "off",
+        "react/no-did-mount-set-state": "off",
+        "react/no-did-update-set-state": "off",
+        "default-case": "off"
+    }
+}

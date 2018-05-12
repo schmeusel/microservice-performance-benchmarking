@@ -4,28 +4,28 @@ import { Snackbar } from 'material-ui';
 
 export default class FeedbackSnackbar extends PureComponent {
     static propTypes = {
-        message: PropTypes.string
+        message: PropTypes.string,
     };
 
     static defaultProps = {
-        message: ''
+        message: '',
     };
 
     state = {
-        open: false
+        open: false,
     };
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.message !== this.props.message) {
             this.setState({
-                open: true
+                open: true,
             });
         }
     }
 
     onRequestClose = () => {
         this.setState({
-            open: false
+            open: false,
         });
     };
 

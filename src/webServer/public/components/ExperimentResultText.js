@@ -1,5 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import { ExperimentResultValuePropTypes } from '../constants/CustomPropTypes';
 
 const ExperimentResultText = ({ result }) => {
     function getResultText() {
@@ -9,7 +9,9 @@ const ExperimentResultText = ({ result }) => {
             case 'succeed':
                 return 'After manually succeeding the experiment, the server has been shut down. Logs can still be accessed manually on the benchmark instance.';
         }
+        throw new Error(`Result has to be one of "fail" or "succeed". Provided was "${result}"`);
     }
+
     if (!result) {
         return null;
     }
@@ -18,7 +20,11 @@ const ExperimentResultText = ({ result }) => {
 };
 
 ExperimentResultText.propTypes = {
-    result: PropTypes.oneOf(['fail', 'succeed'])
+    result: ExperimentResultValuePropTypes,
+};
+
+ExperimentResultText.defaultProps = {
+    result: null,
 };
 
 export default ExperimentResultText;

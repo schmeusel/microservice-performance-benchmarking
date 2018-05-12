@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { decideOnResult } from '../actions/experimentActions';
 import { onGroupingDistanceChange } from '../actions/applicationActions';
@@ -9,8 +10,28 @@ import SocketService from '../services/SocketService';
 import Downloads from '../components/downloads/Downloads';
 import PatternMeasurementsContainer from '../components/measurements/PatternMeasurementsContainer';
 import FeedbackSnackbar from '../components/FeedbackSnackbar';
+import {
+    ApplicationSettingsPropTypes,
+    ExperimentPhasePropTypes,
+    ExperimentResultPropTypes,
+    MeasurementsPropTypes, PatternPropTypes,
+} from '../constants/CustomPropTypes';
 
 class Layout extends PureComponent {
+    static propTypes = {
+        handleSocket: PropTypes.func.isRequired,
+        onGroupingDistanceChange: PropTypes.func.isRequired,
+        decideOnResult: PropTypes.func.isRequired,
+        experiment: PropTypes.shape({
+            phase: ExperimentPhasePropTypes.isRequired,
+            result: ExperimentResultPropTypes.isRequired,
+        }).isRequired,
+        measurements: MeasurementsPropTypes.isRequired,
+        patterns: PropTypes.arrayOf(PatternPropTypes).isRequired,
+        settings: ApplicationSettingsPropTypes.isRequired,
+        feedbackMessage: PropTypes.string.isRequired,
+    };
+
     componentDidMount() {
         SocketService.listen(this.props.handleSocket);
     }
@@ -42,35 +63,8 @@ class Layout extends PureComponent {
     }
 }
 
-const length = 50;
-const mapToRandom = () => parseFloat((Math.random() * 50 + 200).toFixed(2));
-const patternNames = [ 'createResource', 'getItem', 'updateCreateRead', 'justDoIt' ];
-const buildRandomStepValues = () => ({
-    operation: 'CREATE',
-    latencies: {
-        success: Array.from({ length })
-            .map(mapToRandom),
-        error: Array.from({ length })
-            .map(mapToRandom),
-    },
-});
-const measurements = patternNames.reduce((obj, name) => {
-    return {
-        ...obj,
-        [ name ]: {
-            0: buildRandomStepValues(),
-            1: buildRandomStepValues(),
-            2: buildRandomStepValues(),
-            3: buildRandomStepValues(),
-            4: buildRandomStepValues(),
-            5: buildRandomStepValues(),
-        },
-    };
-}, {});
-
 const mapStateToProps = state => ({
-    // measurements: state.measurements,
-    measurements: measurements,
+    measurements: state.measurements,
     patterns: state.patterns,
     experiment: state.experiment,
     settings: state.application.settings,
