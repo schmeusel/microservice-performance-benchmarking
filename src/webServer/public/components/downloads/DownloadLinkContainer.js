@@ -27,4 +27,8 @@ DownloadLinkContainer.propTypes = {
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
 };
 
+DownloadLinkContainer.defaultProps = {
+    children: null,
+};
+
 export default DownloadLinkContainer;

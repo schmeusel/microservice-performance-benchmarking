@@ -32,7 +32,13 @@
             "error",
             4
         ],
-        "react/jsx-curly-brace-presence": ["error", { "props": "always", "children": "ignore" }],
+        "react/jsx-curly-brace-presence": [
+            "error",
+            {
+                "props": "always",
+                "children": "ignore"
+            }
+        ],
         "function-paren-newline": "off",
         //Workaround to properly define class methods
         "class-methods-use-this": "off",
@@ -76,6 +82,12 @@
         ],
         "import/no-extraneous-dependencies": "off",
         // Ignore escapes
+        "no-irregular-whitespace": [
+            "error",
+            {
+                "skipComments": true
+            }
+        ],
         "no-useless-escape": "off",
         "import/prefer-default-export": "off",
         "no-bitwise": "off",

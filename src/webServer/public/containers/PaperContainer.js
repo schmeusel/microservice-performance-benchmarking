@@ -23,8 +23,8 @@ const PaperContainer = ({ heading, children, style }) => {
 };
 
 PaperContainer.propTypes = {
-    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
-    heading: PropTypes.string,
+    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
+    heading: PropTypes.string.isRequired,
     style: PropTypes.object,
 };
 

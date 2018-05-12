@@ -2,7 +2,7 @@ import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { fade } from 'material-ui/utils/colorManipulator';
 import 'chartjs-chart-box-and-violin-plot';
-import 'chart.js';
+import Chart from 'chart.js';
 import { Palette } from '../../../constants/Theme';
 import { MeasurementsPropTypes } from '../../../constants/CustomPropTypes';
 
@@ -30,7 +30,7 @@ export default class MeasurementsBoxPlot extends PureComponent {
     componentWillReceiveProps(nextProps) {
         if (this.chart) {
             this.chart.data = this.getChartsData(nextProps);
-            this.chart.options = this.getChartOptions(nextProps);
+            this.chart.options = this.getChartOptions();
             this.chart.update();
         }
     }
@@ -62,7 +62,7 @@ export default class MeasurementsBoxPlot extends PureComponent {
         };
     }
 
-    getChartOptions(props) {
+    getChartOptions() {
         return {
             responsive: true,
             legend: {

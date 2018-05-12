@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Tabs, Tab } from 'material-ui';
+import { grey200 } from 'material-ui/styles/colors';
 import PatternMeasurement from './PatternMeasurement';
 import PaperContainer from '../../containers/PaperContainer';
-import { grey200 } from 'material-ui/styles/colors';
 import { Palette } from '../../constants/Theme';
 import { MeasurementsPropTypes } from '../../constants/CustomPropTypes';
 
@@ -41,7 +41,7 @@ const PatternMeasurementsContainer = ({ measurements, groupingDistance, onGroupi
 };
 
 PatternMeasurementsContainer.propTypes = {
-    measurements: PropTypes.objectOf(PropTypes.objectOf(MeasurementsPropTypes)),
+    measurements: PropTypes.objectOf(PropTypes.objectOf(MeasurementsPropTypes)).isRequired,
     groupingDistance: PropTypes.number.isRequired,
     onGroupingDistanceChange: PropTypes.func.isRequired,
 };

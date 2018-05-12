@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { RaisedButton } from 'material-ui';
-import { AsyncPropTypes } from '../constants/CustomPropTypes';
+import { ExperimentResultPropTypes } from '../constants/CustomPropTypes';
 import ExperimentResultText from './ExperimentResultText';
 import PaperContainer from '../containers/PaperContainer';
 
@@ -53,10 +53,7 @@ const ExperimentResult = (props) => {
 };
 
 ExperimentResult.propTypes = {
-    result: PropTypes.shape({
-        value: PropTypes.string,
-        async: AsyncPropTypes.isRequired,
-    }),
+    result: ExperimentResultPropTypes.isRequired,
     onDecide: PropTypes.func.isRequired,
 };
 

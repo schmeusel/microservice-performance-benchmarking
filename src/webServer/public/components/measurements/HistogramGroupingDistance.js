@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { IconButton, Slider } from 'material-ui';
-import { ActionSettings } from 'material-ui/svg-icons';
+import { Slider } from 'material-ui';
 
 const HistogramGroupingDistance = (props) => {
     const styles = {

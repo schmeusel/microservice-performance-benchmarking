@@ -1,6 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { PHASES } from '../../constants/ApplicationConstants';
+import { ExperimentPhasePropTypes } from '../../constants/CustomPropTypes';
 
 const ExperimentPhaseContent = ({ phase }) => {
     const content = {
@@ -21,7 +21,7 @@ const ExperimentPhaseContent = ({ phase }) => {
 };
 
 ExperimentPhaseContent.propTypes = {
-    phase: PropTypes.oneOf(PHASES.ORDER),
+    phase: ExperimentPhasePropTypes.isRequired,
 };
 
 export default ExperimentPhaseContent;

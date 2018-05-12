@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Bar } from 'react-chartjs-2';
 import MeasurementsBoxPlot from './charts/MeasurementsBoxPlot';
 import MeasurementsHistogramContainer from './MeasurementsHistogramContainer';
 import { MeasurementsPropTypes } from '../../constants/CustomPropTypes';
@@ -36,7 +35,6 @@ PatternMeasurement.propTypes = {
     measurements: PropTypes.objectOf(MeasurementsPropTypes).isRequired,
     groupingDistance: PropTypes.number.isRequired,
     onGroupingDistanceChange: PropTypes.func.isRequired,
-    total: PropTypes.number,
 };
 
 export default PatternMeasurement;
