@@ -5,7 +5,7 @@ import { decideOnResult } from '../actions/experimentActions';
 import { onGroupingDistanceChange } from '../actions/applicationActions';
 import ExperimentPhase from '../components/experimentPhase/ExperimentPhase';
 import ExperimentResult from '../components/ExperimentResult';
-import handleSocket from '../actions/socketActions';
+import { handleSocket } from '../actions/socketActions';
 import SocketService from '../services/SocketService';
 import Downloads from '../components/downloads/Downloads';
 import PatternMeasurementsContainer from '../components/measurements/PatternMeasurementsContainer';

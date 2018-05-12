@@ -4,7 +4,7 @@ import { ExperimentPhasePropTypes } from '../../constants/CustomPropTypes';
 
 const ExperimentPhaseContent = ({ phase }) => {
     const content = {
-        [PHASES.VALUES.INITIALIZATON]: 'Server just started and all services are being initialized.',
+        [PHASES.VALUES.INITIALIZATION]: 'Server just started and all services are being initialized.',
         [PHASES.VALUES.PATTERN_RESOLUTION]:
             'The OpenAPI Specification is being analyzed to find suitable resources that can be mapped against from the given abstract patterns.',
         [PHASES.VALUES.WORKLOAD_GENERATION]:
