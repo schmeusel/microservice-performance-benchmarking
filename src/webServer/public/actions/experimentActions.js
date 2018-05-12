@@ -4,38 +4,38 @@ import { showSnackbarFeedback } from './applicationActions';
 
 export function decideOnResult(result) {
     const { DECISION } = EndpointConstants;
-    return dispatch => {
+    return (dispatch) => {
         dispatch({
             type: ActionTypes.EXPERIMENT.DECISION.ASYNC,
             data: {
                 errorCode: 0,
-                isLoading: true
-            }
+                isLoading: true,
+            },
         });
         fetch(DECISION.path(result), {
-            method: DECISION.method
+            method: DECISION.method,
         })
             .then(() => {
                 dispatch({
                     type: ActionTypes.EXPERIMENT.DECISION.RESULT,
-                    data: result
+                    data: result,
                 });
                 dispatch({
                     type: ActionTypes.EXPERIMENT.DECISION.ASYNC,
                     data: {
                         errorCode: 0,
-                        isLoading: false
-                    }
+                        isLoading: false,
+                    },
                 });
                 dispatch(showSnackbarFeedback('Decision successfully made'));
             })
-            .catch(error => {
+            .catch((error) => {
                 dispatch({
                     type: ActionTypes.EXPERIMENT.DECISION.ASYNC,
                     data: {
                         errorCode: error.status,
-                        isLoading: false
-                    }
+                        isLoading: false,
+                    },
                 });
             });
     };

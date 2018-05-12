@@ -2,13 +2,16 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import MeasurementsHistogram from './charts/MeasurementsHistogram';
 import HistogramGroupingDistance from './HistogramGroupingDistance';
+import { MeasurementsPropTypes } from '../../constants/CustomPropTypes';
 
-const MeasurementsHistogramContainer = ({ groupingDistance, onGroupingDistanceChange, measurements, name }) => {
+const MeasurementsHistogramContainer = ({
+    groupingDistance, onGroupingDistanceChange, measurements, name,
+}) => {
     const styles = {
         histogramContainer: {
             display: 'flex',
-            flexWrap: 'wrap'
-        }
+            flexWrap: 'wrap',
+        },
     };
     return (
         <Fragment>
@@ -18,8 +21,8 @@ const MeasurementsHistogramContainer = ({ groupingDistance, onGroupingDistanceCh
                     groupingDistance={groupingDistance}
                     onGroupingDistanceChange={onGroupingDistanceChange}
                 />
-                {Object.keys(measurements).map(seqIndex => {
-                    return (
+                {Object.keys(measurements)
+                    .map(seqIndex => (
                         <MeasurementsHistogram
                             key={`${name}_${seqIndex}`}
                             name={name}
@@ -27,13 +30,17 @@ const MeasurementsHistogramContainer = ({ groupingDistance, onGroupingDistanceCh
                             measurements={measurements[seqIndex]}
                             groupingDistance={groupingDistance}
                         />
-                    );
-                })}
+                    ))}
             </div>
         </Fragment>
     );
 };
 
-MeasurementsHistogramContainer.propTypes = {};
+MeasurementsHistogramContainer.propTypes = {
+    groupingDistance: PropTypes.number.isRequired,
+    onGroupingDistanceChange: PropTypes.func.isRequired,
+    measurements: PropTypes.objectOf(MeasurementsPropTypes).isRequired,
+    name: PropTypes.string.isRequired,
+};
 
 export default MeasurementsHistogramContainer;

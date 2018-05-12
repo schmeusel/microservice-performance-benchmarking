@@ -4,13 +4,14 @@ import PaperContainer from '../../containers/PaperContainer';
 import EndpointConstants from '../../constants/EndpointConstants';
 import DownloadLinkContainer from './DownloadLinkContainer';
 import { PHASES } from '../../constants/ApplicationConstants';
+import { ExperimentPhasePropTypes, PatternPropTypes } from '../../constants/CustomPropTypes';
 
 const Downloads = ({ patterns, phase }) => {
     const styles = {
         linksContainer: {
             display: 'flex',
-            flexWrap: 'wrap'
-        }
+            flexWrap: 'wrap',
+        },
     };
     return (
         <PaperContainer heading={'Downloads'}>
@@ -38,12 +39,8 @@ const Downloads = ({ patterns, phase }) => {
 };
 
 Downloads.propTypes = {
-    phase: PropTypes.oneOf(PHASES.ORDER),
-    patterns: PropTypes.arrayOf(PropTypes.string)
-};
-
-Downloads.defaultProps = {
-    patterns: []
+    phase: ExperimentPhasePropTypes.isRequired,
+    patterns: PropTypes.arrayOf(PatternPropTypes).isRequired,
 };
 
 export default Downloads;

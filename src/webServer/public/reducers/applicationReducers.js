@@ -5,7 +5,7 @@ export function settingsReducer(state = { groupingDistance: 4 }, action) {
         case ActionTypes.APPLICATION.SETTINGS.GROUPING_DISTANCE: {
             return {
                 ...state,
-                groupingDistance: action.data
+                groupingDistance: action.data,
             };
         }
     }

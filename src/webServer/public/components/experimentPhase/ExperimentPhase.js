@@ -1,8 +1,7 @@
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
-import { Stepper, Step, StepLabel, StepContent } from 'material-ui';
+import { Stepper, Step, StepLabel } from 'material-ui';
 
-import { AsyncPropTypes, StatsPropTypes } from '../../constants/CustomPropTypes';
+import { ExperimentPhasePropTypes } from '../../constants/CustomPropTypes';
 import { PHASES } from '../../constants/ApplicationConstants';
 import PaperContainer from '../../containers/PaperContainer';
 import ExperimentPhaseLabel from './ExperimentPhaseLabel';
@@ -10,7 +9,7 @@ import ExperimentPhaseContent from './ExperimentPhaseContent';
 
 export default class ExperimentPhase extends PureComponent {
     static propTypes = {
-        phase: PropTypes.oneOf(PHASES.ORDER)
+        phase: ExperimentPhasePropTypes.isRequired,
     };
 
     isCompleted(phaseName) {

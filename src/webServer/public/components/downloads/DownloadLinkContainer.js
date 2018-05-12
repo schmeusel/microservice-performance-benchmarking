@@ -7,8 +7,8 @@ const DownloadLinkContainer = ({ heading, children }) => {
             display: 'flex',
             flexDirection: 'column',
             marginBottom: 8,
-            marginRight: 16
-        }
+            marginRight: 16,
+        },
     };
 
     if (!children) {
@@ -24,7 +24,11 @@ const DownloadLinkContainer = ({ heading, children }) => {
 
 DownloadLinkContainer.propTypes = {
     heading: PropTypes.string.isRequired,
-    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
+    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
+};
+
+DownloadLinkContainer.defaultProps = {
+    children: null,
 };
 
 export default DownloadLinkContainer;

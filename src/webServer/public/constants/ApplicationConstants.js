@@ -5,7 +5,7 @@ export const PHASES = {
         WORKLOAD_GENERATION: 'WORKLOAD_GENERATION',
         REQUEST_TRANSMISSION: 'REQUEST_TRANSMISSION',
         MEASUREMENT_EVALUATION: 'MEASUREMENT_EVALUATION',
-        COMPLETION: 'COMPLETION'
+        COMPLETION: 'COMPLETION',
     },
     get ORDER() {
         return [
@@ -14,7 +14,7 @@ export const PHASES = {
             this.VALUES.WORKLOAD_GENERATION,
             this.VALUES.REQUEST_TRANSMISSION,
             this.VALUES.MEASUREMENT_EVALUATION,
-            this.VALUES.COMPLETION
+            this.VALUES.COMPLETION,
         ];
-    }
+    },
 };

@@ -1,27 +1,27 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { RaisedButton } from 'material-ui';
-import { AsyncPropTypes } from '../constants/CustomPropTypes';
+import { ExperimentResultPropTypes } from '../constants/CustomPropTypes';
 import ExperimentResultText from './ExperimentResultText';
 import PaperContainer from '../containers/PaperContainer';
 
-const ExperimentResult = props => {
+const ExperimentResult = (props) => {
     const onDecide = result => () => {
         props.onDecide(result);
     };
 
     const styles = {
         buttonContainer: {
-            display: 'flex'
+            display: 'flex',
         },
         buttonStyle: {
             margin: 4,
-            flex: 1
-        }
+            flex: 1,
+        },
     };
 
     const {
-        result: { value, async }
+        result: { value, async },
     } = props;
     return (
         <PaperContainer heading={'Decide on Result'}>
@@ -53,11 +53,8 @@ const ExperimentResult = props => {
 };
 
 ExperimentResult.propTypes = {
-    result: PropTypes.shape({
-        value: PropTypes.string,
-        async: AsyncPropTypes.isRequired
-    }),
-    onDecide: PropTypes.func.isRequired
+    result: ExperimentResultPropTypes.isRequired,
+    onDecide: PropTypes.func.isRequired,
 };
 
 export default ExperimentResult;

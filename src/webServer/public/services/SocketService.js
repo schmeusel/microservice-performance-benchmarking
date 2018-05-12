@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import {setConnectionFlag} from "../actions/applicationActions";
+import { setConnectionFlag } from '../actions/applicationActions';
 
 class SocketService {
     listen(socketHandler) {

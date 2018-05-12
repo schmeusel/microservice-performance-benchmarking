@@ -9,16 +9,15 @@
     "test-backend": "mocha --require ts-node/register ./tests/**/*.test.ts",
     "test-frontend": "jest",
     "build-server": "tsc",
-    "build-client":
-      "webpack --config webpack.config.js && cp ./src/webServer/public/index.html ./build/webServer/public/index.html",
-    "build-client-watch":
-      "cp ./src/webServer/public/index.html ./build/webServer/public/index.html && webpack --config webpack.config.js --watch",
+    "build-client": "webpack --config webpack.config.js && cp ./src/webServer/public/index.html ./build/webServer/public/index.html",
+    "build-client-watch": "cp ./src/webServer/public/index.html ./build/webServer/public/index.html && webpack --config webpack.config.js --watch",
     "build": "yarn run build-server && yarn run build-client",
-    "start":
-      "yarn run build && node ./build/app.js --json ./assets/sampleAPI_extended.json --spec ./assets/benchmarkSpec.json"
+    "start": "yarn run build && node ./build/app.js --json ./assets/sampleAPI_extended.json --spec ./assets/benchmarkSpec.json",
+    "lint": "eslint --fix ./src/webServer/public/* ./tests/webServer/public/*"
   },
   "jest": {
     "verbose": true,
+    "collectCoverage": true,
     "testRegex": "/tests/webServer/.*\\.test\\.(js)$",
     "transform": {
       ".js": "./node_modules/babel-jest"
@@ -37,7 +36,6 @@
     "prob.js": "^1.0.6",
     "prop-types": "^15.6.1",
     "react": "^16.3.2",
-    "react-chartjs-2": "^2.7.2",
     "react-dom": "^16.3.2",
     "react-redux": "^5.0.7",
     "redux": "^4.0.0",
@@ -61,6 +59,7 @@
     "@types/request": "^2.47.0",
     "@types/sinon": "^4.3.1",
     "babel-core": "^6.26.0",
+    "babel-eslint": "^8.2.3",
     "babel-jest": "^22.4.3",
     "babel-loader": "^7.1.4",
     "babel-preset-env": "^1.6.1",
@@ -69,6 +68,11 @@
     "chai": "^4.1.2",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.7.0",
     "jest": "^22.4.3",
     "jest-enzyme": "^6.0.0",
     "mocha": "^5.0.5",

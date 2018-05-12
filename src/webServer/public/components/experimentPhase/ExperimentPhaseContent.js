@@ -1,6 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { PHASES } from '../../constants/ApplicationConstants';
+import { ExperimentPhasePropTypes } from '../../constants/CustomPropTypes';
 
 const ExperimentPhaseContent = ({ phase }) => {
     const content = {
@@ -14,14 +14,14 @@ const ExperimentPhaseContent = ({ phase }) => {
         [PHASES.VALUES.MEASUREMENT_EVALUATION]:
             'After all requests have been sent, it is time to evaluated the metrics.',
         [PHASES.VALUES.COMPLETION]:
-            'The benchmarking process is done. In case of manual evaluation, decide now whether you want the integration step to succeed or fail.'
+            'The benchmarking process is done. In case of manual evaluation, decide now whether you want the integration step to succeed or fail.',
     };
 
     return <p>{content[phase]}</p>;
 };
 
 ExperimentPhaseContent.propTypes = {
-    phase: PropTypes.oneOf(PHASES.ORDER)
+    phase: ExperimentPhasePropTypes.isRequired,
 };
 
 export default ExperimentPhaseContent;

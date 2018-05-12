@@ -1,6 +1,6 @@
 import {
     experimentPhaseReducer,
-    experimentResultReducer
+    experimentResultReducer,
 } from '../../../../src/webServer/public/reducers/experimentReducers';
 import { PHASES } from '../../../../src/webServer/public/constants/ApplicationConstants';
 import ActionTypes from '../../../../src/webServer/public/constants/ActionTypes';
@@ -16,7 +16,7 @@ describe('Test experimentReducers', () => {
             const phaseStub = 'test';
             const actionStub = {
                 type: ActionTypes.EXPERIMENT.PHASE,
-                data: phaseStub
+                data: phaseStub,
             };
             const result = experimentPhaseReducer('hello', actionStub);
             expect(result).toEqual(phaseStub);
@@ -29,9 +29,9 @@ describe('Test experimentReducers', () => {
             expect(result).toEqual({
                 async: {
                     isLoading: false,
-                    errorCode: 0
+                    errorCode: 0,
                 },
-                value: null
+                value: null,
             });
         });
 
@@ -43,65 +43,65 @@ describe('Test experimentReducers', () => {
                 type: ActionTypes.EXPERIMENT.DECISION.ASYNC,
                 data: {
                     isLoading: isLoadingStub,
-                    errorCode: errorCodeStub
-                }
+                    errorCode: errorCodeStub,
+                },
             };
             const stateStub = {
                 value: valueMock,
                 async: {
                     isLoading: false,
-                    errorCode: 0
-                }
+                    errorCode: 0,
+                },
             };
             const result = experimentResultReducer(stateStub, actionStub);
             expect(result).toEqual({
                 value: valueMock,
                 async: {
                     isLoading: isLoadingStub,
-                    errorCode: errorCodeStub
-                }
+                    errorCode: errorCodeStub,
+                },
             });
         });
 
         it('should handle EXPERIMENT.DECISION.RESULT', () => {
             const asyncStub = {
                 isLoading: true,
-                errorCode: 0
+                errorCode: 0,
             };
             const valueStubSucceed = 'succeed';
             const valueStubFail = 'fail';
             const actionStub = valueStub => ({
                 type: ActionTypes.EXPERIMENT.DECISION.RESULT,
-                data: valueStub
+                data: valueStub,
             });
             const stateStub = {
                 async: asyncStub,
-                value: 'test'
+                value: 'test',
             };
             const resultWithSucceed = experimentResultReducer(stateStub, actionStub(valueStubSucceed));
             const resultWithFail = experimentResultReducer(stateStub, actionStub(valueStubFail));
 
             expect(resultWithSucceed).toEqual({
                 async: asyncStub,
-                value: valueStubSucceed
+                value: valueStubSucceed,
             });
             expect(resultWithFail).toEqual({
                 async: asyncStub,
-                value: valueStubFail
+                value: valueStubFail,
             });
         });
 
         it('should return the input state if data is not "succeed" or "fail" for EXPERIMENT.DECISION.RESULT', () => {
             const actionStub = {
                 type: ActionTypes.EXPERIMENT.DECISION.RESULT,
-                data: 'hello'
+                data: 'hello',
             };
             const stateStub = {
                 async: {
                     isLoading: true,
-                    errorCode: 0
+                    errorCode: 0,
                 },
-                value: 'test'
+                value: 'test',
             };
             const result = experimentResultReducer(stateStub, actionStub);
             expect(result).toEqual(stateStub);

@@ -1,4 +1,4 @@
-import { grey100, grey400, grey500, teal500, teal700, red200, red300 } from 'material-ui/styles/colors';
+import { grey100, grey400, grey500, teal500, teal700, red300 } from 'material-ui/styles/colors';
 
 export const Palette = {
     primary1Color: teal500,
@@ -6,5 +6,5 @@ export const Palette = {
     primary3Color: grey400,
     accent1Color: red300,
     accent2Color: grey100,
-    accent3Color: grey500
+    accent3Color: grey500,
 };
