@@ -17,6 +17,7 @@
   },
   "jest": {
     "verbose": true,
+    "collectCoverage": true,
     "testRegex": "/tests/webServer/.*\\.test\\.(js)$",
     "transform": {
       ".js": "./node_modules/babel-jest"
