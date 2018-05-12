@@ -21,9 +21,9 @@ const Downloads = ({ patterns, phase }) => {
                 </DownloadLinkContainer>
                 {PHASES.ORDER.indexOf(phase) > PHASES.ORDER.indexOf(PHASES.VALUES.WORKLOAD_GENERATION) && (
                     <DownloadLinkContainer heading={'Workloads'}>
-                        {patterns.map(patternName => (
-                            <a key={patternName} href={EndpointConstants.DOWNLOAD_WORKLOAD.path(patternName)}>
-                                {patternName}.log
+                        {patterns.map(pattern => (
+                            <a key={pattern.name} href={EndpointConstants.DOWNLOAD_WORKLOAD.path(pattern.name)}>
+                                {pattern.name}.log
                             </a>
                         ))}
                     </DownloadLinkContainer>

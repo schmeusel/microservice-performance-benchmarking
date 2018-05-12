@@ -22,7 +22,7 @@ const ExperimentPhaseLabel = ({ phase, completed, disabled }) => {
 
     function getIcon(phaseName) {
         const icon = {
-            [PHASES.VALUES.INITIALIZATON]: <ActionHome />,
+            [PHASES.VALUES.INITIALIZATION]: <ActionHome />,
             [PHASES.VALUES.PATTERN_RESOLUTION]: <ImageTransform />,
             [PHASES.VALUES.WORKLOAD_GENERATION]: <ActionBuild />,
             [PHASES.VALUES.REQUEST_TRANSMISSION]: <NotificationNetworkCheck />,
