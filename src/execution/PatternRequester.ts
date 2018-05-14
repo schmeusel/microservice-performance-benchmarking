@@ -1,6 +1,5 @@
-import { Pattern, PatternElementRequest, PatternRequestMeasurement, RequestMethod, AbstractPatternElementOperation, PatternResult } from '../interfaces/index';
+import { Pattern, PatternElementRequest, PatternRequestMeasurement, RequestMethod, AbstractPatternElementOperation, PatternResult, PatternElementOutputType, PatternElementSelector } from '../interfaces/index';
 import OpenAPIService from '../services/OpenAPIService';
-import LoggingService from '../services/LoggingService';
 import { mapOutputTypeAndMethodToOperation } from '../utils/OpenAPIUtil';
 import * as winston from 'winston';
 
@@ -9,8 +8,10 @@ export default class PatternRequester {
     private pattern: Pattern;
     private requests: PatternElementRequest[];
     private _eventLogger;
+    private _outputs: { [outputName: string]: any };
 
     constructor(pattern: Pattern, requests: PatternElementRequest[]) {
+        this._outputs = {};
         this.pattern = pattern;
         this.requests = requests;
         this.measurements = [];
@@ -26,7 +27,7 @@ export default class PatternRequester {
 
     private asyncLoop(index: number, resolve: (patternResult: PatternResult) => void, reject): void {
         if (index < this.requests.length) {
-            const currentRequest: PatternElementRequest = this.requests[index];
+            const currentRequest: PatternElementRequest = this.enrichRequestWithInput(this.requests[index]);
             this.sendRequest(currentRequest)
                 .then(() => {
                     setTimeout(() => {
@@ -41,6 +42,80 @@ export default class PatternRequester {
             };
             resolve(patternResult);
         }
+    }
+
+    private enrichRequestWithInput(request: PatternElementRequest): PatternElementRequest {
+        const matchingSequenceElement = this.pattern.sequence[request.patternIndex];
+        const inputName: string = matchingSequenceElement.input;
+        if (!inputName) {
+            return request;
+        }
+        const existingOutputData = this._outputs[inputName];
+        if (!existingOutputData) {
+            throw new Error(`There is no previous output stored for input: ${inputName}`);
+        }
+        const outputType = this.getOutputType(inputName);
+        if (outputType === PatternElementOutputType.LIST) {
+            if (!Array.isArray(existingOutputData)) {
+                throw new Error(`Output data for a list item is not an array.`);
+            }
+            let inputItem;
+            switch (matchingSequenceElement.selector) {
+                case PatternElementSelector.FIRST: {
+                    inputItem = existingOutputData.shift();
+                    break;
+                }
+                case PatternElementSelector.LAST: {
+                    inputItem = existingOutputData.pop();
+                    break;
+                }
+                case PatternElementSelector.RANDOM:
+                default: {
+                    // TODO length validation
+                    const randomIndex = Math.round(Math.random() * existingOutputData.length - 1);
+                    inputItem = existingOutputData[randomIndex];
+                }
+            }
+            return this.enrichRequestWithInputItem(request, inputItem);
+        }
+        if (outputType === PatternElementOutputType.ITEM) {
+            return this.enrichRequestWithInputItem(request, existingOutputData);
+        }
+
+        throw new Error(`Cannot process a NONE output as an input for another request.`);
+    }
+
+    private enrichRequestWithInputItem(request: PatternElementRequest, inputItem): PatternElementRequest {
+        const findIdKey = k => {
+            const key = k.toLowerCase();
+            return key === 'id' || key.startsWith('id') || key.endsWith('id');
+        };
+        const paramKeys = Object.keys(request.parameters);
+        const inputItemKeys = Object.keys(inputItem);
+        const idKey = inputItemKeys.find(findIdKey);
+        if (!idKey) {
+            throw new Error('Could not locate identifying key from input.');
+        }
+        const paramKeyToBeReplaced = paramKeys.find(findIdKey);
+        if (!paramKeyToBeReplaced) {
+            throw new Error('Could not locate identifying key from parameters.');
+        }
+        return {
+            ...request,
+            parameters: {
+                ...request.parameters,
+                [paramKeyToBeReplaced]: inputItem[idKey]
+            }
+        }
+    }
+
+    private getOutputType(outputName: string): PatternElementOutputType {
+        const sequenceElement = this.pattern.sequence.find(el => el.output === outputName);
+        if (!sequenceElement) {
+            this._eventLogger.info(`No sequence element found for name: ${outputName}`);
+            throw new Error(`No sequence element found for name: ${outputName}`);
+        }
+        return sequenceElement.outputType;
     }
 
     private sendRequest(requestToSend: PatternElementRequest): Promise<void> {
@@ -63,6 +138,8 @@ export default class PatternRequester {
                     };
                     this._eventLogger.info('adding to measurements');
                     this.addMeasurement(measurement);
+                    this._eventLogger(`response ${JSON.stringify(response)}' `)
+                    this._outputs[this.pattern.sequence[requestToSend.patternIndex].output] = response.body;
                     resolve();
                 })
                 .catch(err => {

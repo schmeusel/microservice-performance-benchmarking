@@ -7,5 +7,4 @@ export default interface PatternElement {
     output?: string;
     outputType?: PatternElementOutputType;
     selector?: PatternElementSelector;
-    // possible information about required parameters (e.g. key range)
 };
