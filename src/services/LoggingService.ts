@@ -92,6 +92,7 @@ class LoggingService {
 
     public addPatternResult(patternResult: PatternResult): void {
         patternResult.measurements.forEach(measurement => {
+            console.log('log measurement', measurement)
             this.measurementLogger.log({
                 level: 'info',
                 measurement
@@ -148,7 +149,7 @@ class LoggingService {
     }
 
     private static getMeasurementCSVFields(): string[] {
-        return ['pattern', 'operation', 'timestampStart', 'timestampEnd', 'url', 'patternIndex', 'round'];
+        return ['pattern', 'operation', 'timestampStart', 'timestampEnd', 'status', 'url', 'patternIndex', 'round'];
     }
 
     private static getMeasurementString(measurement: PatternRequestMeasurement): string {

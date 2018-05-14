@@ -121,7 +121,9 @@ export default class PatternRequester {
     private sendRequest(requestToSend: PatternElementRequest): Promise<void> {
         this._eventLogger.info('sending a request');
         return new Promise((resolve, reject) => {
-            OpenAPIService.sendRequest(requestToSend)
+            const { patternName, patternIndex, wait, round, ...strippedRequest} = requestToSend;
+            this._eventLogger.info(`stripped req: ${JSON.stringify(strippedRequest)}`)
+            OpenAPIService.sendRequest(strippedRequest)
                 .then(response => {
                     const method = response.request.method.toUpperCase() as RequestMethod;
                     const outputType = this.pattern.sequence[requestToSend.patternIndex].outputType;
@@ -138,7 +140,7 @@ export default class PatternRequester {
                     };
                     this._eventLogger.info('adding to measurements');
                     this.addMeasurement(measurement);
-                    this._eventLogger(`response ${JSON.stringify(response)}' `)
+                    this._eventLogger.info(`response ${JSON.stringify(response)}' `)
                     this._outputs[this.pattern.sequence[requestToSend.patternIndex].output] = response.body;
                     resolve();
                 })
@@ -155,7 +157,7 @@ export default class PatternRequester {
                         round: requestToSend.round,
                         patternIndex: requestToSend.patternIndex
                     };
-                    this._eventLogger.info('adding error to measurements');
+                    this._eventLogger.info(`adding error to measurements: ${err}`);
                     this.addMeasurement(measurement);
                     resolve();
                 });

@@ -7,7 +7,6 @@ import {
     PatternRequestMeasurement,
     PatternResult
 } from '../interfaces/index';
-import * as path from 'path';
 import * as fs from 'fs';
 import * as readline from 'readline';
 import PatternRequester from './PatternRequester';
@@ -60,6 +59,7 @@ function handleStart({ openAPISpec, pattern, options }: { openAPISpec: OpenAPISp
 function handleLineRead(pattern: Pattern) {
     return line => {
         const request = JSON.parse(line) as PatternElementRequest;
+        process.send({ type: IPCMessageType.INFO, data: request})
         patternRequests.push(request);
 
         if (request.patternIndex === pattern.sequence.length - 1) {

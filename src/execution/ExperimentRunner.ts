@@ -74,6 +74,9 @@ class ExperimentRunner extends EventEmitter {
                 console.log('error in request runner', message.data);
                 break;
             }
+            case IPCMessageType.INFO: {
+                console.log('data:', message.data)
+            }
         }
     }
 

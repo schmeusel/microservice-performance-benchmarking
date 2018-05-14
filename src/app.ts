@@ -11,7 +11,7 @@ if (!argv.spec || !(argv.json || argv.url)) {
 }
 
 const specification: BenchmarkSpecification = require(path.resolve(argv.spec));
-const openAPISpec: string | OpenAPISpecification = require(path.resolve(argv.json)) || argv.url;
+const openAPISpec: string | OpenAPISpecification = argv.url || require(path.resolve(argv.json));
 
 new BenchmarkController(specification, openAPISpec).start();
 

@@ -1,6 +1,5 @@
 import * as jsf from 'json-schema-faker';
 import { PatternElementRequest, PatternElement, Pattern } from '../interfaces/index';
-import { generateDistributionData } from '../services/IntervalDistributionService';
 import { SchemaObject, OperationObject } from '../interfaces/openapi/OpenAPISpecification';
 import OpenAPIService from '../services/OpenAPIService';
 
@@ -20,8 +19,13 @@ class PatternBuilder {
             }, []);
 
             Promise.all([...requestBodySchemata.map(this.generatePopulatedSchema), ...parameters.map(param => this.generatePopulatedSchema(param.schema))])
-                .then(paramsArray => {
-                    resolve(paramsArray.reduce((allParams, currParams) => ({ ...allParams, ...currParams }), {}));
+                .then((paramsArray) => {
+                    const bodyParamsArray = paramsArray.slice(0, requestBodySchemata.length);
+                    const res: any = {};
+                    if (bodyParamsArray) {
+                        res.body = bodyParamsArray.reduce((allParams, currParams) => ({ ...allParams, ...currParams }), {})
+                    }
+                    resolve(paramsArray.slice(requestBodySchemata.length).reduce((allParams, currParams) => ({ ...allParams, ...currParams }), res));
                 })
                 .catch(reject);
         });
