@@ -38,8 +38,9 @@ export default class MeasurementsHistogram extends React.PureComponent {
     }
 
     getLatencyMap(keysMap, latencies, groupingDistance) {
+        const smallestKey = parseInt(Object.keys(keysMap).shift());
         return latencies.reduce((map, num) => {
-            const key = Math.floor(num / groupingDistance) * groupingDistance;
+            const key = (Math.floor((num - smallestKey) / groupingDistance) * groupingDistance) + smallestKey;
             return {
                 ...map,
                 [key]: (map[key] || 0) + 1,
