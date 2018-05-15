@@ -25,14 +25,13 @@ export default class BenchmarkController extends EventEmitter {
         this.initializeServices()
             .then(() => {
                 ApplicationState.setPhase('PATTERN_RESOLUTION');
-                // TODO only start when in config specified
-                // Server.start()
-                //     .then(port => {
-                //         LoggingService.logEvent(`Server started on port ${port}`);
-                //     })
-                //     .catch(err => {
-                //         LoggingService.logEvent('Error starting server');
-                //     });
+                Server.start()
+                    .then(port => {
+                        LoggingService.logEvent(`Server started on port ${port}`);
+                    })
+                    .catch(err => {
+                        LoggingService.logEvent('Error starting server');
+                    });
                 return this.initializePatternResolver();
             })
             .then(() => {
