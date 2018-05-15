@@ -4,7 +4,7 @@ import { PatternRequestMeasurement, PatternElementRequest, Pattern, PatternResul
 import LoggingError from '../exceptions/LoggingError';
 import config from '../config';
 
-class LoggingService {
+export class LoggingService {
     private _eventLogger: winston.LoggerInstance;
     private _measurementLogger: winston.LoggerInstance;
 
@@ -145,7 +145,7 @@ class LoggingService {
         this.measurementLogger.info(header);
     }
 
-    private static getMeasurementCSVFields(): string[] {
+    public static getMeasurementCSVFields(): string[] {
         return ['pattern', 'operation', 'timestampStart', 'timestampEnd', 'status', 'url', 'patternIndex', 'round'];
     }
 

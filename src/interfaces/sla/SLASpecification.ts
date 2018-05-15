@@ -1,5 +1,5 @@
 import { SLACondition } from '../index';
 
 export default interface SLASpecification {
-    latency: SLACondition;
+    [patternName: string]: SLACondition
 };

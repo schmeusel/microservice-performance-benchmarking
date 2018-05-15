@@ -1,6 +1,6 @@
 {
   "configuration": {
-    "totalPatternRequests": 20,
+    "totalPatternRequests": 2,
     "patterns": [
       {
         "name": "createResource",
@@ -17,11 +17,8 @@
     ]
   },
   "condition": {
-    "latency": {
-      "max": {
-        "value": 500,
-        "type": "hard"
-      }
+    "createResource": {
+      "max": 200
     }
   },
   "customization": {

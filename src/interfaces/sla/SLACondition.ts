@@ -1,11 +1,9 @@
-import { SLAConditionMeasure } from '../index';
-
 export default interface SLACondition {
-    min?: SLAConditionMeasure;
-    max?: SLAConditionMeasure;
-    mean?: SLAConditionMeasure;
-    stdev?: SLAConditionMeasure;
+    min?: number;
+    max?: number;
+    mean?: number;
+    stdev?: number;
     percentiles?: {
-        [percentile: number]: SLAConditionMeasure;
+        [percentile: number]: number;
     };
 };
