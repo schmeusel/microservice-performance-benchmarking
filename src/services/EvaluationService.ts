@@ -21,10 +21,6 @@ class EvaluationService {
         this.timestampEndIndex = csvKeys.findIndex(key => key === 'timestampEnd');
         this.patternNameIndex = csvKeys.findIndex(key => key === 'pattern');
 
-        console.log('startIndex', this.timestampStartIndex);
-        console.log('endIndex', this.timestampEndIndex);
-        console.log('patternIndex', this.patternNameIndex);
-
         if (this.timestampStartIndex < 0 || this.timestampEndIndex < 0 || this.patternNameIndex < 0) {
             throw new EvaluationError('Could not find timestampStart, timestampEnd, and pattern in CSV config in LoggingService.');
         }
@@ -95,8 +91,6 @@ class EvaluationService {
                     if (patternName === 'pattern') {
                         return;
                     }
-                    console.log('pattern name', patternName)
-                    console.log('measurements', this.measurements)
                     if (!this.measurements[patternName]) {
                         this.measurements[patternName] = [];
                     }

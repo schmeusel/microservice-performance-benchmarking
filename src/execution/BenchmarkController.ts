@@ -22,44 +22,42 @@ export default class BenchmarkController extends EventEmitter {
     }
 
     public start() {
-        EvaluationService.initialize().then(() => this.processResults())
-        // this.initializeServices()
-        // .then(() => {
-        //         ApplicationState.setPhase('PATTERN_RESOLUTION');
-        //         Server.start()
-        //             .then(port => {
-        //                 LoggingService.logEvent(`Server started on port ${port}`);
-        //             })
-        //             .catch(err => {
-        //                 LoggingService.logEvent('Error starting server');
-        //             });
-        //         return this.initializePatternResolver();
-        //     })
-        //     .then(() => {
-        //         LoggingService.logEvent('All services initialized.');
-        //         return this.preLoad();
-        //     })
-        //     .then(() => {
-        //         LoggingService.logEvent('Pre loading finished.');
-        //         return this.initializeWorkloadLoggers();
-        //     })
-        //     .then(() => {
-        //         ApplicationState.setPhase('WORKLOAD_GENERATION');
-        //         LoggingService.logEvent('Loggers initialized.');
-        //         return this.generateWorkloads();
-        //     })
-        //     .then(() => {
-        //         ApplicationState.setPhase('REQUEST_TRANSMISSION');
-        //         LoggingService.logEvent('Workloads generated.');
-        //         return this.runExperiment();
-        //     })
-        //     .then(() => {
-        //         ApplicationState.setPhase('MEASUREMENT_EVALUATION');
-        //         LoggingService.logEvent('Experiment finished.');
-        //         return this.processResults();
-        //     })
+        this.initializeServices()
+            .then(() => {
+                ApplicationState.setPhase('PATTERN_RESOLUTION');
+                Server.start()
+                    .then(port => {
+                        LoggingService.logEvent(`Server started on port ${port}`);
+                    })
+                    .catch(err => {
+                        LoggingService.logEvent('Error starting server');
+                    });
+                return this.initializePatternResolver();
+            })
+            .then(() => {
+                LoggingService.logEvent('All services initialized.');
+                return this.preLoad();
+            })
+            .then(() => {
+                LoggingService.logEvent('Pre loading finished.');
+                return this.initializeWorkloadLoggers();
+            })
+            .then(() => {
+                ApplicationState.setPhase('WORKLOAD_GENERATION');
+                LoggingService.logEvent('Loggers initialized.');
+                return this.generateWorkloads();
+            })
+            .then(() => {
+                ApplicationState.setPhase('REQUEST_TRANSMISSION');
+                LoggingService.logEvent('Workloads generated.');
+                return this.runExperiment();
+            })
+            .then(() => {
+                ApplicationState.setPhase('MEASUREMENT_EVALUATION');
+                LoggingService.logEvent('Experiment finished.');
+                return this.processResults();
+            })
             .then((wasSuccessful: boolean) => {
-                console.log('evaluation successful', wasSuccessful)
                 ApplicationState.setPhase('COMPLETION');
                 LoggingService.logEvent('Results processed.');
                 this.prepareShutdown(wasSuccessful);
@@ -69,9 +67,8 @@ export default class BenchmarkController extends EventEmitter {
                 LoggingService.logEvent('Clean up done.');
             })
             .catch(err => {
-                console.log('err', err)
-                // LoggingService.logEvent('Benchmark failed!');
-                // LoggingService.logEvent(err);
+                LoggingService.logEvent('Benchmark failed!');
+                LoggingService.logEvent(err);
                 this.prepareShutdown(false);
             });
     }
