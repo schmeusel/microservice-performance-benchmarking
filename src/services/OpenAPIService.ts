@@ -50,7 +50,7 @@ class OpenAPIService {
         if (!params.operationId || !params.operationId.length) {
             throw new OpenAPIError('operationId is required for params.');
         }
-        return this.client.execute({ ...params });
+        return this.client.execute(params);
     }
 
     public getSpecificationByOperationId(operationId: string): OperationObject {

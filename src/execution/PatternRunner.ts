@@ -7,7 +7,6 @@ import {
     PatternRequestMeasurement,
     PatternResult
 } from '../interfaces/index';
-import * as path from 'path';
 import * as fs from 'fs';
 import * as readline from 'readline';
 import PatternRequester from './PatternRequester';
@@ -47,9 +46,7 @@ function handleStart({ openAPISpec, pattern, options }: { openAPISpec: OpenAPISp
                 .on('line', handleLineRead(pattern))
                 .on('close', handleDone)
                 .on('error', error => {
-                    // TODO proper error handling
                     handleError(error);
-                    console.log('error while reading pattern file', error);
                 });
         })
         .catch(err => {

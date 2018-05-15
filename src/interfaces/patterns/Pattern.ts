@@ -1,4 +1,4 @@
-import { Interval, PatternElement, AbstractPatternElement } from '../index';
+import { PatternElement } from '../index';
 
 export default interface Pattern {
     name: string;

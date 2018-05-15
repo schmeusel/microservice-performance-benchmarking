@@ -1,6 +1,5 @@
 import * as jsf from 'json-schema-faker';
 import { PatternElementRequest, PatternElement, Pattern } from '../interfaces/index';
-import { generateDistributionData } from '../services/IntervalDistributionService';
 import { SchemaObject, OperationObject } from '../interfaces/openapi/OpenAPISpecification';
 import OpenAPIService from '../services/OpenAPIService';
 
@@ -19,23 +18,48 @@ class PatternBuilder {
                 return [...schemata, requestBody.content[mediaType].schema];
             }, []);
 
-            Promise.all([...requestBodySchemata.map(this.generatePopulatedSchema), ...parameters.map(param => this.generatePopulatedSchema(param.schema))])
-                .then(paramsArray => {
-                    resolve(paramsArray.reduce((allParams, currParams) => ({ ...allParams, ...currParams }), {}));
+            Promise.all(parameters.map(param => this.generatePopulatedSchema(param.schema)))
+                .then((paramsArray) => {
+                    if (paramsArray && paramsArray.length) {
+                        resolve(paramsArray.reduce((allParams, currParams) => ({ ...allParams, ...currParams }), {}))
+                        return
+                    }
+                    resolve({});
                 })
                 .catch(reject);
         });
     }
 
+    private generateClientRequestBodyObject(operation: OperationObject): Promise<any> {
+        return new Promise((resolve, reject) => {
+            const { requestBody } = operation;
+            const requestBodySchemata = Object.keys(requestBody.content).reduce((schemata, mediaType) => {
+                return [...schemata, requestBody.content[mediaType].schema];
+            }, []);
+
+            Promise.all(requestBodySchemata.map(this.generatePopulatedSchema))
+                .then((requestBodyArray) => {
+                    if (requestBodyArray && requestBodyArray.length) {
+                        resolve(requestBodyArray.reduce((allParams, currParams) => ({ ...allParams, ...currParams }), {}));
+                        return
+                    }
+                    resolve({});
+                })
+                .catch(reject);
+        })
+    }
+
     private generatePatternRequest(patternName, patternElement: PatternElement, index: number, round: number): Promise<PatternElementRequest> {
         const opObject: OperationObject = OpenAPIService.getSpecificationByOperationId(patternElement.operationId);
         return new Promise((resolve: (req: PatternElementRequest) => void, reject) => {
-            this.generateClientParamsObject(opObject).then(params => {
+            Promise.all([this.generateClientParamsObject(opObject), this.generateClientRequestBodyObject(opObject)])
+            .then(([parameters, requestBody]) => {
                 const request: PatternElementRequest = {
                     patternName: patternName,
                     patternIndex: index,
                     operationId: patternElement.operationId,
-                    parameters: params,
+                    parameters: parameters,
+                    requestBody: requestBody,
                     wait: patternElement.wait,
                     round: round
                 };

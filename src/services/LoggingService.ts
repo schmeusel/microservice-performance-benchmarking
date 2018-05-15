@@ -148,7 +148,7 @@ class LoggingService {
     }
 
     private static getMeasurementCSVFields(): string[] {
-        return ['pattern', 'operation', 'timestampStart', 'timestampEnd', 'url', 'patternIndex', 'round'];
+        return ['pattern', 'operation', 'timestampStart', 'timestampEnd', 'status', 'url', 'patternIndex', 'round'];
     }
 
     private static getMeasurementString(measurement: PatternRequestMeasurement): string {

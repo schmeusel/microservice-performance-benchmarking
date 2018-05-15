@@ -1,12 +1,12 @@
 {
   "configuration": {
-    "totalPatternRequests": 5,
+    "totalPatternRequests": 2,
     "patterns": [
       {
         "name": "createResource",
         "sequence": [
           {
-            "id": "userCreate",
+            "id": "petCreate",
             "operation": "CREATE",
             "output": "createdItem",
             "wait": 800
@@ -26,7 +26,7 @@
   },
   "customization": {
     "createResource": {
-      "userCreate": "user"
+      "petCreate": "pet"
     }
   }
 }

@@ -1,7 +1,15 @@
 import { fork, ChildProcess } from 'child_process';
 import * as path from 'path';
 import LoggingService from '../services/LoggingService';
-import { Pattern, PatternElementRequest, IPCMessage, IPCMessageType, PatternElementOutputType, PatternRequestMeasurement, PatternResult } from '../interfaces';
+import {
+    Pattern,
+    PatternElementRequest,
+    IPCMessage,
+    IPCMessageType,
+    PatternElementOutputType,
+    PatternRequestMeasurement,
+    PatternResult
+} from '../interfaces';
 import OpenAPIService from '../services/OpenAPIService';
 import { EventEmitter } from 'events';
 import Server from '../webServer/Server';
@@ -71,8 +79,11 @@ class ExperimentRunner extends EventEmitter {
                 break;
             }
             case IPCMessageType.ERROR: {
-                console.log('error in request runner', message.data);
+                console.log('Error in request runner', message.data);
                 break;
+            }
+            case IPCMessageType.INFO: {
+                console.log(message.data);
             }
         }
     }
