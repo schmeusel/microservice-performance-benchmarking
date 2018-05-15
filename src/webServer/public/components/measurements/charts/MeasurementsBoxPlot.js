@@ -31,7 +31,7 @@ export default class MeasurementsBoxPlot extends PureComponent {
     componentWillReceiveProps(nextProps) {
         if (this.chart) {
             this.chart.data = this.getChartsData(nextProps);
-            this.chart.options = this.getChartOptions();
+            this.chart.options = this.getChartOptions(nextProps);
             this.chart.update();
         }
     }
@@ -40,30 +40,60 @@ export default class MeasurementsBoxPlot extends PureComponent {
         const { measurements } = props;
         const latencies = Object.keys(measurements).map(index => measurements[index].latencies);
 
+        const datasets = [];
+        const successDataset = {
+            label: 'Successful Requests',
+            backgroundColor: fade(Palette.primary1Color, 0.3),
+            borderColor: Palette.primary1Color,
+            borderWidth: 1,
+            data: latencies.map(errAndSuccess => errAndSuccess.success.map(num => parseFloat(num.toFixed(2)))),
+            padding: 20,
+        };
+        if (successDataset.data.reduce((hasLength, curr) => hasLength || !!curr.length, false)) {
+            datasets.push(successDataset);
+        }
+
+        const errorDataset = {
+            label: 'Erroneous Requests',
+            backgroundColor: fade(Palette.accent1Color, 0.3),
+            borderColor: Palette.accent1Color,
+            borderWidth: 1,
+            data: latencies.map(errAndSuccess => errAndSuccess.error.map(num => parseFloat(num.toFixed(2)))),
+            padding: 20,
+        };
+        if (errorDataset.data.reduce((hasLength, curr) => hasLength || !!curr.length, false)) {
+            datasets.push(errorDataset);
+        }
+
         return {
             labels: Object.keys(measurements).map(round => `#${parseInt(round) + 1}`),
-            datasets: [
-                {
-                    label: 'Erroneous Requests',
-                    backgroundColor: fade(Palette.accent1Color, 0.3),
-                    borderColor: Palette.accent1Color,
-                    borderWidth: 1,
-                    data: latencies.map(errAndSuccess => errAndSuccess.error.map(num => parseFloat(num.toFixed(2)))),
-                    padding: 20,
-                },
-                {
-                    label: 'Successful Requests',
-                    backgroundColor: fade(Palette.primary1Color, 0.3),
-                    borderColor: Palette.primary1Color,
-                    borderWidth: 1,
-                    data: latencies.map(errAndSuccess => errAndSuccess.success.map(num => parseFloat(num.toFixed(2)))),
-                    padding: 20,
-                },
-            ],
+            datasets,
         };
     }
 
-    getChartOptions() {
+    getSuggestedMinMax(measurements) {
+        const latencies = Object
+            .keys(measurements)
+            .map(step => measurements[step].latencies)
+            .reduce((totalLatencies, errAndSuccess) => {
+                return [
+                    ...totalLatencies,
+                    ...errAndSuccess.success,
+                    ...errAndSuccess.error
+                ];
+            }, []);
+        const min = Math.min(...latencies);
+        const max = Math.max(...latencies);
+
+        const clearance = 0.02;
+
+        return {
+            suggestedMin: Math.round(min) * (1 - clearance),
+            suggestedMax: Math.round(max) * (1 + clearance),
+        };
+    }
+
+    getChartOptions(props) {
         return {
             responsive: true,
             legend: {
@@ -84,7 +114,7 @@ export default class MeasurementsBoxPlot extends PureComponent {
                         const max = stats.max(latencies).toFixed(2);
                         return [
                             '',
-                            `Min:\t${min}`,
+                            `Min:\t${min}ms`,
                             `Q1:\t${q1}ms`,
                             `Mean:\t${mean}ms`,
                             `Q3:\t${q3}ms`,
@@ -103,8 +133,7 @@ export default class MeasurementsBoxPlot extends PureComponent {
                             fontStyle: 'bold',
                         },
                         ticks: {
-                            suggestedMin: 180,
-                            suggestedMax: 280,
+                            ...this.getSuggestedMinMax(props.measurements),
                             fontSize: 10,
                         },
                     },

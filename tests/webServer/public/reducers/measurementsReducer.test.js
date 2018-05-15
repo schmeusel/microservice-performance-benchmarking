@@ -8,7 +8,7 @@ describe('Test measurementsReducer', () => {
     //     expect(result).toEqual({});
     // });
 
-    it('should handle MEASUREMENTS', () => {
+    it('should handle MEASUREMENTS_UPDATE', () => {
         const operationStub = 'op';
         const timestampStartSub = 4;
         const timestampEndStub = 10;
@@ -26,12 +26,12 @@ describe('Test measurementsReducer', () => {
             measurements: [measurementStub(200, index), measurementStub(400, index)],
         });
         const actionStub = (name, index) => ({
-            type: ActionTypes.MEASUREMENTS,
+            type: ActionTypes.MEASUREMENTS.UPDATE,
             data: dataStub(name, index),
         });
         const result = measurementsReducer({}, actionStub(nameStubFirst, firstIndexStub));
         const latencyResult = timestampEndStub - timestampStartSub;
-        expect(result).toEqual({
+        expect(result.values).toEqual({
             [nameStubFirst]: {
                 [firstIndexStub]: {
                     operation: operationStub,
@@ -46,7 +46,7 @@ describe('Test measurementsReducer', () => {
         const secondIndexStub = 2;
         const nameStubSecond = 'hello';
         const resultWithPreviousMap = measurementsReducer(result, actionStub(nameStubSecond, secondIndexStub));
-        expect(resultWithPreviousMap).toEqual({
+        expect(resultWithPreviousMap.values).toEqual({
             [nameStubFirst]: {
                 [firstIndexStub]: {
                     operation: operationStub,
@@ -67,11 +67,11 @@ describe('Test measurementsReducer', () => {
             },
         });
 
-        const resultWithPreviousSameName = measurementsReducer(
-            resultWithPreviousMap,
+        const resultWithPreviousSameName = measurementsReducer(resultWithPreviousMap,
             actionStub(nameStubFirst, firstIndexStub),
         );
-        expect(resultWithPreviousSameName).toEqual({
+        expect(resultWithPreviousSameName.values).toEqual({
+
             [nameStubFirst]: {
                 [firstIndexStub]: {
                     operation: operationStub,
@@ -91,5 +91,26 @@ describe('Test measurementsReducer', () => {
                 },
             },
         });
+    });
+
+    it('should handle MEASUREMENTS_FINAL_ASYNC', () => {
+        const previousState = {
+            values: 'test',
+            async: {
+                isLoading: false,
+                errorCode: 200,
+            },
+        };
+        const asyncStub = {
+            isLoading: true,
+            errorCode: 0,
+        };
+        const actionStub = {
+            type: ActionTypes.MEASUREMENTS.FINAL_ASYNC,
+            data: asyncStub,
+        };
+        const result = measurementsReducer(previousState, actionStub);
+        expect(result.values).toEqual('test');
+        expect(result.async).toEqual(asyncStub);
     });
 });

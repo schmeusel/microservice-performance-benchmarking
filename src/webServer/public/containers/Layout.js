@@ -16,11 +16,14 @@ import {
     ExperimentResultPropTypes,
     MeasurementsPropTypes, PatternPropTypes,
 } from '../constants/CustomPropTypes';
+import { fetchAllMeasurements } from '../actions/measurementsActions';
+import { PHASES } from '../constants/ApplicationConstants';
 
 class Layout extends PureComponent {
     static propTypes = {
         handleSocket: PropTypes.func.isRequired,
         onGroupingDistanceChange: PropTypes.func.isRequired,
+        fetchAllMeasurements: PropTypes.func.isRequired,
         decideOnResult: PropTypes.func.isRequired,
         experiment: PropTypes.shape({
             phase: ExperimentPhasePropTypes.isRequired,
@@ -36,6 +39,14 @@ class Layout extends PureComponent {
         SocketService.listen(this.props.handleSocket);
     }
 
+    componentWillReceiveProps(nextProps) {
+        const notCompletedBefore = this.props.experiment.phase !== PHASES.VALUES.COMPLETION;
+        const completedNow = nextProps.experiment.phase === PHASES.VALUES.COMPLETION;
+        if (notCompletedBefore && completedNow) {
+            this.props.fetchAllMeasurements();
+        }
+    }
+
     render() {
         const styles = {
             container: {
@@ -48,13 +59,14 @@ class Layout extends PureComponent {
                 <h1>Performance Benchmark</h1>
                 <ExperimentPhase phase={this.props.experiment.phase} />
                 <PatternMeasurementsContainer
-                    measurements={this.props.measurements}
+                    measurements={this.props.measurements.values}
                     groupingDistance={this.props.settings.groupingDistance}
                     onGroupingDistanceChange={this.props.onGroupingDistanceChange}
+                    isFetching={this.props.measurements.async.isLoading}
                 />
                 <ExperimentResult result={this.props.experiment.result} onDecide={this.props.decideOnResult} />
                 <Downloads
-                    patterns={this.props.patterns.map(pattern => pattern.name)}
+                    patterns={this.props.patterns}
                     phase={this.props.experiment.phase}
                 />
                 <FeedbackSnackbar message={this.props.feedbackMessage} />
@@ -75,6 +87,7 @@ const mapDispatchToProps = dispatch => ({
     decideOnResult: result => dispatch(decideOnResult(result)),
     handleSocket: data => dispatch(handleSocket(data)),
     onGroupingDistanceChange: value => dispatch(onGroupingDistanceChange(value)),
+    fetchAllMeasurements: () => dispatch(fetchAllMeasurements()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout);

@@ -11,7 +11,7 @@ export const ExperimentPhasePropTypes = PropTypes.oneOf(PHASES.ORDER);
 export const ExperimentResultValuePropTypes = PropTypes.oneOf(['succeed', 'fail']);
 
 export const ExperimentResultPropTypes = PropTypes.shape({
-    value: ExperimentResultValuePropTypes.isRequired,
+    value: ExperimentResultValuePropTypes,
     async: AsyncPropTypes.isRequired,
 });
 

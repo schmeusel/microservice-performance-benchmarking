@@ -10,7 +10,6 @@ import {
 import * as fs from 'fs';
 import * as readline from 'readline';
 import PatternRequester from './PatternRequester';
-import PatternBuilder from '../workload/PatternBuilder';
 import OpenAPIService from '../services/OpenAPIService';
 import config from '../config';
 import PolyfillUtil from '../utils/PolyfillUtil';

@@ -1,5 +1,5 @@
 import ActionTypes from '../constants/ActionTypes';
-
+import { DefaultAsyncStub } from '../constants/CustomStubs';
 
 const length = 50;
 const mapToRandom = () => parseFloat(((Math.random() * 50) + 200).toFixed(2));
@@ -45,17 +45,15 @@ const measurements = patternNames.reduce((obj, name) => ({
  * @param {*} state
  * @param {*} action
  */
-export default function reducer(state = measurements, action) {
+export default function reducer(state = { values: measurements, async: DefaultAsyncStub }, action) {
     switch (action.type) {
-        case ActionTypes.MEASUREMENTS: {
+        case ActionTypes.MEASUREMENTS.UPDATE: {
             const intermediate = {
-                ...state,
+                ...(state.values || {}),
                 [action.data.name]: {
-                    ...(state[action.data.name] || {}),
+                    ...((state.values && state.values[action.data.name]) || {}),
                 },
             };
-
-            // TODO make more functional with reduce with starting accu "intermediate"
             action.data.measurements.forEach((measurement) => {
                 const latency = measurement.timestampEnd - measurement.timestampStart;
                 if (!intermediate[action.data.name][measurement.patternIndex]) {
@@ -75,7 +73,39 @@ export default function reducer(state = measurements, action) {
                 }
             });
 
-            return intermediate;
+            return { ...state, values: intermediate };
+        }
+        case ActionTypes.MEASUREMENTS.FINAL_ASYNC: {
+            return {
+                ...state,
+                async: action.data,
+            };
+        }
+        case ActionTypes.MEASUREMENTS.FINAL: {
+            const values = {};
+            action.data.forEach((measurement) => {
+                const latency = measurement.timestampEnd - measurement.timestampStart;
+                if (!values[measurement.pattern] || !values[measurement.pattern][measurement.patternIndex]) {
+                    if (!values[measurement.pattern]) {
+                        values[measurement.pattern] = {};
+                    }
+                    values[measurement.pattern][measurement.patternIndex] = {
+                        operation: measurement.operation,
+                        latencies: {
+                            error: [],
+                            success: [],
+                        },
+                    };
+                }
+                if (measurement.status < 300) {
+                    values[measurement.pattern][measurement.patternIndex].latencies.success.push(latency);
+                }
+                if (measurement.status >= 400) {
+                    values[measurement.pattern][measurement.patternIndex].latencies.error.push(latency);
+                }
+            });
+
+            return { ...state, values };
         }
     }
     return state;

@@ -1,10 +1,8 @@
 import * as winston from 'winston';
-import * as fs from 'fs';
 import * as fse from 'fs-extra';
 import { PatternRequestMeasurement, PatternElementRequest, Pattern, PatternResult } from '../interfaces/index';
 import LoggingError from '../exceptions/LoggingError';
 import config from '../config';
-import { format } from 'util';
 
 class LoggingService {
     private _eventLogger: winston.LoggerInstance;

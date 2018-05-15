@@ -51,7 +51,7 @@ export default class MeasurementsHistogram extends React.PureComponent {
     getKeysMap(latencies, groupingDistance) {
         const max = Math.max(...latencies.success, ...latencies.error);
         const min = Math.floor(Math.min(...latencies.success, ...latencies.error));
-        const amount = Math.round((max - min) / groupingDistance);
+        const amount = Math.ceil((max - min) / groupingDistance);
         const keys = Array.from({ length: amount })
             .map((_, i) => (i === 0 ? min : min + (i * groupingDistance)));
 
@@ -104,7 +104,7 @@ export default class MeasurementsHistogram extends React.PureComponent {
                 },
             },
             animation: {
-                duration: 50
+                duration: 0,
             },
             scales: {
                 yAxes: [

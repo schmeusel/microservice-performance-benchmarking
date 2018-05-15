@@ -2,41 +2,37 @@ import ActionTypes from '../constants/ActionTypes';
 import EndpointConstants from '../constants/EndpointConstants';
 import { showSnackbarFeedback } from './applicationActions';
 
+function handleAsync(isLoading, errorCode) {
+    return {
+        type: ActionTypes.EXPERIMENT.DECISION.ASYNC,
+        data: {
+            errorCode,
+            isLoading,
+        },
+    };
+}
+
+function handleResponse(result) {
+    return {
+        type: ActionTypes.EXPERIMENT.DECISION.RESULT,
+        data: result,
+    };
+}
+
 export function decideOnResult(result) {
     const { DECISION } = EndpointConstants;
     return (dispatch) => {
-        dispatch({
-            type: ActionTypes.EXPERIMENT.DECISION.ASYNC,
-            data: {
-                errorCode: 0,
-                isLoading: true,
-            },
-        });
+        dispatch(handleAsync(true, 0));
         return fetch(DECISION.path(result), {
-            method: DECISION.method
+            method: DECISION.method,
         })
             .then(() => {
-                dispatch({
-                    type: ActionTypes.EXPERIMENT.DECISION.RESULT,
-                    data: result,
-                });
-                dispatch({
-                    type: ActionTypes.EXPERIMENT.DECISION.ASYNC,
-                    data: {
-                        errorCode: 0,
-                        isLoading: false,
-                    },
-                });
+                dispatch(handleResponse(result));
+                dispatch(handleAsync(false, 0));
                 dispatch(showSnackbarFeedback('Decision successfully made'));
             })
             .catch((error) => {
-                dispatch({
-                    type: ActionTypes.EXPERIMENT.DECISION.ASYNC,
-                    data: {
-                        errorCode: error.status,
-                        isLoading: false,
-                    },
-                });
+                dispatch(handleAsync(false, error.status));
             });
     };
 }

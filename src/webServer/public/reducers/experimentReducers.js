@@ -1,10 +1,6 @@
 import ActionTypes from '../constants/ActionTypes';
 import { PHASES } from '../constants/ApplicationConstants';
-
-const asyncDefaultState = {
-    isLoading: false,
-    errorCode: 0,
-};
+import { DefaultAsyncStub } from '../constants/CustomStubs';
 
 export function experimentPhaseReducer(state = PHASES.ORDER.shift(), action) {
     switch (action.type) {
@@ -15,7 +11,7 @@ export function experimentPhaseReducer(state = PHASES.ORDER.shift(), action) {
     return state;
 }
 
-export function experimentResultReducer(state = { async: asyncDefaultState, value: null }, action) {
+export function experimentResultReducer(state = { async: DefaultAsyncStub, value: null }, action) {
     switch (action.type) {
         case ActionTypes.EXPERIMENT.DECISION.ASYNC: {
             return {

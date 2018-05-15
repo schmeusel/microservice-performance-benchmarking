@@ -3,10 +3,10 @@ import * as path from 'path';
 import * as socketIO from 'socket.io';
 import * as http from 'http';
 import * as morgan from 'morgan';
+import * as csv from 'csvtojson';
 import ExperimentRunner from '../execution/ExperimentRunner';
-import { PatternRequestMeasurement, PatternResult } from '../interfaces';
+import { PatternResult } from '../interfaces';
 import LoggingService from '../services/LoggingService';
-import AbstractPatternResolver from '../pattern/AbstractPatternResolver';
 import ApplicationState from '../services/ApplicationState';
 import config from '../config';
 import EmitterConstants, { APPLICATION_STATE_UPDATE_TYPE } from '../constants/EmitterConstants';
@@ -91,6 +91,21 @@ class Server {
             res.download(path.join(config.logging.loggers.workloads.filename(req.query.pattern)));
         });
 
+        this._app.get('/api/v1/measurements', (req, res) => {
+            const measurements = [];
+            csv()
+                .fromFile(path.resolve(config.logging.loggers.measurements.filename))
+                .on('json', json => {
+                    measurements.push(json);
+                })
+                .on('error', () => {
+                    res.sendStatus(500);
+                })
+                .on('done', () => {
+                    res.json(measurements);
+                })
+        });
+
         this._app.get('*', (req, res) => {
             res.sendFile(__dirname + '/public/index.html');
         });
@@ -113,7 +128,7 @@ class Server {
     }
 
     private handlePatternResultMeasurement(patternResult: PatternResult) {
-        this._io.emit('update', { type: ActionTypes.PATTERN_MEASUREMENT, data: patternResult });
+        this._io.emit('update', { type: ActionTypes.PATTERN_MEASUREMENT_UPDATE, data: patternResult });
     }
 
     private handleApplicationStateUpdate(updateType: string): void {
