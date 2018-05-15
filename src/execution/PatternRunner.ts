@@ -46,9 +46,7 @@ function handleStart({ openAPISpec, pattern, options }: { openAPISpec: OpenAPISp
                 .on('line', handleLineRead(pattern))
                 .on('close', handleDone)
                 .on('error', error => {
-                    // TODO proper error handling
                     handleError(error);
-                    console.log('error while reading pattern file', error);
                 });
         })
         .catch(err => {
@@ -59,7 +57,6 @@ function handleStart({ openAPISpec, pattern, options }: { openAPISpec: OpenAPISp
 function handleLineRead(pattern: Pattern) {
     return line => {
         const request = JSON.parse(line) as PatternElementRequest;
-        process.send({ type: IPCMessageType.INFO, data: request})
         patternRequests.push(request);
 
         if (request.patternIndex === pattern.sequence.length - 1) {
