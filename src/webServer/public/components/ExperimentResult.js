@@ -38,7 +38,7 @@ const ExperimentResult = (props) => {
                     )}
                     {(!value || value === 'succeed') && (
                         <RaisedButton
-                            onClick={onDecide('fail')}
+                            onClick={onDecide('succeed')}
                             disabled={async.isLoading || !!value}
                             primary
                             label={value === 'succeed' ? 'Experiment Succeeded' : 'Succeed'}

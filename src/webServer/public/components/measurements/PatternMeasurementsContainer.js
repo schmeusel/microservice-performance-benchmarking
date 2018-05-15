@@ -7,8 +7,10 @@ import PaperContainer from '../../containers/PaperContainer';
 import { Palette } from '../../constants/Theme';
 import { MeasurementsPropTypes } from '../../constants/CustomPropTypes';
 
-const PatternMeasurementsContainer = ({ measurements, groupingDistance, onGroupingDistanceChange }) => {
-    if (!Object.keys(measurements).length) {
+const PatternMeasurementsContainer = ({
+    measurements, groupingDistance, onGroupingDistanceChange, isFetching,
+}) => {
+    if (!Object.keys(measurements).length && !isFetching) {
         return null;
     }
     const styles = {
@@ -23,7 +25,11 @@ const PatternMeasurementsContainer = ({ measurements, groupingDistance, onGroupi
         },
     };
     return (
-        <PaperContainer heading={'Pattern Measurements'}>
+        <PaperContainer
+            heading={'Pattern Measurements'}
+            isLoading={isFetching}
+            loadingLabel={'Gathering all measurements...'}
+        >
             <Tabs inkBarStyle={styles.inkBar}>
                 {Object.keys(measurements).map(patternName => (
                     <Tab key={patternName} label={patternName} buttonStyle={styles.tabButton}>
@@ -36,6 +42,7 @@ const PatternMeasurementsContainer = ({ measurements, groupingDistance, onGroupi
                     </Tab>
                 ))}
             </Tabs>
+
         </PaperContainer>
     );
 };
@@ -44,6 +51,7 @@ PatternMeasurementsContainer.propTypes = {
     measurements: PropTypes.objectOf(PropTypes.objectOf(MeasurementsPropTypes)).isRequired,
     groupingDistance: PropTypes.number.isRequired,
     onGroupingDistanceChange: PropTypes.func.isRequired,
+    isFetching: PropTypes.bool.isRequired,
 };
 
 export default PatternMeasurementsContainer;

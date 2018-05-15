@@ -16,4 +16,8 @@ export default {
         method: 'get',
         path: pattern => `${apiPrefix}/logs/workloads?pattern=${pattern}`,
     },
+    MEASUREMENTS: {
+        method: 'get',
+        path: `${apiPrefix}/measurements`,
+    },
 };

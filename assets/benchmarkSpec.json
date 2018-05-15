@@ -1,6 +1,6 @@
 {
   "configuration": {
-    "totalPatternRequests": 2,
+    "totalPatternRequests": 20,
     "patterns": [
       {
         "name": "createResource",
