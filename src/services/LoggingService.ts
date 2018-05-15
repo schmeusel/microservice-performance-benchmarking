@@ -92,7 +92,6 @@ class LoggingService {
 
     public addPatternResult(patternResult: PatternResult): void {
         patternResult.measurements.forEach(measurement => {
-            console.log('log measurement', measurement)
             this.measurementLogger.log({
                 level: 'info',
                 measurement

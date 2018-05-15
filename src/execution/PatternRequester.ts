@@ -121,9 +121,7 @@ export default class PatternRequester {
     private sendRequest(requestToSend: PatternElementRequest): Promise<void> {
         this._eventLogger.info('sending a request');
         return new Promise((resolve, reject) => {
-            const { patternName, patternIndex, wait, round, ...strippedRequest} = requestToSend;
-            this._eventLogger.info(`stripped req: ${JSON.stringify(strippedRequest)}`)
-            OpenAPIService.sendRequest(strippedRequest)
+            OpenAPIService.sendRequest(requestToSend)
                 .then(response => {
                     const method = response.request.method.toUpperCase() as RequestMethod;
                     const outputType = this.pattern.sequence[requestToSend.patternIndex].outputType;

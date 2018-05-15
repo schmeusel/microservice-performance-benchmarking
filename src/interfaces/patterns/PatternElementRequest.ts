@@ -3,6 +3,7 @@ export default interface PatternElementRequest {
     patternIndex: number;
     operationId: string;
     parameters?: object;
+    requestBody?: object;
     wait: number;
     round: number;
 }
