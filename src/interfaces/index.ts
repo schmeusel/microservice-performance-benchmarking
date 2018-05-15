@@ -22,3 +22,4 @@ export { default as PatternResult } from './patterns/PatternResult';
 export { RequestMethod } from './RequestMethod';
 export { default as SLACondition } from './sla/SLACondition';
 export { default as SLASpecification } from './sla/SLASpecification';
+export { ApplicationPhase } from './ApplicationPhase';

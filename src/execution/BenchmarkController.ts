@@ -1,4 +1,4 @@
-import { BenchmarkSpecification, OpenAPISpecification, Pattern } from '../interfaces';
+import { ApplicationPhase, BenchmarkSpecification, OpenAPISpecification, Pattern } from '../interfaces';
 import PolyfillUtil from '../utils/PolyfillUtil';
 import OpenAPIService from '../services/OpenAPIService';
 import LoggingService from '../services/LoggingService';
@@ -24,14 +24,10 @@ export default class BenchmarkController extends EventEmitter {
     public start() {
         this.initializeServices()
             .then(() => {
-                ApplicationState.setPhase('PATTERN_RESOLUTION');
-                Server.start()
-                    .then(port => {
-                        LoggingService.logEvent(`Server started on port ${port}`);
-                    })
-                    .catch(err => {
-                        LoggingService.logEvent('Error starting server');
-                    });
+                ApplicationState.setPhase(ApplicationPhase.PATTERN_RESOLUTION);
+                if (this.specification.configuration.manualDecision) {
+                    this.startWebServer();
+                }
                 return this.initializePatternResolver();
             })
             .then(() => {
@@ -43,22 +39,26 @@ export default class BenchmarkController extends EventEmitter {
                 return this.initializeWorkloadLoggers();
             })
             .then(() => {
-                ApplicationState.setPhase('WORKLOAD_GENERATION');
+                ApplicationState.setPhase(ApplicationPhase.WORKLOAD_GENERATION);
                 LoggingService.logEvent('Loggers initialized.');
                 return this.generateWorkloads();
             })
             .then(() => {
-                ApplicationState.setPhase('REQUEST_TRANSMISSION');
+                ApplicationState.setPhase(ApplicationPhase.REQUEST_TRANSMISSION);
                 LoggingService.logEvent('Workloads generated.');
                 return this.runExperiment();
             })
             .then(() => {
-                ApplicationState.setPhase('MEASUREMENT_EVALUATION');
+                ApplicationState.setPhase(ApplicationPhase.MEASUREMENT_EVALUATION);
                 LoggingService.logEvent('Experiment finished.');
-                return this.processResults();
+                if (!this.specification.configuration.manualDecision) {
+                    return this.processResults();
+                } else {
+                    return Promise.resolve(true);
+                }
             })
             .then((wasSuccessful: boolean) => {
-                ApplicationState.setPhase('COMPLETION');
+                ApplicationState.setPhase(ApplicationPhase.COMPLETION);
                 LoggingService.logEvent('Results processed.');
                 this.prepareShutdown(wasSuccessful);
                 return this.cleanUp();
@@ -118,6 +118,16 @@ export default class BenchmarkController extends EventEmitter {
 
     private processResults(): Promise<boolean> {
         return EvaluationService.evaluateMeasurements(this.specification.condition);
+    }
+
+    private startWebServer(): void {
+        Server.start()
+            .then(port => {
+                LoggingService.logEvent(`Server started on port ${port}`);
+            })
+            .catch(err => {
+                LoggingService.logEvent('Error starting server');
+            });
     }
 
     /**
