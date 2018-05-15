@@ -1,6 +1,7 @@
 import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { fade } from 'material-ui/utils/colorManipulator';
+import * as stats from 'simple-statistics';
 import 'chartjs-chart-box-and-violin-plot';
 import Chart from 'chart.js';
 import { Palette } from '../../../constants/Theme';
@@ -69,6 +70,28 @@ export default class MeasurementsBoxPlot extends PureComponent {
                 position: 'top',
                 labels: {
                     defaultFontFamily: '\'Roboto\', sans-serif',
+                },
+            },
+            tooltips: {
+                callbacks: {
+                    title: item => `Sequence Step ${item[0].xLabel}`,
+                    afterLabel: (item, data) => {
+                        const latencies = data.datasets[item.datasetIndex].data[item.index];
+                        const min = stats.min(latencies).toFixed(2);
+                        const q1 = stats.quantile(latencies, 0.25).toFixed(2);
+                        const mean = stats.mean(latencies).toFixed(2);
+                        const q3 = stats.quantile(latencies, 0.75).toFixed(2);
+                        const max = stats.max(latencies).toFixed(2);
+                        return [
+                            '',
+                            `Min:\t${min}`,
+                            `Q1:\t${q1}ms`,
+                            `Mean:\t${mean}ms`,
+                            `Q3:\t${q3}ms`,
+                            `Max:\t${max}ms`,
+                        ];
+                    },
+                    label: (item, data) => data.datasets[item.datasetIndex].label,
                 },
             },
             scales: {
