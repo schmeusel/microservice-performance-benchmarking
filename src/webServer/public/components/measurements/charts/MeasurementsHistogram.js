@@ -103,6 +103,9 @@ export default class MeasurementsHistogram extends React.PureComponent {
                     fontSize: 8,
                 },
             },
+            animation: {
+                duration: 50
+            },
             scales: {
                 yAxes: [
                     {
