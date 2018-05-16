@@ -8,7 +8,7 @@ import { Palette } from '../../constants/Theme';
 import { MeasurementsPropTypes } from '../../constants/CustomPropTypes';
 
 const PatternMeasurementsContainer = ({
-    measurements, groupingDistance, onGroupingDistanceChange, isFetching,
+    measurements, groupingDistance, onGroupingDistanceChange, isFetching, progress,
 }) => {
     if (!Object.keys(measurements).length && !isFetching) {
         return null;
@@ -24,11 +24,14 @@ const PatternMeasurementsContainer = ({
             textTransform: 'none',
         },
     };
+
     return (
         <PaperContainer
             heading={'Pattern Measurements'}
             isLoading={isFetching}
             loadingLabel={'Gathering all measurements...'}
+            withProgress
+            progress={progress}
         >
             <Tabs inkBarStyle={styles.inkBar}>
                 {Object.keys(measurements).map(patternName => (
@@ -48,10 +51,15 @@ const PatternMeasurementsContainer = ({
 };
 
 PatternMeasurementsContainer.propTypes = {
+    progress: PropTypes.number,
     measurements: PropTypes.objectOf(PropTypes.objectOf(MeasurementsPropTypes)).isRequired,
     groupingDistance: PropTypes.number.isRequired,
     onGroupingDistanceChange: PropTypes.func.isRequired,
     isFetching: PropTypes.bool.isRequired,
+};
+
+PatternMeasurementsContainer.defaultProps = {
+    progress: 0,
 };
 
 export default PatternMeasurementsContainer;

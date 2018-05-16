@@ -31,4 +31,5 @@ export const PatternPropTypes = PropTypes.shape({
     name: PropTypes.string.isRequired,
     sequence: PropTypes.array.isRequired,
     amount: PropTypes.number.isRequired,
+    progress: PropTypes.number,
 });
