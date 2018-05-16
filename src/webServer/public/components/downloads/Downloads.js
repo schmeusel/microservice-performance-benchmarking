@@ -23,7 +23,7 @@ const Downloads = ({ patterns, phase }) => {
                     <DownloadLinkContainer heading={'Workloads'}>
                         {patterns.map(pattern => (
                             <a key={pattern.name} href={EndpointConstants.DOWNLOAD_WORKLOAD.path(pattern.name)}>
-                                {pattern.name}.log
+                                {pattern.name}.workload
                             </a>
                         ))}
                     </DownloadLinkContainer>

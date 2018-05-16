@@ -4,22 +4,35 @@
     "totalPatternRequests": 2,
     "patterns": [
       {
-        "name": "createResource",
+        "name": "petRequests",
         "sequence": [
           {
             "id": "pets",
             "operation": "CREATE",
             "output": "createdPet",
-            "wait": 800
-          }, {
+            "wait": 1800
+          },
+          {
             "id": "userCreate",
             "operation": "CREATE",
-            "wait": 300
-          }, {
+            "wait": 1300
+          },
+          {
             "id": "pets",
             "operation": "UPDATE",
             "input": "createdPet",
-            "wait": 300
+            "wait": 1300
+          }
+        ],
+        "weight": 2
+      },
+      {
+        "name": "userRequests",
+        "sequence": [
+          {
+            "id": "userCreate",
+            "operation": "CREATE",
+            "wait": 1200
           }
         ],
         "weight": 2
@@ -27,13 +40,21 @@
     ]
   },
   "condition": {
-    "createResource": {
+    "petRequests": {
       "max": 700
+    },
+    "userRequests": {
+      "percentiles": {
+        "0.25": 800
+      }
     }
   },
   "customization": {
-    "createResource": {
+    "petRequests": {
       "pets": "pet",
+      "userCreate": "user"
+    },
+    "userRequests": {
       "userCreate": "user"
     }
   }

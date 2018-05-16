@@ -47,24 +47,42 @@ class Layout extends PureComponent {
         }
     }
 
+    getProgress() {
+        const { patterns } = this.props;
+        const totalRequests = patterns.reduce((amount, pattern) => pattern.total + amount, 0);
+        const patternProgress = patterns.reduce((weightedSum, pattern) => weightedSum + (pattern.total * (pattern.progress || 0)), 0) / totalRequests;
+        const hasFinishedWithRequests = PHASES.ORDER.indexOf(this.props.experiment.phase) > PHASES.ORDER.indexOf(PHASES.VALUES.REQUEST_TRANSMISSION);
+        return hasFinishedWithRequests ? 1 : patternProgress;
+    }
+
     render() {
         const styles = {
             container: {
                 padding: 32,
+                maxWidth: 768,
+                marginLeft: 'auto',
+                marginRight: 'auto',
             },
         };
+
+
 
         return (
             <div style={styles.container}>
                 <h1>Performance Benchmark</h1>
                 <ExperimentPhase phase={this.props.experiment.phase} />
+                <ExperimentResult
+                    result={this.props.experiment.result}
+                    onDecide={this.props.decideOnResult}
+                />
                 <PatternMeasurementsContainer
+                    patterns={this.props.patterns}
+                    progress={this.getProgress()}
                     measurements={this.props.measurements.values}
                     groupingDistance={this.props.settings.groupingDistance}
                     onGroupingDistanceChange={this.props.onGroupingDistanceChange}
                     isFetching={this.props.measurements.async.isLoading}
                 />
-                <ExperimentResult result={this.props.experiment.result} onDecide={this.props.decideOnResult} />
                 <Downloads
                     patterns={this.props.patterns}
                     phase={this.props.experiment.phase}

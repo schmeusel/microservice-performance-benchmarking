@@ -3,7 +3,6 @@ import {
     PatternElementRequest,
     PatternRequestMeasurement,
     RequestMethod,
-    AbstractPatternElementOperation,
     PatternResult,
     PatternElementOutputType,
     PatternElementSelector

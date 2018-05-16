@@ -5,10 +5,10 @@ import { grey200 } from 'material-ui/styles/colors';
 import PatternMeasurement from './PatternMeasurement';
 import PaperContainer from '../../containers/PaperContainer';
 import { Palette } from '../../constants/Theme';
-import { MeasurementsPropTypes } from '../../constants/CustomPropTypes';
+import { MeasurementsPropTypes, PatternPropTypes } from '../../constants/CustomPropTypes';
 
 const PatternMeasurementsContainer = ({
-    measurements, groupingDistance, onGroupingDistanceChange, isFetching,
+    measurements, groupingDistance, onGroupingDistanceChange, isFetching, progress, patterns
 }) => {
     if (!Object.keys(measurements).length && !isFetching) {
         return null;
@@ -24,18 +24,21 @@ const PatternMeasurementsContainer = ({
             textTransform: 'none',
         },
     };
+
     return (
         <PaperContainer
             heading={'Pattern Measurements'}
             isLoading={isFetching}
             loadingLabel={'Gathering all measurements...'}
+            withProgress
+            progress={progress}
         >
             <Tabs inkBarStyle={styles.inkBar}>
-                {Object.keys(measurements).map(patternName => (
-                    <Tab key={patternName} label={patternName} buttonStyle={styles.tabButton}>
+                {patterns.map(pattern => (
+                    <Tab key={pattern.name} label={pattern.name} buttonStyle={styles.tabButton}>
                         <PatternMeasurement
-                            name={patternName}
-                            measurements={measurements[patternName]}
+                            name={pattern.name}
+                            measurements={measurements[pattern.name] || {}}
                             groupingDistance={groupingDistance}
                             onGroupingDistanceChange={onGroupingDistanceChange}
                         />
@@ -48,10 +51,16 @@ const PatternMeasurementsContainer = ({
 };
 
 PatternMeasurementsContainer.propTypes = {
+    patterns: PropTypes.arrayOf(PatternPropTypes).isRequired,
+    progress: PropTypes.number,
     measurements: PropTypes.objectOf(PropTypes.objectOf(MeasurementsPropTypes)).isRequired,
     groupingDistance: PropTypes.number.isRequired,
     onGroupingDistanceChange: PropTypes.func.isRequired,
     isFetching: PropTypes.bool.isRequired,
+};
+
+PatternMeasurementsContainer.defaultProps = {
+    progress: 0,
 };
 
 export default PatternMeasurementsContainer;

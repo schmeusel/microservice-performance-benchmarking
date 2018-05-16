@@ -26,7 +26,7 @@ const measurements = patternNames.reduce((obj, name) => ({
 }), {});
 
 /**
- * Format of the state goes:
+ * Format of the state.values goes:
  *
  * {
  *[patternName]: {
@@ -45,7 +45,7 @@ const measurements = patternNames.reduce((obj, name) => ({
  * @param {*} state
  * @param {*} action
  */
-export default function reducer(state = { values: measurements, async: DefaultAsyncStub }, action) {
+export default function reducer(state = { values: {}, async: DefaultAsyncStub }, action) {
     switch (action.type) {
         case ActionTypes.MEASUREMENTS.UPDATE: {
             const intermediate = {

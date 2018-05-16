@@ -17,10 +17,6 @@ class Server {
     private _server;
     private _io;
     private _connectedSockets: object = {};
-    private _measurementBatch: number = 100;
-    private _cache: object = {
-        measurements: []
-    };
 
     constructor() {
         this._app = express();

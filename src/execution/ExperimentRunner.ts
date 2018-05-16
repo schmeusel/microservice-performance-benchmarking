@@ -3,16 +3,11 @@ import * as path from 'path';
 import LoggingService from '../services/LoggingService';
 import {
     Pattern,
-    PatternElementRequest,
     IPCMessage,
     IPCMessageType,
-    PatternElementOutputType,
-    PatternRequestMeasurement,
-    PatternResult
 } from '../interfaces';
 import OpenAPIService from '../services/OpenAPIService';
 import { EventEmitter } from 'events';
-import Server from '../webServer/Server';
 import EmitterConstants from '../constants/EmitterConstants';
 
 class ExperimentRunner extends EventEmitter {
@@ -41,17 +36,18 @@ class ExperimentRunner extends EventEmitter {
         return new Promise((resolve, reject) => {
             this._resolve = resolve;
             this._reject = reject;
-            this.patterns.forEach(pattern => {
-                const worker = fork(path.resolve(__dirname, 'PatternRunner.js'));
-                this.workers[pattern.name] = worker;
-                worker.on('message', this.handleMessage);
-                worker.on('exit', this.handleWorkerDone(pattern.name));
-                // TODO handle options?
-                worker.send({
-                    type: IPCMessageType.START,
-                    data: { pattern, openAPISpec: OpenAPIService.specification, options: {} }
-                } as IPCMessage);
-            });
+            this.patterns
+                .filter(pattern => pattern.amount > 0)
+                .forEach(pattern => {
+                    const worker = fork(path.resolve(__dirname, 'PatternRunner.js'));
+                    this.workers[pattern.name] = worker;
+                    worker.on('message', this.handleMessage);
+                    worker.on('exit', this.handleWorkerDone(pattern.name));
+                    worker.send({
+                        type: IPCMessageType.START,
+                        data: { pattern, openAPISpec: OpenAPIService.specification, options: {} }
+                    } as IPCMessage);
+                });
         });
     }
 
@@ -61,10 +57,12 @@ class ExperimentRunner extends EventEmitter {
                 type: IPCMessageType.ABORT
             });
         });
+        process.exitCode = 1;
         this._reject();
     }
 
     public succeedExperiment() {
+        process.exitCode = 0;
         this._resolve();
     }
 
@@ -87,10 +85,11 @@ class ExperimentRunner extends EventEmitter {
 
     private handleWorkerDone(patternName: string) {
         return () => {
+            LoggingService.logEvent(`Worker done with pattern: "${patternName}"`);
             const { [patternName]: name, ...rest } = this.workers;
             this.workers = rest;
             if (Object.keys(this.workers).length === 0) {
-                // TODO check config if waiting for web server necessary
+                LoggingService.logEvent('All workers done.');
                 this.succeedExperiment();
             }
         };
