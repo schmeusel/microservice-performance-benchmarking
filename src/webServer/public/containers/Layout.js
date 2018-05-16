@@ -47,8 +47,15 @@ class Layout extends PureComponent {
         }
     }
 
-    render() {
+    getProgress() {
         const { patterns } = this.props;
+        const totalRequests = patterns.reduce((amount, pattern) => pattern.total + amount, 0);
+        const patternProgress = patterns.reduce((weightedSum, pattern) => weightedSum + (pattern.total * (pattern.progress || 0)), 0) / totalRequests;
+        const hasFinishedWithRequests = PHASES.ORDER.indexOf(this.props.experiment.phase) > PHASES.ORDER.indexOf(PHASES.VALUES.REQUEST_TRANSMISSION);
+        return hasFinishedWithRequests ? 1 : patternProgress;
+    }
+
+    render() {
         const styles = {
             container: {
                 padding: 32,
@@ -58,10 +65,7 @@ class Layout extends PureComponent {
             },
         };
 
-        const totalRequests = patterns.reduce((amount, pattern) => pattern.total + amount, 0);
-        const patternProgress = patterns.reduce((weightedSum, pattern) => weightedSum + (pattern.total * (pattern.progress || 0)), 0) / totalRequests;
-        const hasFinishedWithRequests = PHASES.ORDER.indexOf(this.props.experiment.phase) > PHASES.ORDER.indexOf(PHASES.VALUES.REQUEST_TRANSMISSION);
-        const overallProgress = hasFinishedWithRequests ? 1 : patternProgress;
+
 
         return (
             <div style={styles.container}>
@@ -72,7 +76,8 @@ class Layout extends PureComponent {
                     onDecide={this.props.decideOnResult}
                 />
                 <PatternMeasurementsContainer
-                    progress={overallProgress}
+                    patterns={this.props.patterns}
+                    progress={this.getProgress()}
                     measurements={this.props.measurements.values}
                     groupingDistance={this.props.settings.groupingDistance}
                     onGroupingDistanceChange={this.props.onGroupingDistanceChange}

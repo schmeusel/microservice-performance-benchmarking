@@ -4,7 +4,6 @@ import {
     Pattern,
     PatternElementRequest,
     OpenAPISpecification,
-    PatternRequestMeasurement,
     PatternResult
 } from '../interfaces/index';
 import * as fs from 'fs';

@@ -9,6 +9,10 @@ const MeasurementProgress = ({ progress }) => {
             position: 'absolute',
             right: 16,
             top: 16,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            fontSize: '0.7rem',
         },
         text: {
             marginTop: 8,
@@ -19,12 +23,16 @@ const MeasurementProgress = ({ progress }) => {
         return null;
     }
 
-    console.log('progress', progress)
     return (
         <div style={styles.progressContainer}>
-            <CircularProgress color={Palette.accent3Color} />
+            <CircularProgress
+                color={Palette.accent3Color}
+                size={35}
+                mode={progress ? 'determinate' : 'indeterminate'}
+                value={progress * 100 || null}
+            />
             {
-                !!progress && <span style={styles.text}>{progress}</span>
+                !!progress && <span style={styles.text}>{Math.round(progress * 100)}%</span>
             }
         </div>
     );

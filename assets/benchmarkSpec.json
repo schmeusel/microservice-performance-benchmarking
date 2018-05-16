@@ -1,7 +1,7 @@
 {
   "configuration": {
     "manualDecision": true,
-    "totalPatternRequests": 20,
+    "totalPatternRequests": 2,
     "patterns": [
       {
         "name": "petRequests",
@@ -35,7 +35,7 @@
             "wait": 1200
           }
         ],
-        "weight": 5
+        "weight": 2
       }
     ]
   },

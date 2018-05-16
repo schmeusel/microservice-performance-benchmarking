@@ -4,8 +4,8 @@ import { CircularProgress, Paper } from 'material-ui';
 import MeasurementProgress from '../components/measurements/MeasurementProgress';
 
 const PaperContainer = ({
-                            heading, children, style, isLoading, loadingLabel, withProgress, progress,
-                        }) => {
+    heading, children, style, isLoading, loadingLabel, withProgress, progress,
+}) => {
     const styles = {
         paperStyle: {
             padding: 16,
