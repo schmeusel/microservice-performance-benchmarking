@@ -34,9 +34,9 @@ process.on('message', (message: IPCMessage) => {
 });
 
 // TOOD type options more strongly
-function handleStart({ openAPISpec, pattern, options }: { openAPISpec: OpenAPISpecification; pattern: Pattern; options: object }) {
+function handleStart({ openAPISpec, pattern }: { openAPISpec: OpenAPISpecification; pattern: Pattern; }) {
     PolyfillUtil.initialize();
-    OpenAPIService.initialize(openAPISpec, options)
+    OpenAPIService.initialize(openAPISpec)
         .then(() => {
             rl = readline
                 .createInterface({
@@ -44,13 +44,8 @@ function handleStart({ openAPISpec, pattern, options }: { openAPISpec: OpenAPISp
                 })
                 .on('line', handleLineRead(pattern))
                 .on('close', handleDone)
-                .on('error', error => {
-                    handleError(error);
-                });
         })
-        .catch(err => {
-            console.log('error during initializtion of openapis ervice', err);
-        });
+        .catch(handleError);
 }
 
 function handleLineRead(pattern: Pattern) {
@@ -109,4 +104,11 @@ function handleAbort() {
 
 function handleDone() {
     process.exit(0);
+}
+
+function log(message) {
+    process.send({
+        type: IPCMessageType.INFO,
+        data: message
+    });
 }

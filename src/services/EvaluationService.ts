@@ -2,67 +2,103 @@ import * as fs from 'fs';
 import * as readline from 'readline';
 import * as simpleStats from 'simple-statistics';
 import config from '../config';
-import { SLASpecification, SLACondition, SLAConditionMeasure } from '../interfaces/index';
+import { SLASpecification, SLACondition } from '../interfaces/index';
 import EvaluationError from '../exceptions/EvaluationError';
+import { LoggingService } from "./LoggingService";
 
 class EvaluationService {
+
+    private timestampStartIndex: number;
+    private timestampEndIndex: number;
+    private patternNameIndex: number;
+
+    private measurements: { [patternName: string]: number[] } = {};
+
+    public initialize(): Promise<any> {
+        const csvKeys = LoggingService.getMeasurementCSVFields();
+
+        this.timestampStartIndex = csvKeys.findIndex(key => key === 'timestampStart');
+        this.timestampEndIndex = csvKeys.findIndex(key => key === 'timestampEnd');
+        this.patternNameIndex = csvKeys.findIndex(key => key === 'pattern');
+
+        if (this.timestampStartIndex < 0 || this.timestampEndIndex < 0 || this.patternNameIndex < 0) {
+            throw new EvaluationError('Could not find timestampStart, timestampEnd, and pattern in CSV config in LoggingService.');
+        }
+
+        return Promise.resolve();
+    }
+
     evaluateMeasurements(slaSpec: SLASpecification): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            this.readMeasurements().then(measurements => {
-                if (!measurements.length) {
-                    throw new EvaluationError('No measurements found.');
-                }
-                Promise.all(Object.keys(slaSpec).map(type => this.evaluateCondition(type, slaSpec[type], measurements)))
-                    .then(conditionsResults => {
-                        resolve(conditionsResults.reduce((conditionsMet, result) => conditionsMet && result, true));
-                    })
-                    .catch(reject);
-            });
+            this.readMeasurements()
+                .then(() => {
+                    if (!Object.keys(this.measurements).length) {
+                        throw new EvaluationError('No measurements found.');
+                    }
+                    const result = Object
+                        .keys(slaSpec)
+                        .map(patternName => this.evaluateConditions(slaSpec[patternName], patternName))
+                        .reduce((conditionsMet, result) => conditionsMet && result, true);
+                    resolve(result);
+                })
+                .catch(reject);
         });
     }
 
-    evaluateCondition(type: string, condition: SLACondition, measurements: string[]): boolean {
-        switch (type) {
-            case 'latency': {
-                return this.evaluateLatency(condition, measurements);
-            }
-            default: {
-                throw new EvaluationError(`${type} is not supported as an SLA condition.`);
-            }
-        }
-    }
-
-    evaluateLatency(condition: SLACondition, measurements: string[]): boolean {
-        const durationSeries: number[] = measurements.map(measurement => 234); // TODO extract duration;
-        return Object.keys(condition).reduce((allConditionsMet, typeOfCondition) => {
-            switch (typeOfCondition) {
-                case 'min':
-                    return allConditionsMet && this.evaluateMinValue(durationSeries, condition.min);
-                case 'max':
-                    return allConditionsMet && this.evaluateMaxValue(durationSeries, condition.max);
-                case 'mean':
-                    return allConditionsMet && this.evaluateMean(durationSeries, condition.mean);
-                case 'stdev':
-                    return allConditionsMet && this.evaluateStandardDeviation(durationSeries, condition.stdev);
+    private evaluateConditions(condition: SLACondition, patternName: string) {
+        return Object.keys(condition).reduce((allValid, type) => {
+            let intermediateResult: boolean;
+            switch (type) {
+                case 'min': {
+                    intermediateResult = this.evaluateMinValue(this.measurements[patternName], condition[type]);
+                    break;
+                }
+                case 'max': {
+                    intermediateResult = this.evaluateMaxValue(this.measurements[patternName], condition[type]);
+                    break;
+                }
+                case 'mean': {
+                    intermediateResult = this.evaluateMean(this.measurements[patternName], condition[type]);
+                    break;
+                }
+                case 'stdev': {
+                    intermediateResult = this.evaluateStandardDeviation(this.measurements[patternName], condition[type]);
+                    break;
+                }
+                case 'percentiles': {
+                    intermediateResult = this.evaluatePercentiles(this.measurements[patternName], condition[type]);
+                    break;
+                }
                 default: {
-                    throw new EvaluationError(`${typeOfCondition} is not a valid option for an SLACondition.`);
+                    intermediateResult = true;
                 }
             }
+            return intermediateResult && allValid;
         }, true);
     }
 
-    private readMeasurements(): Promise<string[]> {
+    private readMeasurements(): Promise<void> {
+        const self = this;
         return new Promise((resolve, reject) => {
-            const measurements: string[] = [];
             readline
                 .createInterface({
-                    input: fs.createReadStream(config.logging.loggers.systemEvents.filename, 'utf8')
+                    input: fs.createReadStream(config.logging.loggers.measurements.filename, 'utf8')
                 })
-                .on('line', line => {
-                    measurements.push(line);
+                .on('line', (line: string) => {
+                    const values = line.split(',');
+                    const latency = parseInt(values[this.timestampEndIndex]) - parseInt(values[this.timestampStartIndex]);
+                    const patternName = values[this.patternNameIndex];
+                    if (patternName === 'pattern') {
+                        return;
+                    }
+                    if (!this.measurements[patternName]) {
+                        this.measurements[patternName] = [];
+                    }
+                    this.measurements[patternName].push(latency);
+
                 })
                 .on('close', () => {
-                    resolve(measurements);
+                    resolve();
                 })
                 .on('error', err => {
                     reject(err);
@@ -70,28 +106,34 @@ class EvaluationService {
         });
     }
 
-    private evaluateMinValue(series: number[], threshold: SLAConditionMeasure): boolean {
-        const min = simpleStats.min(series); // TODO adapt to sla condition measure
-        // return min >= threshold;
-        return min >= 67867;
+    private evaluateMinValue(series: number[], threshold: number): boolean {
+        const min = simpleStats.min(series);
+        return min >= threshold;
     }
 
-    private evaluateMaxValue(series: number[], threshold: SLAConditionMeasure): boolean {
-        const max = simpleStats.max(series); // TODO adapt to sla condition measure
-        // return max <= threshold;
-        return max <= 23;
+    private evaluateMaxValue(series: number[], threshold: number): boolean {
+        const max = simpleStats.max(series);
+        return max <= threshold;
     }
 
-    private evaluateMean(series: number[], threshold: SLAConditionMeasure): boolean {
+    private evaluateMean(series: number[], threshold: number): boolean {
         const mean = simpleStats.mean(series);
-        // return mean <= threshold; // TODO see SLACondition interface for 'mean'
-        return mean <= 787; // TODO see SLACondition interface for 'mean'
+        return mean <= threshold;
     }
 
-    private evaluateStandardDeviation(series, threshold: SLAConditionMeasure): boolean {
-        const stdev = simpleStats.standardDeviation(series); // TODO adapt to sla condition measure
-        // return stdev <= threshold;
-        return stdev <= 787;
+    private evaluateStandardDeviation(series: number[], threshold: number): boolean {
+        const stdev = simpleStats.standardDeviation(series);
+        return stdev <= threshold;
+    }
+
+    private evaluatePercentiles(series: number[], percentiles: { [percentile: string]: number }): boolean {
+        return Object.keys(percentiles).reduce((allValid, current) => {
+            return allValid && this.evaluatePercentile(series, parseInt(current), percentiles[current])
+        }, true);
+    }
+
+    private evaluatePercentile(series: number[], percentile: number, threshold: number): boolean {
+        return simpleStats.quantile(series, percentile) <= threshold;
     }
 }
 

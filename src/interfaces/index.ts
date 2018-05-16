@@ -21,8 +21,5 @@ export { default as PatternRequestMeasurement } from './patterns/PatternRequestM
 export { default as PatternResult } from './patterns/PatternResult';
 export { RequestMethod } from './RequestMethod';
 export { default as SLACondition } from './sla/SLACondition';
-export { default as SLAConditionMeasure } from './sla/SLAConditionMeasure';
-export { SLAConditionMeasureBoundary } from './sla/SLAConditionMeasureBoundary';
-export { SLAConditionMeasureType } from './sla/SLAConditionMeasureType';
 export { default as SLASpecification } from './sla/SLASpecification';
-export { default as Validator } from './Validator';
+export { ApplicationPhase } from './ApplicationPhase';

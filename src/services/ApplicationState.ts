@@ -1,10 +1,6 @@
 import { EventEmitter } from 'events';
-import { OpenAPISpecification, AbstractPattern, Pattern } from '../interfaces';
+import { OpenAPISpecification, AbstractPattern, Pattern, ApplicationPhase } from '../interfaces';
 import EmitterConstants, { APPLICATION_STATE_UPDATE_TYPE } from '../constants/EmitterConstants';
-import OpenAPIError from '../exceptions/OpenAPIError';
-import PatternResolverError from '../exceptions/PatternResolverError';
-
-type ApplicationPhase = 'INITIALIZATON' | 'PATTERN_RESOLUTION' | 'WORKLOAD_GENERATION' | 'REQUEST_TRANSMISSION' | 'MEASUREMENT_EVALUATION' | 'COMPLETION';
 
 class ApplicationState extends EventEmitter {
     private _phase: ApplicationPhase;
@@ -14,7 +10,7 @@ class ApplicationState extends EventEmitter {
 
     constructor() {
         super();
-        this._phase = 'INITIALIZATION' as ApplicationPhase;
+        this._phase = ApplicationPhase.INITIALIZATION;
         this._openAPISpec = null;
         this._abstractPatterns = null;
         this._patterns = null;

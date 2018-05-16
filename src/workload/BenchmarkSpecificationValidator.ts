@@ -4,14 +4,13 @@ import {
     EnvironmentSettings,
     SLASpecification,
     SLACondition,
-    Validator,
     PatternElement,
     Pattern
 } from '../interfaces/index';
 
 import ValidationError from '../exceptions/ValidationError';
 
-class BenchmarkSpecificationValidator implements Validator {
+class BenchmarkSpecificationValidator {
     public validate(benchmarkSpecification: BenchmarkSpecification): boolean {
         return (
             this.validateConfiguration(benchmarkSpecification.configuration) &&
