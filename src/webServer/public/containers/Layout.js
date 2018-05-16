@@ -52,6 +52,9 @@ class Layout extends PureComponent {
         const styles = {
             container: {
                 padding: 32,
+                maxWidth: 768,
+                marginLeft: 'auto',
+                marginRight: 'auto',
             },
         };
 
