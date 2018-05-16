@@ -4,24 +4,26 @@ import { SchemaObject, OperationObject } from '../interfaces/openapi/OpenAPISpec
 import OpenAPIService from '../services/OpenAPIService';
 
 class PatternBuilder {
-    private generatePopulatedSchema(jsonSchema?: SchemaObject): Promise<any> {
+    private generatePopulatedSchema(jsonSchema?: SchemaObject, paramName?: string): Promise<any> {
         if (!jsonSchema) {
             return Promise.resolve(null);
         }
-        return jsf.resolve(jsonSchema);
+        if (!paramName) {
+            return jsf.resolve(jsonSchema);
+        } else {
+            return jsf.resolve(jsonSchema).then(resolved => ({ [paramName]: resolved }));
+        }
     }
 
     private generateClientParamsObject(operation: OperationObject): Promise<any> {
         return new Promise((resolve, reject) => {
-            const { parameters, requestBody } = operation;
-            const requestBodySchemata = Object.keys(requestBody.content).reduce((schemata, mediaType) => {
-                return [...schemata, requestBody.content[mediaType].schema];
-            }, []);
+            const { parameters } = operation;
 
-            Promise.all(parameters.map(param => this.generatePopulatedSchema(param.schema)))
+            Promise.all(parameters.map(param => this.generatePopulatedSchema(param.schema, param.name)))
                 .then((paramsArray) => {
                     if (paramsArray && paramsArray.length) {
-                        resolve(paramsArray.reduce((allParams, currParams) => ({ ...allParams, ...currParams }), {}))
+                        const result = paramsArray.reduce((allParams, currParams) => ({ ...allParams, ...currParams }), {});
+                        resolve(result)
                         return
                     }
                     resolve({});
@@ -33,14 +35,18 @@ class PatternBuilder {
     private generateClientRequestBodyObject(operation: OperationObject): Promise<any> {
         return new Promise((resolve, reject) => {
             const { requestBody } = operation;
+            if (!requestBody) {
+                resolve({});
+            }
             const requestBodySchemata = Object.keys(requestBody.content).reduce((schemata, mediaType) => {
                 return [...schemata, requestBody.content[mediaType].schema];
             }, []);
 
-            Promise.all(requestBodySchemata.map(this.generatePopulatedSchema))
+            Promise.all(requestBodySchemata.map(schema => this.generatePopulatedSchema(schema, null)))
                 .then((requestBodyArray) => {
                     if (requestBodyArray && requestBodyArray.length) {
-                        resolve(requestBodyArray.reduce((allParams, currParams) => ({ ...allParams, ...currParams }), {}));
+                        const result = requestBodyArray.reduce((allParams, currParams) => ({ ...allParams, ...currParams }), {});
+                        resolve(result);
                         return
                     }
                     resolve({});
@@ -53,18 +59,18 @@ class PatternBuilder {
         const opObject: OperationObject = OpenAPIService.getSpecificationByOperationId(patternElement.operationId);
         return new Promise((resolve: (req: PatternElementRequest) => void, reject) => {
             Promise.all([this.generateClientParamsObject(opObject), this.generateClientRequestBodyObject(opObject)])
-            .then(([parameters, requestBody]) => {
-                const request: PatternElementRequest = {
-                    patternName: patternName,
-                    patternIndex: index,
-                    operationId: patternElement.operationId,
-                    parameters: parameters,
-                    requestBody: requestBody,
-                    wait: patternElement.wait,
-                    round: round
-                };
-                resolve(request);
-            });
+                .then(([parameters, requestBody]) => {
+                    const request: PatternElementRequest = {
+                        patternName: patternName,
+                        patternIndex: index,
+                        operationId: patternElement.operationId,
+                        parameters: parameters,
+                        requestBody: requestBody,
+                        wait: patternElement.wait,
+                        round: round
+                    };
+                    resolve(request);
+                });
         });
     }
 

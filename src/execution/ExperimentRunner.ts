@@ -23,8 +23,6 @@ class ExperimentRunner extends EventEmitter {
     private workersReady: number;
     private workers: { [patternName: string]: ChildProcess };
 
-    public patternStatistics: object;
-
     constructor() {
         super();
         this.handleMessage = this.handleMessage.bind(this);
@@ -36,7 +34,6 @@ class ExperimentRunner extends EventEmitter {
 
     public initialize(patterns: Pattern[]): Promise<ExperimentRunner> {
         this.patterns = patterns;
-        LoggingService.logEvent('Starting the server');
         return Promise.resolve(this);
     }
 
@@ -79,11 +76,11 @@ class ExperimentRunner extends EventEmitter {
                 break;
             }
             case IPCMessageType.ERROR: {
-                console.log('Error in request runner', message.data);
+                LoggingService.logEvent('(PatternRunner ERROR): ' + message.data)
                 break;
             }
             case IPCMessageType.INFO: {
-                console.log(message.data);
+                LoggingService.logEvent('(PatternRunner INFO): ' + message.data)
             }
         }
     }

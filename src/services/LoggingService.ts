@@ -110,7 +110,7 @@ export class LoggingService {
     }
 
     public logEvent(message: string): void {
-        console.log(message);
+        console.log(`[${new Date(Date.now()).toISOString()}] ${message}`);
         this.eventLogger.log({
             level: 'info',
             message

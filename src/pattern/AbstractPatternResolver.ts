@@ -34,6 +34,7 @@ class AbstractPatternResolver {
         }
         return this._patterns;
     }
+
     public initialize(
         abstractPatterns: AbstractPattern[],
         totalRequests: number,
@@ -105,7 +106,7 @@ class AbstractPatternResolver {
                 throw new PatternResolverError(
                     `Dependency strucutre does not add up. In the '${
                         pattern.name
-                    }' pattern, the element at index ${i} could be allocated to multiple resources.`
+                        }' pattern, the element at index ${i} could be allocated to multiple resources.`
                 );
             }
         });
@@ -119,8 +120,8 @@ class AbstractPatternResolver {
                 element.operation === AbstractPatternElementOperation.SCAN
                     ? PatternElementOutputType.LIST
                     : element.operation === AbstractPatternElementOperation.DELETE
-                        ? PatternElementOutputType.NONE
-                        : PatternElementOutputType.ITEM;
+                    ? PatternElementOutputType.NONE
+                    : PatternElementOutputType.ITEM;
             return {
                 operationId: this.getOperationIdFromResourceAndOperation(element.resource, element.operation),
                 wait: intervalWaitTimes[i],
@@ -171,7 +172,10 @@ class AbstractPatternResolver {
 
         const inputDependencyResource: Resource = dependencyLine[inputDependencyIndex].resource;
         if (element.operation !== AbstractPatternElementOperation.SCAN) {
-            const intermediate = dependencyLine.map((el, i) => (i === index ? { ...el, resource: inputDependencyResource } : el));
+            const intermediate = dependencyLine.map((el, i) => (i === index ? {
+                ...el,
+                resource: inputDependencyResource
+            } : el));
             return this.mapAbstractPatternToResources(intermediate, index + 1, possibleResources, abstractPattern);
         }
 
@@ -218,7 +222,10 @@ class AbstractPatternResolver {
                     return this._openAPISpec.paths[`${resource.path}/{${resource.selector}}`].get.operationId;
                 }
                 case AbstractPatternElementOperation.UPDATE: {
-                    return this._openAPISpec.paths[`${resource.path}/{${resource.selector}}`].put.operationId;
+                    if (this._openAPISpec.paths[`${resource.path}/{${resource.selector}}`].put) {
+                        return this._openAPISpec.paths[`${resource.path}/{${resource.selector}}`].put.operationId;
+                    }
+                    return this._openAPISpec.paths[resource.path].put.operationId;
                 }
                 case AbstractPatternElementOperation.DELETE: {
                     return this._openAPISpec.paths[`${resource.path}/{${resource.selector}}`].delete.operationId;

@@ -29,7 +29,7 @@ class OpenAPIService {
         return this._resources;
     }
 
-    public initialize(openAPISpec: OpenAPISpecification | string, options: object): Promise<void> {
+    public initialize(openAPISpec: OpenAPISpecification | string): Promise<void> {
         return new Promise((resolve, reject) => {
             Swagger({
                 spec: typeof openAPISpec !== 'string' ? openAPISpec : null,
@@ -178,7 +178,6 @@ class OpenAPIService {
                         timingStart,
                         timings: { response }
                     } = res;
-
                     res.timestampStart = timingStart;
                     res.timestampEnd = timingStart + response;
                     res.duration = timingStart + response - timingStart;

@@ -52,6 +52,7 @@ export default class BenchmarkController extends EventEmitter {
                 ApplicationState.setPhase(ApplicationPhase.MEASUREMENT_EVALUATION);
                 LoggingService.logEvent('Experiment finished.');
                 if (!this.specification.configuration.manualDecision) {
+                    LoggingService.logEvent('Starting to process results.')
                     return this.processResults();
                 } else {
                     return Promise.resolve(true);
@@ -68,7 +69,7 @@ export default class BenchmarkController extends EventEmitter {
             })
             .catch(err => {
                 LoggingService.logEvent('Benchmark failed!');
-                LoggingService.logEvent(err);
+                LoggingService.logEvent('---' + err.toString());
                 this.prepareShutdown(false);
             });
     }
@@ -76,7 +77,7 @@ export default class BenchmarkController extends EventEmitter {
     private initializeServices(): Promise<any> {
         return Promise.all([
             PolyfillUtil.initialize(),
-            OpenAPIService.initialize(this.openAPIInput, {}),
+            OpenAPIService.initialize(this.openAPIInput),
             LoggingService.initialize(),
             EvaluationService.initialize(),
         ]);
@@ -121,12 +122,14 @@ export default class BenchmarkController extends EventEmitter {
     }
 
     private startWebServer(): void {
+        LoggingService.logEvent('Starting the server');
         Server.start()
             .then(port => {
                 LoggingService.logEvent(`Server started on port ${port}`);
             })
             .catch(err => {
                 LoggingService.logEvent('Error starting server');
+                LoggingService.logEvent('---' + err.toString());
             });
     }
 

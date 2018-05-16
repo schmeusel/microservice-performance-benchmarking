@@ -1,15 +1,25 @@
 {
   "configuration": {
+    "manualDecision": true,
     "totalPatternRequests": 2,
     "patterns": [
       {
         "name": "createResource",
         "sequence": [
           {
-            "id": "petCreate",
+            "id": "pets",
             "operation": "CREATE",
-            "output": "createdItem",
+            "output": "createdPet",
             "wait": 800
+          }, {
+            "id": "userCreate",
+            "operation": "CREATE",
+            "wait": 300
+          }, {
+            "id": "pets",
+            "operation": "UPDATE",
+            "input": "createdPet",
+            "wait": 300
           }
         ],
         "weight": 2
@@ -18,12 +28,13 @@
   },
   "condition": {
     "createResource": {
-      "max": 200
+      "max": 700
     }
   },
   "customization": {
     "createResource": {
-      "petCreate": "pet"
+      "pets": "pet",
+      "userCreate": "user"
     }
   }
 }
