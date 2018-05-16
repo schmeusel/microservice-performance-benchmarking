@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import MeasurementsBoxPlot from './charts/MeasurementsBoxPlot';
 import MeasurementsHistogramContainer from './MeasurementsHistogramContainer';
 import { MeasurementsPropTypes } from '../../constants/CustomPropTypes';
+import MeasurementStatistics from './MeasurementStatistics';
 
 const PatternMeasurement = (props) => {
     const {
@@ -17,8 +18,17 @@ const PatternMeasurement = (props) => {
         },
     };
 
+    const successMeasurements = Object.keys(measurements)
+        .map(step => measurements[step].latencies)
+        .reduce((latencies, errAndSuccess) => [...latencies, ...errAndSuccess.success], []);
+    const errorMeasurements = Object.keys(measurements)
+        .map(step => measurements[step].latencies)
+        .reduce((latencies, errAndSuccess) => [...latencies, ...errAndSuccess.error], []);
+
     return (
         <div style={styles.container}>
+            <MeasurementStatistics measurements={successMeasurements} type={'success'} />
+            <MeasurementStatistics measurements={errorMeasurements} type={'error'} />
             <MeasurementsBoxPlot patternName={name} measurements={measurements} />
             <MeasurementsHistogramContainer
                 name={name}
