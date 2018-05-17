@@ -57,12 +57,10 @@ class ExperimentRunner extends EventEmitter {
                 type: IPCMessageType.ABORT
             });
         });
-        process.exitCode = 1;
         this._reject();
     }
 
     public succeedExperiment() {
-        process.exitCode = 0;
         this._resolve();
     }
 

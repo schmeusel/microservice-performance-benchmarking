@@ -49,9 +49,9 @@ export default class BenchmarkController extends EventEmitter {
                 return this.runExperiment();
             })
             .then(() => {
-                ApplicationState.setPhase(ApplicationPhase.MEASUREMENT_EVALUATION);
                 LoggingService.logEvent('Experiment finished.');
                 if (!this.specification.configuration.manualDecision) {
+                    ApplicationState.setPhase(ApplicationPhase.MEASUREMENT_EVALUATION);
                     LoggingService.logEvent('Starting to process results.')
                     return this.processResults();
                 } else {

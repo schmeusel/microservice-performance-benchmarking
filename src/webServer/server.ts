@@ -4,6 +4,7 @@ import * as socketIO from 'socket.io';
 import * as http from 'http';
 import * as morgan from 'morgan';
 import * as csv from 'csvtojson';
+import * as open from 'opn';
 import ExperimentRunner from '../execution/ExperimentRunner';
 import { PatternResult } from '../interfaces';
 import LoggingService from '../services/LoggingService';
@@ -13,8 +14,8 @@ import EmitterConstants, { APPLICATION_STATE_UPDATE_TYPE } from '../constants/Em
 import ActionTypes from '../constants/ActionTypes';
 
 class Server {
-    private _app;
-    private _server;
+    private readonly _app;
+    private readonly _server;
     private _io;
     private _connectedSockets: object = {};
 
@@ -37,6 +38,7 @@ class Server {
                     LoggingService.logEvent('Error starting server.');
                     return reject(err);
                 }
+                open('http://localhost:3000', { app: ['Google Chrome', '--incognito'] },);
                 resolve(config.webServer.port);
             });
         });
@@ -103,7 +105,7 @@ class Server {
         });
 
         this._app.get('*', (req, res) => {
-            res.sendFile(__dirname + '/public/index.html');
+            res.redirect('/');
         });
     }
 
@@ -112,11 +114,13 @@ class Server {
         this._server.close(() => {
             switch (result) {
                 case 'fail': {
-                    ExperimentRunner.failExperiment();
+                    process.exit(1);
+                    // ExperimentRunner.failExperiment();
                     break;
                 }
                 case 'succeed': {
-                    ExperimentRunner.succeedExperiment();
+                    process.exit(0);
+                    // ExperimentRunner.succeedExperiment();
                     break;
                 }
             }
