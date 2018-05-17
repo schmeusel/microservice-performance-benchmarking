@@ -34,11 +34,12 @@ const PatternMeasurementsContainer = ({
             progress={progress}
         >
             <Tabs inkBarStyle={styles.inkBar}>
-                {patterns.map(pattern => (
-                    <Tab key={pattern.name} label={pattern.name} buttonStyle={styles.tabButton}>
+                {/*{patterns.map(pattern => (*/}
+                {Object.keys(measurements).map(name=> (
+                    <Tab key={name} label={name} buttonStyle={styles.tabButton}>
                         <PatternMeasurement
-                            name={pattern.name}
-                            measurements={measurements[pattern.name] || {}}
+                            name={name}
+                            measurements={measurements[name] || {}}
                             groupingDistance={groupingDistance}
                             onGroupingDistanceChange={onGroupingDistanceChange}
                         />
