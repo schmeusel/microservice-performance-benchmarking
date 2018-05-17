@@ -8,13 +8,15 @@ export default function (state = [], action) {
         case ActionTypes.MEASUREMENTS.UPDATE: {
             return state.map(pattern => ({
                 ...pattern,
-                progress: (action.data.measurements[0].round + 1) / pattern.amount,
+                progress: pattern.name === action.data.name
+                    ? (action.data.measurements[0].round + 1) / pattern.amount
+                    : pattern.progress,
             }));
         }
         case ActionTypes.MEASUREMENTS.FINAL: {
             return state.map(pattern => ({
                 ...pattern,
-                progress: 0.8,
+                progress: 1,
             }));
         }
     }

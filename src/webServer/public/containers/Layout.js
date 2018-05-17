@@ -49,8 +49,8 @@ class Layout extends PureComponent {
 
     getProgress() {
         const { patterns } = this.props;
-        const totalRequests = patterns.reduce((amount, pattern) => pattern.total + amount, 0);
-        const patternProgress = patterns.reduce((weightedSum, pattern) => weightedSum + (pattern.total * (pattern.progress || 0)), 0) / totalRequests;
+        const totalRequests = patterns.reduce((amount, pattern) => pattern.amount + amount, 0);
+        const patternProgress = patterns.reduce((weightedSum, pattern) => weightedSum + (pattern.amount * (pattern.progress || 0)), 0) / totalRequests;
         const hasFinishedWithRequests = PHASES.ORDER.indexOf(this.props.experiment.phase) > PHASES.ORDER.indexOf(PHASES.VALUES.REQUEST_TRANSMISSION);
         return hasFinishedWithRequests ? 1 : patternProgress;
     }
