@@ -114,13 +114,13 @@ class Server {
         this._server.close(() => {
             switch (result) {
                 case 'fail': {
+                    ExperimentRunner.failExperiment();
                     process.exit(1);
-                    // ExperimentRunner.failExperiment();
                     break;
                 }
                 case 'succeed': {
+                    ExperimentRunner.succeedExperiment();
                     process.exit(0);
-                    // ExperimentRunner.succeedExperiment();
                     break;
                 }
             }
