@@ -17,7 +17,7 @@ const MeasurementStatisticsElement = ({ stat, measurements }) => {
     const calculateStat = {
         min: () => stats.min(measurements),
         max: () => stats.max(measurements),
-        mean: () => stats.mean(measurements),
+        median: () => stats.median(measurements),
         stdv: () => stats.standardDeviation(measurements),
         q1: () => stats.quantile(measurements, 0.25),
         q3: () => stats.quantile(measurements, 0.75),
@@ -32,7 +32,14 @@ const MeasurementStatisticsElement = ({ stat, measurements }) => {
 };
 
 MeasurementStatisticsElement.propTypes = {
-    stat: PropTypes.string.isRequired,
+    stat: PropTypes.oneOf([
+        'min',
+        'max',
+        'q1',
+        'q3',
+        'median',
+        'stdv',
+    ]).isRequired,
     measurements: PropTypes.arrayOf(PropTypes.number).isRequired,
 };
 

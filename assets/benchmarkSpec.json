@@ -1,7 +1,7 @@
 {
   "configuration": {
     "manualDecision": true,
-    "totalPatternRequests": 20,
+    "totalPatternRequests": 5,
     "patterns": [
       {
         "name": "petRequests",

@@ -17,6 +17,20 @@ export default class MeasurementsBoxPlot extends PureComponent {
         super(props);
         this.chart = null;
         this.canvasId = `${props.patternName}_boxplot`;
+        this.successDataset = {
+            label: 'Successful Requests',
+            backgroundColor: fade(Palette.primary1Color, 0.3),
+            borderColor: Palette.primary1Color,
+            borderWidth: 1,
+            padding: 20,
+        };
+        this.errorDataset = {
+            label: 'Erroneous Requests',
+            backgroundColor: fade(Palette.accent1Color, 0.3),
+            borderColor: Palette.accent1Color,
+            borderWidth: 1,
+            padding: 20,
+        };
     }
 
     componentDidMount() {
@@ -29,45 +43,45 @@ export default class MeasurementsBoxPlot extends PureComponent {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (this.chart) {
-            this.chart.data = this.getChartsData(nextProps);
-            this.chart.options = this.getChartOptions(nextProps);
-            this.chart.update();
-        }
+        this.updateChart(nextProps);
+    }
+
+    getDataSeries(latencies, type) {
+        return latencies
+            .map(errAndSuccess => ({
+                min: errAndSuccess[type].length ? stats.min(errAndSuccess[type]) : NaN,
+                max: errAndSuccess[type].length ? stats.max(errAndSuccess[type]) : NaN,
+                q1: errAndSuccess[type].length ? stats.quantile(errAndSuccess[type], 0.25) : NaN,
+                q3: errAndSuccess[type].length ? stats.quantile(errAndSuccess[type], 0.75) : NaN,
+                median: errAndSuccess[type].length ? stats.median(errAndSuccess[type]) : NaN,
+            }));
     }
 
     getChartsData(props) {
         const { measurements } = props;
         const latencies = Object.keys(measurements).map(index => measurements[index].latencies);
 
-        const datasets = [];
-        const successDataset = {
-            label: 'Successful Requests',
-            backgroundColor: fade(Palette.primary1Color, 0.3),
-            borderColor: Palette.primary1Color,
-            borderWidth: 1,
-            data: latencies.map(errAndSuccess => errAndSuccess.success.map(num => parseFloat(num.toFixed(2)))),
-            padding: 20,
-        };
-        if (successDataset.data.reduce((hasLength, curr) => hasLength || !!curr.length, false)) {
-            datasets.push(successDataset);
-        }
-
-        const errorDataset = {
-            label: 'Erroneous Requests',
-            backgroundColor: fade(Palette.accent1Color, 0.3),
-            borderColor: Palette.accent1Color,
-            borderWidth: 1,
-            data: latencies.map(errAndSuccess => errAndSuccess.error.map(num => parseFloat(num.toFixed(2)))),
-            padding: 20,
-        };
-        if (errorDataset.data.reduce((hasLength, curr) => hasLength || !!curr.length, false)) {
-            datasets.push(errorDataset);
-        }
+        const successSeries = this.getDataSeries(latencies, 'success');
+        const errorSeries = this.getDataSeries(latencies, 'error');
 
         return {
             labels: Object.keys(measurements).map(round => `#${parseInt(round) + 1}`),
-            datasets,
+            datasets: [
+                ...(
+                    this.shouldIncludeDataSeries(successSeries)
+                        ? [{
+                            ...this.successDataset,
+                            data: successSeries,
+                        }]
+                        : []),
+                ...(
+                    this.shouldIncludeDataSeries(errorSeries)
+                        ? [{
+                            ...this.errorDataset,
+                            data: errorSeries,
+                        }]
+                        : []),
+            ],
         };
     }
 
@@ -75,13 +89,11 @@ export default class MeasurementsBoxPlot extends PureComponent {
         const latencies = Object
             .keys(measurements)
             .map(step => measurements[step].latencies)
-            .reduce((totalLatencies, errAndSuccess) => {
-                return [
-                    ...totalLatencies,
-                    ...errAndSuccess.success,
-                    ...errAndSuccess.error
-                ];
-            }, []);
+            .reduce((totalLatencies, errAndSuccess) => [
+                ...totalLatencies,
+                ...errAndSuccess.success,
+                ...errAndSuccess.error,
+            ], []);
         const min = Math.min(...latencies);
         const max = Math.max(...latencies);
 
@@ -91,6 +103,18 @@ export default class MeasurementsBoxPlot extends PureComponent {
             suggestedMin: Math.round(min) * (1 - clearance),
             suggestedMax: Math.round(max) * (1 + clearance),
         };
+    }
+
+    getAfterLabel(item, data) {
+        const relevantData = data.datasets[item.datasetIndex].data[item.index];
+        return [
+            '',
+            `Min:\t${relevantData.min.toFixed(2)}ms`,
+            `Q1:\t${relevantData.q1.toFixed(2)}ms`,
+            `Median:\t${relevantData.median.toFixed(2)}ms`,
+            `Q3:\t${relevantData.q3.toFixed(2)}ms`,
+            `Max:\t${relevantData.max.toFixed(2)}ms`,
+        ];
     }
 
     getChartOptions(props) {
@@ -105,22 +129,7 @@ export default class MeasurementsBoxPlot extends PureComponent {
             tooltips: {
                 callbacks: {
                     title: item => `Sequence Step ${item[0].xLabel}`,
-                    afterLabel: (item, data) => {
-                        const latencies = data.datasets[item.datasetIndex].data[item.index];
-                        const min = stats.min(latencies).toFixed(2);
-                        const q1 = stats.quantile(latencies, 0.25).toFixed(2);
-                        const mean = stats.mean(latencies).toFixed(2);
-                        const q3 = stats.quantile(latencies, 0.75).toFixed(2);
-                        const max = stats.max(latencies).toFixed(2);
-                        return [
-                            '',
-                            `Min:\t${min}ms`,
-                            `Q1:\t${q1}ms`,
-                            `Mean:\t${mean}ms`,
-                            `Q3:\t${q3}ms`,
-                            `Max:\t${max}ms`,
-                        ];
-                    },
+                    afterLabel: this.getAfterLabel,
                     label: (item, data) => data.datasets[item.datasetIndex].label,
                 },
             },
@@ -152,6 +161,18 @@ export default class MeasurementsBoxPlot extends PureComponent {
                 ],
             },
         };
+    }
+
+    shouldIncludeDataSeries(series) {
+        return Object.keys(series).reduce((isNumber, stat) => isNumber && !!series[stat], true);
+    }
+
+    updateChart(props) {
+        if (this.chart) {
+            this.chart.data = this.getChartsData(props);
+            this.chart.options = this.getChartOptions(props);
+            this.chart.update();
+        }
     }
 
     render() {

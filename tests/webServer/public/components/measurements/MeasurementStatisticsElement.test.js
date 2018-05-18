@@ -30,9 +30,9 @@ describe('Test MeasurementStatisticsElement', () => {
         expect(wrapper.childAt(1).text()).toEqual('5.00ms');
     });
 
-    it('should calculate the mean value for stat "mean"', () => {
+    it('should calculate the median value for stat "median"', () => {
         const wrapper = shallow(
-            <MeasurementStatisticsElement measurements={[1, 2, 3, 4, 5]} stat={'mean'} />,
+            <MeasurementStatisticsElement measurements={[1, 2, 3, 4, 5]} stat={'median'} />,
         );
         expect(wrapper.childAt(1).text()).toEqual('3.00ms');
     });
