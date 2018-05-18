@@ -77,7 +77,7 @@ export default class BenchmarkController extends EventEmitter {
     private initializeServices(): Promise<any> {
         return Promise.all([
             PolyfillUtil.initialize(),
-            OpenAPIService.initialize(this.openAPIInput),
+            OpenAPIService.initialize(this.openAPIInput, this.specification.environment),
             LoggingService.initialize(),
             EvaluationService.initialize(),
         ]);
