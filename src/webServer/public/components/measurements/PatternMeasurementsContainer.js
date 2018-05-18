@@ -8,9 +8,9 @@ import { Palette } from '../../constants/Theme';
 import { MeasurementsPropTypes, PatternPropTypes } from '../../constants/CustomPropTypes';
 
 const PatternMeasurementsContainer = ({
-    measurements, groupingDistance, onGroupingDistanceChange, isFetching, progress, patterns
+    measurements, groupingDistance, onGroupingDistanceChange, isFetching, progress, patterns,
 }) => {
-    if (!Object.keys(measurements).length && !isFetching) {
+    if ((!Object.keys(measurements).length) && !isFetching) {
         return null;
     }
     const styles = {
@@ -34,8 +34,7 @@ const PatternMeasurementsContainer = ({
             progress={progress}
         >
             <Tabs inkBarStyle={styles.inkBar}>
-                {/*{patterns.map(pattern => (*/}
-                {Object.keys(measurements).map(name=> (
+                {patterns.map(({ name }) => (
                     <Tab key={name} label={name} buttonStyle={styles.tabButton}>
                         <PatternMeasurement
                             name={name}

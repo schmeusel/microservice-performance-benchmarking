@@ -11,7 +11,7 @@ import Downloads from '../components/downloads/Downloads';
 import PatternMeasurementsContainer from '../components/measurements/PatternMeasurementsContainer';
 import FeedbackSnackbar from '../components/FeedbackSnackbar';
 import {
-    ApplicationSettingsPropTypes,
+    ApplicationSettingsPropTypes, AsyncPropTypes,
     ExperimentPhasePropTypes,
     ExperimentResultPropTypes,
     MeasurementsPropTypes, PatternPropTypes,
@@ -29,7 +29,10 @@ class Layout extends PureComponent {
             phase: ExperimentPhasePropTypes.isRequired,
             result: ExperimentResultPropTypes.isRequired,
         }).isRequired,
-        measurements: MeasurementsPropTypes.isRequired,
+        measurements: PropTypes.shape({
+            async: AsyncPropTypes.isRequired,
+            values: PropTypes.objectOf(PropTypes.objectOf(MeasurementsPropTypes)).isRequired,
+        }).isRequired,
         patterns: PropTypes.arrayOf(PatternPropTypes).isRequired,
         settings: ApplicationSettingsPropTypes.isRequired,
         feedbackMessage: PropTypes.string.isRequired,
@@ -64,8 +67,6 @@ class Layout extends PureComponent {
                 marginRight: 'auto',
             },
         };
-
-
 
         return (
             <div style={styles.container}>
