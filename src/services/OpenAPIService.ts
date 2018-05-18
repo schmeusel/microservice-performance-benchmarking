@@ -10,6 +10,7 @@ import ApplicationState from './ApplicationState';
 class OpenAPIService {
     private _client: OpenAPIClient;
     private _resources: Resource[];
+    private _servers: { [serverName: string]: boolean };
 
     private get client(): OpenAPIClient {
         if (!this._client) {
@@ -31,6 +32,7 @@ class OpenAPIService {
 
     public initialize(openAPISpec: OpenAPISpecification | string, environmentOptions: EnvironmentSettings = {}): Promise<void> {
         return new Promise((resolve, reject) => {
+            this._servers = environmentOptions.servers;
             Swagger({
                 spec: typeof openAPISpec !== 'string' ? openAPISpec : null,
                 url: typeof openAPISpec === 'string' ? openAPISpec : null,
@@ -53,7 +55,8 @@ class OpenAPIService {
         if (!params.operationId || !params.operationId.length) {
             throw new OpenAPIError('operationId is required for params.');
         }
-        return this.client.execute(params);
+        const server = this.selectServerUrl();
+        return this.client.execute({ ...params, server });
     }
 
     public getSpecificationByOperationId(operationId: string): OperationObject {
@@ -189,6 +192,16 @@ class OpenAPIService {
                 }
             );
         });
+    }
+
+    private selectServerUrl(): string {
+        if (!Object.keys(this._servers)) {
+            return null;
+        }
+
+        const availableServersUrls = Object.keys(this._servers).filter(url => this._servers[url]);
+        const randomIndex = Math.floor(Math.random() * availableServersUrls.length)
+        return availableServersUrls[randomIndex];
     }
 }
 

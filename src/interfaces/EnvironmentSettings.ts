@@ -3,7 +3,10 @@ export default interface EnvironmentSettings {
         apiKey?: {};
         http?: {};
     },
-    server?: {
-
+    servers?: {
+        /**
+         * serverUrl should be excluded (false) or included (true). Defaults to using the first server if nothing is specified
+         */
+        [serverUrl: string]: boolean
     }
 };
