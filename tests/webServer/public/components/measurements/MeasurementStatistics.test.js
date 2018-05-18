@@ -32,7 +32,7 @@ describe('Test MeasurementStatistics', () => {
         expect(wrapper.find('MeasurementStatisticsElement')).toHaveLength(6);
     });
 
-    it('should render MeasurementStatisticsElements for "min, max, q1, q3, mean, stdv"', () => {
+    it('should render MeasurementStatisticsElements for "min, max, q1, q3, median, stdv"', () => {
         const wrapper = shallow(
             <MeasurementStatistics type={'success'} measurements={[1]} />,
         );
@@ -40,7 +40,7 @@ describe('Test MeasurementStatistics', () => {
         expect(wrapper.find('MeasurementStatisticsElement[stat="max"]')).toHaveLength(1);
         expect(wrapper.find('MeasurementStatisticsElement[stat="q1"]')).toHaveLength(1);
         expect(wrapper.find('MeasurementStatisticsElement[stat="q3"]')).toHaveLength(1);
-        expect(wrapper.find('MeasurementStatisticsElement[stat="mean"]')).toHaveLength(1);
+        expect(wrapper.find('MeasurementStatisticsElement[stat="median"]')).toHaveLength(1);
         expect(wrapper.find('MeasurementStatisticsElement[stat="stdv"]')).toHaveLength(1);
     });
 });

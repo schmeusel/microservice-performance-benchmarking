@@ -25,7 +25,7 @@ const MeasurementStatistics = ({ measurements, type }) => {
     return (
         <div style={styles.paperContainer}>
             {
-                ['min', 'max', 'mean', 'stdv', 'q1', 'q3'].map(stat => (
+                ['min', 'max', 'median', 'stdv', 'q1', 'q3'].map(stat => (
                     <MeasurementStatisticsElement
                         key={stat}
                         stat={stat}
