@@ -1,7 +1,8 @@
 import { AbstractPatternElementOperation, PatternElementSelector, Resource } from '..';
 
 export default interface AbstractPatternElement {
-    id?: string;
+    operationId?: string; // identifier in the OpenAPI spec file
+    id?: string; // mapping ID to specify a resource in the customization object
     operation: AbstractPatternElementOperation;
     input?: string;
     selector?: PatternElementSelector;

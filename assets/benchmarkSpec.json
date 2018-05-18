@@ -1,7 +1,7 @@
 {
   "configuration": {
     "manualDecision": true,
-    "totalPatternRequests": 5,
+    "totalPatternRequests": 3,
     "patterns": [
       {
         "name": "petRequests",
@@ -24,7 +24,7 @@
             "wait": 1300
           }
         ],
-        "weight": 2
+        "weight": 1
       },
       {
         "name": "userRequests",
@@ -33,9 +33,30 @@
             "id": "userCreate",
             "operation": "CREATE",
             "wait": 1200
+          },
+          {
+            "id": "userCreate",
+            "operation": "CREATE",
+            "wait": 1200
           }
         ],
-        "weight": 2
+        "weight": 1
+      },
+      {
+        "name": "inventoryRequests",
+        "sequence": [
+          {
+            "operationId": "getInventory",
+            "operation": "READ",
+            "wait": 1200
+          },
+          {
+            "operationId": "deleteOrder",
+            "operation": "DELETE",
+            "wait": 300
+          }
+        ],
+        "weight": 1
       }
     ]
   },
