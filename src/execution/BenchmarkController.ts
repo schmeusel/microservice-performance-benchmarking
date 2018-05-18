@@ -69,7 +69,7 @@ export default class BenchmarkController extends EventEmitter {
             })
             .catch(err => {
                 LoggingService.logEvent('Benchmark failed!');
-                LoggingService.logEvent('---' + err.toString());
+                LoggingService.logEvent('---' + err.toString() + ' [STACK] ' + err.stack);
                 this.prepareShutdown(false);
             });
     }

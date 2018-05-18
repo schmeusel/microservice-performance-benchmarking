@@ -12,7 +12,6 @@ import {
 import * as IntervalDistributionService from '../services/IntervalDistributionService';
 import PatternResolverError from '../exceptions/PatternResolverError';
 import { AbstractPatternElementExtended } from '../interfaces/patterns/AbstractPatternElement';
-import OpenAPIService from '../services/OpenAPIService';
 import ApplicationState from '../services/ApplicationState';
 
 class AbstractPatternResolver {
@@ -96,12 +95,13 @@ class AbstractPatternResolver {
             return this.mapAbstractPatternToResources(dependencyLine, 0, possibleResources, pattern);
         });
 
-        const flattenedElements = dependenciesWithResources.reduce((flattened, dependencyLine) => [...flattened, ...dependencyLine], []);
+        const flattenedElements: AbstractPatternElementExtended[] = dependenciesWithResources
+            .reduce((flattened, dependencyLine) => [...flattened, ...dependencyLine], []);
 
         // check if same indexes have same resource
         flattenedElements.forEach((extendedElement, i) => {
             const elementsWithSameIndex = flattenedElements.filter(el => el.index === extendedElement.index);
-            const allSame = elementsWithSameIndex.reduce((same, el) => same && el.resource.name === extendedElement.resource.name, true);
+            const allSame = elementsWithSameIndex.reduce((same, el) => same && (el.operationId === extendedElement.operationId || el.resource.name === extendedElement.resource.name), true);
             if (!allSame) {
                 throw new PatternResolverError(
                     `Dependency strucutre does not add up. In the '${
@@ -115,22 +115,24 @@ class AbstractPatternResolver {
             return arr.findIndex(element => element.index === el.index) === i;
         });
 
-        return uniquedElements.sort((a, b) => a.index - b.index).map((element, i) => {
-            const outputType =
-                element.operation === AbstractPatternElementOperation.SCAN
-                    ? PatternElementOutputType.LIST
-                    : element.operation === AbstractPatternElementOperation.DELETE
-                    ? PatternElementOutputType.NONE
-                    : PatternElementOutputType.ITEM;
-            return {
-                operationId: this.getOperationIdFromResourceAndOperation(element.resource, element.operation),
-                wait: intervalWaitTimes[i],
-                input: element.input,
-                output: element.output,
-                outputType,
-                selector: element.selector
-            };
-        });
+        return uniquedElements
+            .sort((a, b) => a.index - b.index)
+            .map((element, i) => {
+                const outputType =
+                    element.operation === AbstractPatternElementOperation.SCAN
+                        ? PatternElementOutputType.LIST
+                        : element.operation === AbstractPatternElementOperation.DELETE
+                        ? PatternElementOutputType.NONE
+                        : PatternElementOutputType.ITEM;
+                return {
+                    operationId: element.operationId || this.getOperationIdFromResourceAndOperation(element.resource, element.operation),
+                    wait: intervalWaitTimes[i],
+                    input: element.input,
+                    output: element.output,
+                    outputType,
+                    selector: element.selector
+                };
+            });
     }
 
     private mapAbstractPatternToResources(
@@ -144,6 +146,14 @@ class AbstractPatternResolver {
         }
 
         const element = dependencyLine[index];
+
+        // user defined operation
+        if (element.operationId) {
+            const isValid = this.doesOperationIdExist(element.operationId);
+            return this.mapAbstractPatternToResources(dependencyLine, index + 1, possibleResources, abstractPattern);
+        }
+
+        // user defined resource
         if (element.id) {
             const resourceName = this._patternConfiguration[abstractPattern.name] ? this._patternConfiguration[abstractPattern.name][element.id] : undefined;
             const resource = this.findResource(possibleResources, resourceName);
@@ -157,6 +167,8 @@ class AbstractPatternResolver {
             const intermediate = dependencyLine.map((el, i) => (i === index ? { ...el, resource } : el));
             return this.mapAbstractPatternToResources(intermediate, index + 1, possibleResources, abstractPattern);
         }
+
+        // no previous dependency
         if (!element.input) {
             const resourceIndex: number = Math.round(Math.random() * (possibleResources.length - 1));
             const resource = possibleResources[resourceIndex];
@@ -292,6 +304,24 @@ class AbstractPatternResolver {
                 ...rest,
                 subResources: rest.subResources ? this.getResourcesWithMinimumDepthLevel(rest.subResources, level - 1) : undefined
             }));
+    }
+
+    /**
+     * Check if a given operationId exists in the OpenAPI spec.
+     *
+     * @param {string} operationId
+     * @returns {boolean}
+     */
+    private doesOperationIdExist(operationId: string): boolean {
+        return Object
+            .keys(this._openAPISpec.paths)
+            .reduce((operationIds, path) => ([
+                ...operationIds,
+                ...Object
+                    .keys(this._openAPISpec.paths[path])
+                    .map(operation => this._openAPISpec.paths[path][operation].operationId)
+            ]), [])
+            .reduce((found, opId) => found || opId === operationId);
     }
 }
 

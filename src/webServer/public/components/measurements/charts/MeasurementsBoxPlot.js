@@ -164,7 +164,9 @@ export default class MeasurementsBoxPlot extends PureComponent {
     }
 
     shouldIncludeDataSeries(series) {
-        return Object.keys(series).reduce((isNumber, stat) => isNumber && !!series[stat], true);
+        return series
+            .map(serie => Object.keys(serie).reduce((valid, stat) => valid && !!serie[stat], true))
+            .reduce((valid, curr) => valid || curr, false);
     }
 
     updateChart(props) {
