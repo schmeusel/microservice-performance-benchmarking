@@ -39,7 +39,7 @@ class BenchmarkSpecificationValidator {
     }
 
     private validateSLACondition(condition: SLACondition): boolean {
-        const allowedKeys: string[] = ['min', 'max', 'mean', 'stdev'];
+        const allowedKeys: string[] = ['min', 'max', 'mean', 'stdv'];
         Object.keys(condition).forEach(key => {
             if (!allowedKeys.includes(key)) {
                 throw new ValidationError(

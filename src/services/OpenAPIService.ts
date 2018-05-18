@@ -2,7 +2,7 @@ import * as Swagger from 'swagger-client';
 import * as request from 'request';
 import OpenAPIError from '../exceptions/OpenAPIError';
 import OpenAPISpecification, { OperationObject, PathsObject } from '../interfaces/openapi/OpenAPISpecification';
-import { OpenAPIClient, AbstractPatternElementOperation, Resource } from '../interfaces/index';
+import { OpenAPIClient, AbstractPatternElementOperation, Resource, EnvironmentSettings } from '../interfaces/index';
 import { RequestMethod } from '../interfaces/RequestMethod';
 import { mapHttpMethodToElementOperation } from '../utils/OpenAPIUtil';
 import ApplicationState from './ApplicationState';
@@ -29,12 +29,15 @@ class OpenAPIService {
         return this._resources;
     }
 
-    public initialize(openAPISpec: OpenAPISpecification | string): Promise<void> {
+    public initialize(openAPISpec: OpenAPISpecification | string, environmentOptions: EnvironmentSettings = {}): Promise<void> {
         return new Promise((resolve, reject) => {
             Swagger({
                 spec: typeof openAPISpec !== 'string' ? openAPISpec : null,
                 url: typeof openAPISpec === 'string' ? openAPISpec : null,
-                http: this.useCustomRequest
+                http: this.useCustomRequest,
+                securities: {
+                    authorized: environmentOptions.authorizations,
+                }
             })
                 .then(client => {
                     this._client = client;

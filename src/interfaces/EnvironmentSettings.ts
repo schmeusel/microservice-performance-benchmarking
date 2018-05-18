@@ -1,3 +1,9 @@
 export default interface EnvironmentSettings {
-    accessKeys?: {};
+    authorizations?: {
+        apiKey?: {};
+        http?: {};
+    },
+    server?: {
+
+    }
 };
