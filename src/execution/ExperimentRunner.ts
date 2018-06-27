@@ -72,7 +72,7 @@ class ExperimentRunner extends EventEmitter {
                 break;
             }
             case IPCMessageType.ERROR: {
-                LoggingService.logEvent('(PatternRunner ERROR): ' + message.data)
+                LoggingService.logEvent('(PatternRunner ERROR): ' + JSON.stringify(message.data))
                 break;
             }
             case IPCMessageType.INFO: {

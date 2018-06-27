@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { mapHttpMethodToElementOperation } from '../../src/utils/OpenAPIUtil';
+import { getSelectorsForResource, mapHttpMethodToElementOperation } from '../../src/utils/OpenAPIUtil';
 import PolyfillUtil from '../../src/utils/PolyfillUtil';
 import { RequestMethod, AbstractPatternElementOperation } from '../../src/interfaces';
 
@@ -45,6 +45,34 @@ describe('Test OpenAPIUtil', () => {
             const res1 = mapHttpMethodToElementOperation(null, method);
             const res2 = mapHttpMethodToElementOperation(undefined, method);
             const res3 = mapHttpMethodToElementOperation('users', method);
+            [res1, res2, res3].forEach(res => {
+                expect(res).to.be.undefined;
+            })
+        });
+    });
+
+    describe('getSelectorsForResource(...)', () => {
+        const openAPISpecStub = {
+            paths: {
+                '/users/{username}': {},
+                '/orders/{orderId}/events/{id}': {},
+                '/store': {}
+            }
+        } as any;
+
+        it('should one selector if the resource has one', () => {
+            const result = getSelectorsForResource('/users', openAPISpecStub);
+            expect(result).to.deep.equal(['username']);
+        });
+
+        it('should return an empty array if the resource has no accessor', () => {
+            const result = getSelectorsForResource('/store', openAPISpecStub);
+            expect(result).to.deep.equal([]);
+        });
+
+        it('should return multiple accessors in the correct order', () => {
+           const result = getSelectorsForResource('/orders/{orderId}/events', openAPISpecStub);
+           expect(result).to.deep.equal(['orderId', 'id']);
         });
     });
 });

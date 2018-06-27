@@ -4,7 +4,11 @@ import OpenAPIError from '../exceptions/OpenAPIError';
 import OpenAPISpecification, { OperationObject, PathsObject } from '../interfaces/openapi/OpenAPISpecification';
 import { OpenAPIClient, AbstractPatternElementOperation, Resource, EnvironmentSettings } from '../interfaces/index';
 import { RequestMethod } from '../interfaces/RequestMethod';
-import { mapHttpMethodToElementOperation } from '../utils/OpenAPIUtil';
+import {
+    getSelectorsForResource,
+    getOperationsForResource,
+    mapHttpMethodToElementOperation
+} from '../utils/OpenAPIUtil';
 import ApplicationState from './ApplicationState';
 
 class OpenAPIService {
@@ -76,6 +80,27 @@ class OpenAPIService {
         return operationObject;
     }
 
+    public getPathForOperationId(operationId: string): string {
+        const pathsSpec: PathsObject = this.specification.paths;
+        let path: string = undefined;
+
+        Object.keys(pathsSpec).forEach(pathName => {
+            Object.keys(pathsSpec[pathName]).forEach(op => {
+                if (pathsSpec[pathName][op].operationId === operationId) {
+                    path = pathName;
+                    return;
+                }
+            });
+        });
+
+        return path;
+    }
+
+    public getSelectorsForOperationId(operationId: string) {
+        const path = this.getPathForOperationId(operationId);
+        return path.getAllInputParams();
+    }
+
     private hierarchizeResources(): Resource[] {
         const topLevelResourcePaths = Object.keys(this.specification.paths).filter(
             path =>
@@ -88,45 +113,11 @@ class OpenAPIService {
             return {
                 name: resourcePath.replace('/', ''),
                 path: resourcePath,
-                selector: this.getAccessorForResource(resourcePath),
-                operations: this.getOperationsForResource(resourcePath),
+                selector: getSelectorsForResource(resourcePath, this.specification),
+                operations: getOperationsForResource(resourcePath, this.specification),
                 subResources: this.resolveResourcePath(resourcePath)
             } as Resource;
         });
-    }
-
-    /**
-     * Gather all possible operations that a resource supports,
-     * directly mapped to an {AbstractPatternElementOperation}
-     *
-     * @param resourcePath {string}
-     * @returns {AbstracPatternElementOperation[]}
-     */
-    private getOperationsForResource(resourcePath: string): AbstractPatternElementOperation[] {
-        return Object.keys(this.specification.paths)
-            .map(path => {
-                const isSame = path === resourcePath;
-                const hasResourceAccessor = resourcePath.split('/').length + 1 === path.split('/').length && !!path.getLastInputParam();
-
-                if (isSame || hasResourceAccessor) {
-                    return Object.keys(this.specification.paths[path])
-                        .filter(methodKey => methodKey.toUpperCase() in RequestMethod)
-                        .map(methodKey => {
-                            return mapHttpMethodToElementOperation(path, methodKey);
-                        })
-                        .filter(val => !!val);
-                }
-                return [];
-            })
-            .reduce((arr, valOrArr) => (Array.isArray(valOrArr) ? [...arr, ...valOrArr] : [...arr, valOrArr]), [])
-            .filter((operation, i, arr) => arr.indexOf(operation) === i);
-    }
-
-    private getAccessorForResource(resourcePath: string): string {
-        return Object.keys(this.specification.paths)
-            .filter(path => path.startsWith(resourcePath))
-            .filter(path => path.split('/').length - 1 === resourcePath.split('/').length && path.endsWithInputParam())
-            .reduce((acc, remainingPath) => remainingPath.getLastInputParam(), undefined);
     }
 
     /**
@@ -154,7 +145,7 @@ class OpenAPIService {
             return {
                 name: subResourcePath.split('/').pop(),
                 path: subResourcePath,
-                operations: this.getOperationsForResource(subResourcePath),
+                operations: getOperationsForResource(subResourcePath, this.specification),
                 subResources: this.resolveResourcePath(subResourcePath)
             };
         });

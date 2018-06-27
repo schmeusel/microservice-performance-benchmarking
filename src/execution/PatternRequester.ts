@@ -9,6 +9,7 @@ import {
 } from '../interfaces/index';
 import OpenAPIService from '../services/OpenAPIService';
 import { mapOutputTypeAndMethodToOperation } from '../utils/OpenAPIUtil';
+import { findIdKey } from '../utils/Helpers';
 import * as winston from 'winston';
 
 export default class PatternRequester {
@@ -96,14 +97,16 @@ export default class PatternRequester {
         const paramKeys = Object.keys(request.parameters);
         const requestBodyKeys = Object.keys(request.requestBody);
         const inputItemKeys = Object.keys(inputItem);
-        const idKey = inputItemKeys.find(this.findIdKey);
+
+        const possibleResourceSelectors = OpenAPIService.getSelectorsForOperationId(request.operationId);
+        const idKey = inputItemKeys.find(findIdKey(possibleResourceSelectors));
 
         if (!idKey) {
             throw new Error('Could not locate identifying key from input. Input keys are: ' + JSON.stringify(inputItemKeys));
         }
 
         // Look for suitable key in parameters
-        const paramKeyToBeReplaced = paramKeys.find(this.findIdKey);
+        const paramKeyToBeReplaced = paramKeys.find(findIdKey(possibleResourceSelectors));
         if (paramKeyToBeReplaced) {
             return {
                 ...request,
@@ -115,7 +118,7 @@ export default class PatternRequester {
         }
 
         // Look for suitable key in requestBody
-        const requestBodyKeyToBeReplaced = requestBodyKeys.find(this.findIdKey);
+        const requestBodyKeyToBeReplaced = requestBodyKeys.find(findIdKey(possibleResourceSelectors));
         return {
             ...request,
             requestBody: {
@@ -126,11 +129,6 @@ export default class PatternRequester {
 
         // throw new Error('Could not locate identifying key from parameters or request body. Parameter keys are: ' + JSON.stringify(paramKeys) + ". Request body keys: " + JSON.stringify(requestBodyKeys));
 
-    }
-
-    private findIdKey(key: string) {
-        const lowercaseKey = key.toLowerCase();
-        return lowercaseKey === 'id' || lowercaseKey.startsWith('id') || lowercaseKey.endsWith('id');
     }
 
     private getOutputType(outputName: string): PatternElementOutputType {
@@ -164,7 +162,8 @@ export default class PatternRequester {
 
                     this.addMeasurement(measurement);
                     if (this.pattern.sequence[requestToSend.patternIndex].output) {
-                        this._outputs[this.pattern.sequence[requestToSend.patternIndex].output] = typeof processableResponse.body === 'string' ? JSON.parse(response.body) : response.body;
+                        const outputKey = this.pattern.sequence[requestToSend.patternIndex].output;
+                        this._outputs[outputKey] = typeof processableResponse.body === 'string' ? JSON.parse(response.body) : response.body;
                     }
                     resolve();
                 })
