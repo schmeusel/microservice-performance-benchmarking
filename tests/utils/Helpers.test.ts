@@ -3,7 +3,7 @@ import { findIdKey } from '../../src/utils/Helpers';
 
 describe('Test Helpers', () => {
     describe('findIdKey', () => {
-        it('should correctly match an explicitly given selector', () => {
+        it('should correctly match an explicitly given accessors', () => {
             const keys = ['name', 'username', 'email', 'id'];
             const findForUsername = findIdKey(['username'])
             const result = keys.find(findForUsername);

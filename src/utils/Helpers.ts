@@ -1,5 +1,5 @@
 /**
- * Iterator function to check whether a given key either matches given selector or anything that resembles an ID.
+ * Iterator function to check whether a given key either matches given accessors or anything that resembles an ID.
  * @param {string[]} possibleSelectors
  * @returns {(key: string) => T | undefined | boolean}
  */

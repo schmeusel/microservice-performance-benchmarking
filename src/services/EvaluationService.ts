@@ -1,10 +1,10 @@
 import * as fs from 'fs';
 import * as readline from 'readline';
-import * as simpleStats from 'simple-statistics';
 import config from '../config';
-import { SLASpecification, SLACondition } from '../interfaces/index';
+import { SLASpecification } from '../interfaces/index';
 import EvaluationError from '../exceptions/EvaluationError';
 import { LoggingService } from "./LoggingService";
+import { evaluateConditions } from "../utils/EvaluationUtil";
 
 class EvaluationService {
 
@@ -28,7 +28,7 @@ class EvaluationService {
         return Promise.resolve();
     }
 
-    evaluateMeasurements(slaSpec: SLASpecification): Promise<boolean> {
+    public evaluateMeasurements(slaSpec: SLASpecification): Promise<boolean> {
         return new Promise((resolve, reject) => {
             this.readMeasurements()
                 .then(() => {
@@ -37,7 +37,7 @@ class EvaluationService {
                     }
                     const result = Object
                         .keys(slaSpec)
-                        .map(patternName => this.evaluateConditions(slaSpec[patternName], patternName))
+                        .map(patternName => evaluateConditions(slaSpec[patternName], this.measurements[patternName]))
                         .reduce((conditionsMet, result) => conditionsMet && result, true);
                     resolve(result);
                 })
@@ -45,40 +45,7 @@ class EvaluationService {
         });
     }
 
-    private evaluateConditions(condition: SLACondition, patternName: string) {
-        return Object.keys(condition).reduce((allValid, type) => {
-            let intermediateResult: boolean;
-            switch (type) {
-                case 'min': {
-                    intermediateResult = this.evaluateMinValue(this.measurements[patternName], condition[type]);
-                    break;
-                }
-                case 'max': {
-                    intermediateResult = this.evaluateMaxValue(this.measurements[patternName], condition[type]);
-                    break;
-                }
-                case 'mean': {
-                    intermediateResult = this.evaluateMean(this.measurements[patternName], condition[type]);
-                    break;
-                }
-                case 'stdev': {
-                    intermediateResult = this.evaluateStandardDeviation(this.measurements[patternName], condition[type]);
-                    break;
-                }
-                case 'percentiles': {
-                    intermediateResult = this.evaluatePercentiles(this.measurements[patternName], condition[type]);
-                    break;
-                }
-                default: {
-                    intermediateResult = true;
-                }
-            }
-            return intermediateResult && allValid;
-        }, true);
-    }
-
     private readMeasurements(): Promise<void> {
-        const self = this;
         return new Promise((resolve, reject) => {
             readline
                 .createInterface({
@@ -88,52 +55,21 @@ class EvaluationService {
                     const values = line.split(',');
                     const latency = parseInt(values[this.timestampEndIndex]) - parseInt(values[this.timestampStartIndex]);
                     const patternName = values[this.patternNameIndex];
+
+                    // ignore CSV header
                     if (patternName === 'pattern') {
                         return;
                     }
+
                     if (!this.measurements[patternName]) {
                         this.measurements[patternName] = [];
                     }
                     this.measurements[patternName].push(latency);
 
                 })
-                .on('close', () => {
-                    resolve();
-                })
-                .on('error', err => {
-                    reject(err);
-                });
+                .on('close', resolve)
+                .on('error', reject);
         });
-    }
-
-    private evaluateMinValue(series: number[], threshold: number): boolean {
-        const min = simpleStats.min(series);
-        return min >= threshold;
-    }
-
-    private evaluateMaxValue(series: number[], threshold: number): boolean {
-        const max = simpleStats.max(series);
-        return max <= threshold;
-    }
-
-    private evaluateMean(series: number[], threshold: number): boolean {
-        const mean = simpleStats.mean(series);
-        return mean <= threshold;
-    }
-
-    private evaluateStandardDeviation(series: number[], threshold: number): boolean {
-        const stdev = simpleStats.standardDeviation(series);
-        return stdev <= threshold;
-    }
-
-    private evaluatePercentiles(series: number[], percentiles: { [percentile: string]: number }): boolean {
-        return Object.keys(percentiles).reduce((allValid, current) => {
-            return allValid && this.evaluatePercentile(series, parseInt(current), percentiles[current])
-        }, true);
-    }
-
-    private evaluatePercentile(series: number[], percentile: number, threshold: number): boolean {
-        return simpleStats.quantile(series, percentile) <= threshold;
     }
 }
 

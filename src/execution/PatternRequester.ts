@@ -2,15 +2,14 @@ import {
     Pattern,
     PatternElementRequest,
     PatternRequestMeasurement,
-    RequestMethod,
     PatternResult,
     PatternElementOutputType,
     PatternElementSelector
 } from '../interfaces/index';
 import OpenAPIService from '../services/OpenAPIService';
 import { mapOutputTypeAndMethodToOperation } from '../utils/OpenAPIUtil';
-import { findIdKey } from '../utils/Helpers';
 import * as winston from 'winston';
+import { enrichRequestWithInputItem, getBodyFromResponse, getOutputType, getProcessableResponse, getRequestMethodFromResponse, getRequestUrlFromResponse, getStatusCode } from "../utils/RequestUtil";
 
 export default class PatternRequester {
     private readonly measurements: PatternRequestMeasurement[];
@@ -34,6 +33,10 @@ export default class PatternRequester {
         });
     }
 
+    private log(message: string) {
+        this._eventLogger.log({ level: 'info', message });
+    }
+
     private asyncLoop(index: number, resolve: (patternResult: PatternResult) => void, reject): void {
         if (index < this.requests.length) {
             const currentRequest: PatternElementRequest = this.enrichRequestWithInput(this.requests[index]);
@@ -43,7 +46,10 @@ export default class PatternRequester {
                         this.asyncLoop(index + 1, resolve, reject);
                     }, currentRequest.wait);
                 })
-                .catch(reject);
+                .catch(err => {
+                    this.log('catching in async loop')
+                    reject(err)
+                });
         } else {
             const patternResult: PatternResult = {
                 name: this.pattern.name,
@@ -63,7 +69,7 @@ export default class PatternRequester {
         if (!existingOutputData) {
             throw new Error(`There is no previous output stored for input: ${inputName}`);
         }
-        const outputType = this.getOutputType(inputName);
+        const outputType = getOutputType(inputName, this.pattern);
         if (outputType === PatternElementOutputType.LIST) {
             if (!Array.isArray(existingOutputData)) {
                 throw new Error(`Output data for a list item is not an array.`);
@@ -85,75 +91,32 @@ export default class PatternRequester {
                     inputItem = existingOutputData[randomIndex];
                 }
             }
-            return this.enrichRequestWithInputItem(request, inputItem);
+            return enrichRequestWithInputItem(request, inputItem, OpenAPIService.getSelectorsForOperationId(request.operationId));
         }
         if (outputType === PatternElementOutputType.ITEM) {
-            return this.enrichRequestWithInputItem(request, existingOutputData);
+            return enrichRequestWithInputItem(request, existingOutputData, OpenAPIService.getSelectorsForOperationId(request.operationId));
         }
         throw new Error(`Cannot process a NONE output as an input for another request.`);
     }
 
-    private enrichRequestWithInputItem(request: PatternElementRequest, inputItem): PatternElementRequest {
-        const paramKeys = Object.keys(request.parameters);
-        const requestBodyKeys = Object.keys(request.requestBody);
-        const inputItemKeys = Object.keys(inputItem);
 
-        const possibleResourceSelectors = OpenAPIService.getSelectorsForOperationId(request.operationId);
-        const idKey = inputItemKeys.find(findIdKey(possibleResourceSelectors));
-
-        if (!idKey) {
-            throw new Error('Could not locate identifying key from input. Input keys are: ' + JSON.stringify(inputItemKeys));
-        }
-
-        // Look for suitable key in parameters
-        const paramKeyToBeReplaced = paramKeys.find(findIdKey(possibleResourceSelectors));
-        if (paramKeyToBeReplaced) {
-            return {
-                ...request,
-                parameters: {
-                    ...request.parameters,
-                    [paramKeyToBeReplaced]: inputItem[idKey]
-                }
-            }
-        }
-
-        // Look for suitable key in requestBody
-        const requestBodyKeyToBeReplaced = requestBodyKeys.find(findIdKey(possibleResourceSelectors));
-        return {
-            ...request,
-            requestBody: {
-                ...request.requestBody,
-                [requestBodyKeyToBeReplaced || idKey]: inputItem[idKey]
-            }
-        }
-
-        // throw new Error('Could not locate identifying key from parameters or request body. Parameter keys are: ' + JSON.stringify(paramKeys) + ". Request body keys: " + JSON.stringify(requestBodyKeys));
-
-    }
-
-    private getOutputType(outputName: string): PatternElementOutputType {
-        const sequenceElement = this.pattern.sequence.find(el => el.output === outputName);
-        if (!sequenceElement) {
-            throw new Error(`No sequence element found for name: ${outputName}`);
-        }
-        return sequenceElement.outputType;
-    }
 
     private sendRequest(requestToSend: PatternElementRequest): Promise<void> {
+        this.log('about to send request: ' + JSON.stringify(requestToSend))
         return new Promise((resolve, reject) => {
             OpenAPIService.sendRequest(requestToSend)
                 .then(response => {
-                    const method = response.request.method.toUpperCase() as RequestMethod;
+                    const method = getRequestMethodFromResponse(response);
                     const outputType = this.pattern.sequence[requestToSend.patternIndex].outputType;
 
-                    const processableResponse = typeof response === "string" ? JSON.parse(response) : response;
+                    const processableResponse = getProcessableResponse(response);
 
                     const measurement: PatternRequestMeasurement = {
                         pattern: this.pattern.name,
-                        status: processableResponse.statusCode,
+                        status: getStatusCode(processableResponse),
                         method: method,
                         operation: mapOutputTypeAndMethodToOperation(outputType, method),
-                        url: processableResponse.request.uri.href,
+                        url: getRequestUrlFromResponse(processableResponse),
                         timestampStart: processableResponse.timestampStart,
                         timestampEnd: processableResponse.timestampEnd,
                         round: requestToSend.round,
@@ -163,7 +126,7 @@ export default class PatternRequester {
                     this.addMeasurement(measurement);
                     if (this.pattern.sequence[requestToSend.patternIndex].output) {
                         const outputKey = this.pattern.sequence[requestToSend.patternIndex].output;
-                        this._outputs[outputKey] = typeof processableResponse.body === 'string' ? JSON.parse(response.body) : response.body;
+                        this._outputs[outputKey] = getBodyFromResponse(response);
                     }
                     resolve();
                 })

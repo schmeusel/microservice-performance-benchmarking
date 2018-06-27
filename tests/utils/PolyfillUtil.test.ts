@@ -61,7 +61,7 @@ describe('Test PolyfillUtil', () => {
             });
         });
 
-        it('should return elements that match a selector', () => {
+        it('should return elements that match a accessors', () => {
             const str1 = '/hello/{username}/{id}';
             const str2 = '/users/{username}/events/{id}';
             [str1, str2].forEach((str) => {

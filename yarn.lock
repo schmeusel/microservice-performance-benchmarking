@@ -6795,7 +6795,7 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
 
 rst-selector-parser@^2.2.3:
   version "2.2.3"
-  resolved "https://registry.yarnpkg.com/rst-selector-parser/-/rst-selector-parser-2.2.3.tgz#81b230ea2fcc6066c89e3472de794285d9b03d91"
+  resolved "https://registry.yarnpkg.com/rst-accessors-parser/-/rst-accessors-parser-2.2.3.tgz#81b230ea2fcc6066c89e3472de794285d9b03d91"
   dependencies:
     lodash.flattendeep "^4.4.0"
     nearley "^2.7.10"
@@ -6993,9 +6993,9 @@ simple-assign@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/simple-assign/-/simple-assign-0.1.0.tgz#17fd3066a5f3d7738f50321bb0f14ca281cc4baa"
 
-simple-statistics@^5.3.1:
-  version "5.3.1"
-  resolved "https://registry.yarnpkg.com/simple-statistics/-/simple-statistics-5.3.1.tgz#4555147fdbc795677762d92925ab5299c81a9cf5"
+simple-statistics@^6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/simple-statistics/-/simple-statistics-6.1.0.tgz#63456076bb27bea10aefc180892d163536b6027a"
 
 sinon@^4.5.0:
   version "4.5.0"
