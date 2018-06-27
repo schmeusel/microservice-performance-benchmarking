@@ -16,3 +16,9 @@ export function findIdKey(possibleSelectors: string[]) {
             lowercaseKey.endsWith('id');
     }
 }
+
+export function getExitCodeFromSuccess(wasSuccessful: boolean): number {
+    return wasSuccessful
+        ? 0
+        : 1;
+}
