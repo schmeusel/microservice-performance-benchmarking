@@ -1,19 +1,26 @@
 import { Pattern, PatternElementOutputType, PatternElementRequest, RequestMethod } from "../interfaces";
 import { findIdKey } from "./Helpers";
 
-export function enrichRequestWithInputItem(request: PatternElementRequest, inputItem, possibleSelectors: string[]): PatternElementRequest {
-    const paramKeys = Object.keys(request.parameters);
-    const requestBodyKeys = Object.keys(request.requestBody);
+export function enrichRequestWithInputItem(request: PatternElementRequest, inputItem, possibleAccessors: string[]): PatternElementRequest {
     const inputItemKeys = Object.keys(inputItem);
-
-    const idKey = inputItemKeys.find(findIdKey(possibleSelectors));
+    const idKey = inputItemKeys.find(findIdKey(possibleAccessors));
 
     if (!idKey) {
         throw new Error('Could not locate identifying key from input. Input keys are: ' + JSON.stringify(inputItemKeys));
     }
 
-    // Look for suitable key in parameters
-    const paramKeyToBeReplaced = paramKeys.find(findIdKey(possibleSelectors));
+    return enrichParametersObject(request, inputItem, possibleAccessors) ||
+           enrichBodyRequestObject(request, inputItem, possibleAccessors) ||
+           request;
+}
+
+function enrichParametersObject(request: PatternElementRequest, inputItem, possibleAccessors: string[]): PatternElementRequest {
+    const paramKeys = Object.keys(request.parameters);
+    const inputItemKeys = Object.keys(inputItem);
+
+    const idKey = inputItemKeys.find(findIdKey(possibleAccessors));
+
+    const paramKeyToBeReplaced = paramKeys.find(findIdKey(possibleAccessors));
     if (paramKeyToBeReplaced) {
         return {
             ...request,
@@ -23,18 +30,26 @@ export function enrichRequestWithInputItem(request: PatternElementRequest, input
             }
         }
     }
+    return undefined;
+}
 
-    // Look for suitable key in requestBody
-    const requestBodyKeyToBeReplaced = requestBodyKeys.find(findIdKey(possibleSelectors));
-    return {
-        ...request,
-        requestBody: {
-            ...request.requestBody,
-            [requestBodyKeyToBeReplaced || idKey]: inputItem[idKey]
+function enrichBodyRequestObject(request: PatternElementRequest, inputItem, possibleAccessors: string[]): PatternElementRequest {
+    const requestBodyKeys = Object.keys(request.requestBody);
+    const inputItemKeys = Object.keys(inputItem);
+
+    const idKey = inputItemKeys.find(findIdKey(possibleAccessors));
+
+    const requestBodyKeyToBeReplaced = requestBodyKeys.find(findIdKey(possibleAccessors));
+    if (requestBodyKeyToBeReplaced) {
+        return {
+            ...request,
+            requestBody: {
+                ...request.requestBody,
+                [requestBodyKeyToBeReplaced || idKey]: inputItem[idKey]
+            }
         }
     }
-
-    // throw new Error('Could not locate identifying key from parameters or request body. Parameter keys are: ' + JSON.stringify(paramKeys) + ". Request body keys: " + JSON.stringify(requestBodyKeys));
+    return undefined;
 }
 
 export function getOutputType(outputName: string, pattern: Pattern): PatternElementOutputType {
