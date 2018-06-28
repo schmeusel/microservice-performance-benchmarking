@@ -1,8 +1,15 @@
 import { expect } from 'chai';
 
-import { getAccessorsForResource, mapHttpMethodToElementOperation } from '../../src/utils/OpenAPIUtil';
+import {
+    getAccessorsForResource, getOperationObjectByOperationId,
+    getOperationsForResource, getPathForOperationId, getTopLevelResourcePaths,
+    mapHttpMethodToElementOperation
+} from '../../src/utils/OpenAPIUtil';
 import PolyfillUtil from '../../src/utils/PolyfillUtil';
 import { RequestMethod, AbstractPatternElementOperation } from '../../src/interfaces';
+
+const { SCAN, CREATE, READ, UPDATE, DELETE } = AbstractPatternElementOperation;
+
 
 describe('Test OpenAPIUtil', () => {
     before(() => {
@@ -71,8 +78,143 @@ describe('Test OpenAPIUtil', () => {
         });
 
         it('should return multiple accessors in the correct order', () => {
-           const result = getAccessorsForResource('/orders/{orderId}/events', openAPISpecStub);
-           expect(result).to.deep.equal(['orderId', 'id']);
+            const result = getAccessorsForResource('/orders/{orderId}/events', openAPISpecStub);
+            expect(result).to.deep.equal(['orderId', 'id']);
+        });
+    });
+
+    describe('getOperationsForResource(...)', () => {
+        const openAPISpecStub = {
+            paths: {
+                '/users': {
+                    get: {}
+                },
+                '/users/{username}': {
+                    get: {},
+                    put: {}
+                },
+                '/orders/{orderId}/events/{id}': {
+                    put: {},
+                    delete: {},
+                },
+                '/store': {
+                    get: {}
+                },
+                '/pets': {},
+                '/dogs/{id}': {
+                    get: {},
+                    delete: {},
+                },
+            }
+        } as any;
+
+        it('should return SCAN for resources without accessors and GET as HTTP verb', () => {
+            const result = getOperationsForResource('/store', openAPISpecStub);
+            expect(result).to.have.length(1);
+            expect(result).to.include.members([SCAN]);
+        });
+
+        it('should return list all HTTP verbs for resources with accessors', () => {
+            const result = getOperationsForResource('/dogs', openAPISpecStub);
+            expect(result).to.have.length(2);
+            expect(result).to.include.members([READ, DELETE]);
+        });
+
+        it('should find all available operations even by combining paths and accessors', () => {
+            const result = getOperationsForResource('/users', openAPISpecStub);
+            expect(result).to.have.length(3);
+            expect(result).to.include.members([SCAN, READ, UPDATE]);
+        });
+
+        it('should return an empty array if no operations are available', () => {
+            const result = getOperationsForResource('/pets', openAPISpecStub);
+            expect(result).to.deep.equal([]);
+        });
+
+        it('should return operations for a sub resource path', () => {
+            const result = getOperationsForResource('/orders/{orderId}/events', openAPISpecStub);
+            expect(result).to.have.length(2);
+            expect(result).to.include.members([UPDATE, DELETE]);
+        });
+    });
+
+    describe('getPathForOperationId(...)', () => {
+        const openAPISpecStub = {
+            paths: {
+                '/users': {
+                    get: { operationId: 'listUsers' }
+                },
+                '/users/{username}': {
+                    get: { operationId: 'readUser' },
+                    put: { operationId: 'updateUser' },
+                },
+                '/store': {
+                    get: { operationId: 'listStore' },
+                },
+            }
+        } as any;
+
+        it('should return undefined if no path has an operation object that contains the given operationId', () => {
+            const result = getPathForOperationId('test', openAPISpecStub);
+            expect(result).to.be.undefined;
+        });
+
+        it('should return the respective path if any of its objects matches with the operationId', () => {
+            const userListResult = getPathForOperationId('listUsers', openAPISpecStub);
+            expect(userListResult).to.equal('/users');
+
+            const userUpdateResult = getPathForOperationId('updateUser', openAPISpecStub);
+            expect(userUpdateResult).to.equal('/users/{username}');
+        });
+    });
+
+    describe('getOperationObjectByOperationId(...)', () => {
+        const openAPISpecStub = {
+            paths: {
+                '/users': {
+                    get: { operationId: 'listUsers' }
+                },
+                '/users/{username}': {
+                    get: { operationId: 'readUser' },
+                    put: { operationId: 'updateUser' },
+                },
+            }
+        } as any;
+
+        it('should return undefined if no operation object contains the given operationId', () => {
+            const result = getOperationObjectByOperationId('test', openAPISpecStub);
+            expect(result).to.be.undefined;
+        });
+
+        it('should return the operation object that matches the given operationId', () => {
+            const userListResult = getOperationObjectByOperationId('listUsers', openAPISpecStub);
+            expect(userListResult).to.deep.equal({ operationId: 'listUsers' });
+
+            const userUpdateResult = getOperationObjectByOperationId('updateUser', openAPISpecStub);
+            expect(userUpdateResult).to.deep.equal({ operationId: 'updateUser' });
+        });
+    });
+
+    describe('getTopLevelResourcePaths(...)', () => {
+        const openAPISpecStub = {
+            paths: {
+                '/users': {
+                    get: { operationId: 'listUsers' }
+                },
+                '/users/{username}': {
+                    get: { operationId: 'readUser' },
+                    put: { operationId: 'updateUser' },
+                },
+                '/store': {
+                    get: { operationId: 'listStore' },
+                },
+            }
+        } as any;
+
+        it('should return all top level paths', () => {
+            const result = getTopLevelResourcePaths(openAPISpecStub);
+            expect(result).to.have.length(2);
+            expect(result).to.include.members(['/users', '/store']);
         });
     });
 });

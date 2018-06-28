@@ -66,14 +66,14 @@ export function getOperationsForResource(resourcePath: string, specification: Op
     return Object.keys(specification.paths)
         .map(path => {
             const isSame = path === resourcePath;
-            const hasResourceAccessor = resourcePath.split('/').length + 1 === path.split('/').length && !!path.getLastInputParam();
+            const hasResourceAccessor = path.startsWith(resourcePath) &&
+                resourcePath.split('/').length + 1 === path.split('/').length
+                && !!path.getLastInputParam();
 
             if (isSame || hasResourceAccessor) {
                 return Object.keys(specification.paths[path])
                     .filter(methodKey => methodKey.toUpperCase() in RequestMethod)
-                    .map(methodKey => {
-                        return mapHttpMethodToElementOperation(path, methodKey);
-                    })
+                    .map(methodKey => mapHttpMethodToElementOperation(path, methodKey))
                     .filter(val => !!val);
             }
             return [];
@@ -191,6 +191,7 @@ export function getTopLevelResourcePaths(specification: OpenAPISpecification): s
  * Check if a given operationId exists in the OpenAPI spec.
  *
  * @param {string} operationId
+ * @param {OpenAPISpecification} specification
  * @returns {boolean}
  */
 export function doesOperationIdExist(operationId: string, specification: OpenAPISpecification): boolean {
