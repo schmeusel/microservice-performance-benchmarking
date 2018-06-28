@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 
 import {
+    doesOperationIdExist,
     getAccessorsForResource, getOperationObjectByOperationId,
     getOperationsForResource, getPathForOperationId, getTopLevelResourcePaths,
     mapHttpMethodToElementOperation
@@ -217,4 +218,31 @@ describe('Test OpenAPIUtil', () => {
             expect(result).to.include.members(['/users', '/store']);
         });
     });
+
+    describe('doesOperationIdExist(...)', () => {
+        const openAPISpecStub = {
+            paths: {
+                '/users': {
+                    get: { operationId: 'listUsers' }
+                },
+                '/users/{username}': {
+                    get: { operationId: 'readUser' },
+                    put: { operationId: 'updateUser' },
+                },
+                '/store': {
+                    get: { operationId: 'listStore' },
+                },
+            }
+        } as any;
+
+        it('should return false if the given operationId is not used', () => {
+            const result = doesOperationIdExist('test', openAPISpecStub);
+            expect(result).to.be.false;
+        });
+
+        it('should return true if the given operationId exists', () => {
+           const result = doesOperationIdExist('listUsers', openAPISpecStub);
+           expect(result).to.be.true;
+        });
+    })
 });

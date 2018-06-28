@@ -203,7 +203,7 @@ export function doesOperationIdExist(operationId: string, specification: OpenAPI
                 .keys(specification.paths[path])
                 .map(operation => specification.paths[path][operation].operationId)
         ]), [])
-        .reduce((found, opId) => found || opId === operationId);
+        .reduce((found, opId) => found || opId === operationId, false);
 }
 
 /**

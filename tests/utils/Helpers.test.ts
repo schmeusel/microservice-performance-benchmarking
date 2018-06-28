@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { findIdKey } from '../../src/utils/Helpers';
+import { findIdKey, getExitCodeFromSuccess } from '../../src/utils/Helpers';
 
 describe('Test Helpers', () => {
     describe('findIdKey', () => {
@@ -26,6 +26,18 @@ describe('Test Helpers', () => {
             const keys = ['name', 'username', 'email'];
             const result = keys.find(findIdKey([]));
             expect(result).to.equal(undefined);
-        })
+        });
+    });
+
+    describe('getExitCodeFromSuccess(...)', () => {
+        it('should return 0 when success is true', () => {
+            const result = getExitCodeFromSuccess(true);
+            expect(result).to.equal(0);
+        });
+
+        it('should return 1 when success is false', () => {
+            const result = getExitCodeFromSuccess(false);
+            expect(result).to.equal(1);
+        });
     });
 });
