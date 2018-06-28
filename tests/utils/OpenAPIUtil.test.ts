@@ -155,9 +155,8 @@ describe('Test OpenAPIUtil', () => {
             }
         } as any;
 
-        it('should return undefined if no path has an operation object that contains the given operationId', () => {
-            const result = getPathForOperationId('test', openAPISpecStub);
-            expect(result).to.be.undefined;
+        it('should return throw an error if no path has an operation object that contains the given operationId', () => {
+            expect(() => getPathForOperationId('test', openAPISpecStub)).to.throw();
         });
 
         it('should return the respective path if any of its objects matches with the operationId', () => {
