@@ -35,9 +35,11 @@ export function evaluateStandardDeviation(series: number[], threshold: number): 
 }
 
 export function evaluatePercentiles(series: number[], percentiles: { [percentile: string]: number }): boolean {
-    return Object.keys(percentiles).reduce((allValid, current) => {
-        return allValid && evaluatePercentile(series, parseInt(current), percentiles[current])
-    }, true);
+    return Object
+        .keys(percentiles)
+        .reduce((allValid, current) => {
+            return allValid && evaluatePercentile(series, parseFloat(current), percentiles[current])
+        }, true);
 }
 
 export function evaluatePercentile(series: number[], percentile: number, threshold: number): boolean {
