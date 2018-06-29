@@ -1,4 +1,4 @@
-import { Pattern, PatternElementOutputType, PatternElementRequest, RequestMethod } from "../interfaces";
+import { Pattern, PatternElement, PatternElementOutputType, PatternElementRequest, PatternElementSelector, RequestMethod } from "../interfaces";
 import { findIdKey } from "./Helpers";
 
 export function enrichRequestWithInputItem(request: PatternElementRequest, inputItem, possibleAccessors: string[]): PatternElementRequest {
@@ -81,4 +81,21 @@ export function getBodyFromResponse(response) {
     return typeof processableResponse.body === 'string'
         ? JSON.parse(response.body)
         : response.body;
+}
+
+export function getInputItemFromList(sequenceElement: PatternElement, outputList: any[]): any {
+    if (!Array.isArray(outputList) || !outputList.length) {
+        throw new Error(`Output data for a list item is not an array or no element in array.`);
+    }
+    switch (sequenceElement.selector) {
+        case PatternElementSelector.FIRST:
+            return outputList.shift();
+        case PatternElementSelector.LAST:
+            return outputList.pop();
+        case PatternElementSelector.RANDOM:
+        default: {
+            const randomIndex = Math.round(Math.random() * outputList.length - 1);
+            return outputList[randomIndex];
+        }
+    }
 }
