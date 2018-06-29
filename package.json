@@ -51,7 +51,7 @@
     "socket.io-client": "^2.1.0",
     "swagger-client": "^3.8.3",
     "typescript": "^2.8.1",
-    "winston": "^3.0.0-rc3"
+    "winston": "^3.0.0"
   },
   "devDependencies": {
     "@types/chai": "^4.1.2",
