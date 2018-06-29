@@ -36,7 +36,7 @@ describe('Test OpenAPIService', () => {
                         {
                             name: 'pets',
                             path: '/pets',
-                            selector: 'petId',
+                            accessors: ['petId'],
                             operations: [SCAN, CREATE, READ],
                             subResources: []
                         }
