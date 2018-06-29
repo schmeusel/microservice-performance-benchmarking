@@ -38,7 +38,7 @@ class Server {
                     LoggingService.logEvent('Error starting server.');
                     return reject(err);
                 }
-                open('http://localhost:3000', { app: ['Google Chrome', '--incognito'] },);
+                open(`http://localhost:${config.webServer.port}`, { app: ['Google Chrome', '--incognito'] },);
                 resolve(config.webServer.port);
             });
         });
