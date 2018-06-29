@@ -2,7 +2,7 @@ import * as path from 'path';
 
 const config = {
     webServer: {
-        port: 3000
+        port: 8080
     },
     logging: {
         directory: 'logs',

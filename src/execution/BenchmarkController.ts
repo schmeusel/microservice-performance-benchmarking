@@ -9,6 +9,7 @@ import Server from '../webServer/Server';
 import { EventEmitter } from 'events';
 import ApplicationState from '../services/ApplicationState';
 import EvaluationService from "../services/EvaluationService";
+import { getExitCodeFromSuccess } from "../utils/Helpers";
 
 export default class BenchmarkController extends EventEmitter {
     private readonly specification: BenchmarkSpecification;
@@ -108,12 +109,12 @@ export default class BenchmarkController extends EventEmitter {
     }
 
     private preLoad(): Promise<void> {
-        // TODO implement possible preLoad phase
+        // implement possible preLoad phase
         return Promise.resolve();
     }
 
     private cleanUp(): Promise<void> {
-        // TODO implement possible cleanUp phase
+        // implement possible cleanUp phase
         return Promise.resolve();
     }
 
@@ -137,7 +138,7 @@ export default class BenchmarkController extends EventEmitter {
      * By just setting the exit code allow graceful shutdown.
      */
     private prepareShutdown(wasSuccessful: boolean): void {
-        const exitCode = wasSuccessful ? 0 : 1;
+        const exitCode = getExitCodeFromSuccess(wasSuccessful);
         LoggingService.logEvent(`Preparing shutdown with exit code: ${exitCode}`);
         process.exitCode = exitCode;
     }

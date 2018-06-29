@@ -32,17 +32,16 @@ process.on('message', (message: IPCMessage) => {
     }
 });
 
-// TOOD type options more strongly
 function handleStart({ openAPISpec, pattern }: { openAPISpec: OpenAPISpecification; pattern: Pattern; }) {
     PolyfillUtil.initialize();
-    OpenAPIService.initialize(openAPISpec, {})
+    OpenAPIService.initialize(openAPISpec)
         .then(() => {
             rl = readline
                 .createInterface({
                     input: fs.createReadStream(config.logging.loggers.workloads.filename(pattern.name), 'utf8')
                 })
                 .on('line', handleLineRead(pattern))
-                .on('close', handleDone)
+                .on('close', handleDone);
         })
         .catch(handleError);
 }

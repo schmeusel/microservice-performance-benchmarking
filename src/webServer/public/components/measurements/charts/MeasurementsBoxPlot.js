@@ -34,7 +34,8 @@ export default class MeasurementsBoxPlot extends PureComponent {
     }
 
     componentDidMount() {
-        const ctx = document.getElementById(this.canvasId).getContext('2d');
+        const ctx = document.getElementById(this.canvasId)
+            .getContext('2d');
         this.chart = new Chart(ctx, {
             type: 'boxplot',
             data: this.getChartsData(this.props),
@@ -59,13 +60,15 @@ export default class MeasurementsBoxPlot extends PureComponent {
 
     getChartsData(props) {
         const { measurements } = props;
-        const latencies = Object.keys(measurements).map(index => measurements[index].latencies);
+        const latencies = Object.keys(measurements)
+            .map(index => measurements[index].latencies);
 
         const successSeries = this.getDataSeries(latencies, 'success');
         const errorSeries = this.getDataSeries(latencies, 'error');
 
         return {
-            labels: Object.keys(measurements).map(round => `#${parseInt(round) + 1}`),
+            labels: Object.keys(measurements)
+                .map(round => `#${parseInt(round) + 1}`),
             datasets: [
                 ...(
                     this.shouldIncludeDataSeries(successSeries)
@@ -73,14 +76,16 @@ export default class MeasurementsBoxPlot extends PureComponent {
                             ...this.successDataset,
                             data: successSeries,
                         }]
-                        : []),
+                        : []
+                ),
                 ...(
                     this.shouldIncludeDataSeries(errorSeries)
                         ? [{
                             ...this.errorDataset,
                             data: errorSeries,
                         }]
-                        : []),
+                        : []
+                ),
             ],
         };
     }
@@ -94,14 +99,25 @@ export default class MeasurementsBoxPlot extends PureComponent {
                 ...errAndSuccess.success,
                 ...errAndSuccess.error,
             ], []);
+        if (!latencies.length) {
+            return {
+                suggestedMin: 0,
+                suggestedMax: 0,
+            };
+        }
+
         const min = Math.min(...latencies);
         const max = Math.max(...latencies);
-
+        const q1 = stats.quantile(latencies, 0.25);
+        const q3 = stats.quantile(latencies, 0.75);
+        const iqr = q3 - q1;
+        const whiskerMin = Math.max(min, q1 - iqr);
+        const whiskerMax = Math.min(max, q3 + iqr);
         const clearance = 0.02;
 
         return {
-            suggestedMin: Math.round(min) * (1 - clearance),
-            suggestedMax: Math.round(max) * (1 + clearance),
+            suggestedMin: Math.round(whiskerMin) * (1 - clearance),
+            suggestedMax: Math.round(whiskerMax) * (1 + clearance),
         };
     }
 
@@ -165,7 +181,8 @@ export default class MeasurementsBoxPlot extends PureComponent {
 
     shouldIncludeDataSeries(series) {
         return series
-            .map(serie => Object.keys(serie).reduce((valid, stat) => valid && !!serie[stat], true))
+            .map(serie => Object.keys(serie)
+                .reduce((valid, stat) => valid && !!serie[stat], true))
             .reduce((valid, curr) => valid || curr, false);
     }
 

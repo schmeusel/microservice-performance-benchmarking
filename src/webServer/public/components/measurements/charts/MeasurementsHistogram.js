@@ -111,7 +111,7 @@ export default class MeasurementsHistogram extends React.PureComponent {
                     {
                         scaleLabel: {
                             display: true,
-                            labelString: 'Frequency',
+                            labelString: 'Requests',
                             fontSize: 10,
                             fontStyle: 'bold',
                         },

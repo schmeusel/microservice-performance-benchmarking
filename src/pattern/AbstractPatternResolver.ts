@@ -7,12 +7,13 @@ import {
     AbstractPatternConfiguration,
     AbstractPatternElementOperation,
     AbstractPattern,
-    PatternElementOutputType
 } from '../interfaces/index';
 import * as IntervalDistributionService from '../services/IntervalDistributionService';
 import PatternResolverError from '../exceptions/PatternResolverError';
 import { AbstractPatternElementExtended } from '../interfaces/patterns/AbstractPatternElement';
 import ApplicationState from '../services/ApplicationState';
+import { getOutputTypeFromOperation } from "../utils/PatternUtil";
+import { doesOperationIdExist, findResourceByName, getOperationIdFromResourceAndOperation } from "../utils/OpenAPIUtil";
 
 class AbstractPatternResolver {
     private _totalRequests: number;
@@ -72,7 +73,7 @@ class AbstractPatternResolver {
             ? IntervalDistributionService.generateDistributionData(abstractPattern.sequence.length, abstractPattern.interval)
             : abstractPattern.sequence.map(el => el.wait);
 
-        const allNumbers = intervalWaitTimes.reduce((areNumbers, num) => areNumbers && typeof num === 'number', true);
+        const allNumbers = intervalWaitTimes.every(time => typeof time === 'number');
 
         if (!allNumbers) {
             throw new PatternResolverError(`For pattern ${abstractPattern.name}, either provide a sound interval or a wait period for each element.`);
@@ -117,22 +118,15 @@ class AbstractPatternResolver {
 
         return uniquedElements
             .sort((a, b) => a.index - b.index)
-            .map((element, i) => {
-                const outputType =
-                    element.operation === AbstractPatternElementOperation.SCAN
-                        ? PatternElementOutputType.LIST
-                        : element.operation === AbstractPatternElementOperation.DELETE
-                        ? PatternElementOutputType.NONE
-                        : PatternElementOutputType.ITEM;
-                return {
-                    operationId: element.operationId || this.getOperationIdFromResourceAndOperation(element.resource, element.operation),
-                    wait: intervalWaitTimes[i],
-                    input: element.input,
-                    output: element.output,
-                    outputType,
-                    selector: element.selector
-                };
-            });
+            .map((element, i) => ({
+                operationId: element.operationId || getOperationIdFromResourceAndOperation(element.resource, element.operation, this._openAPISpec),
+                wait: intervalWaitTimes[i],
+                input: element.input,
+                output: element.output,
+                outputType: getOutputTypeFromOperation(element.operation),
+                selector: element.selector,
+                resource: element.resource
+            }));
     }
 
     private mapAbstractPatternToResources(
@@ -149,14 +143,14 @@ class AbstractPatternResolver {
 
         // user defined operation
         if (element.operationId) {
-            const isValid = this.doesOperationIdExist(element.operationId);
+            const isValid = doesOperationIdExist(element.operationId, this._openAPISpec);
             return this.mapAbstractPatternToResources(dependencyLine, index + 1, possibleResources, abstractPattern);
         }
 
         // user defined resource
         if (element.id) {
             const resourceName = this._patternConfiguration[abstractPattern.name] ? this._patternConfiguration[abstractPattern.name][element.id] : undefined;
-            const resource = this.findResource(possibleResources, resourceName);
+            const resource = findResourceByName(possibleResources, resourceName);
 
             if (!resource) {
                 throw new PatternResolverError(
@@ -199,56 +193,6 @@ class AbstractPatternResolver {
         const subResouce = inputDependencyResource.subResources[subResourceIndex];
         const intermediate = dependencyLine.map((el, i) => (i === index ? { ...el, resource: subResouce } : el));
         return this.mapAbstractPatternToResources(intermediate, index + 1, possibleResources, abstractPattern);
-    }
-
-    /**
-     * Recursively iterate through resources to find the one matching a given name.
-     * @param resources
-     * @param resourceName
-     */
-    private findResource(resources: Resource[], resourceName: string): Resource {
-        return resources.reduce((foundResource, resource) => {
-            if (foundResource) {
-                return foundResource;
-            }
-            if (resource.name === resourceName) {
-                return resource;
-            }
-            if (!!resource.subResources && !!resource.subResources.length) {
-                return this.findResource(resource.subResources, resourceName);
-            }
-            return undefined;
-        }, undefined);
-    }
-
-    private getOperationIdFromResourceAndOperation(resource: Resource, op: AbstractPatternElementOperation): string {
-        try {
-            switch (op) {
-                case AbstractPatternElementOperation.CREATE: {
-                    return this._openAPISpec.paths[resource.path].post.operationId;
-                }
-                case AbstractPatternElementOperation.SCAN: {
-                    return this._openAPISpec.paths[resource.path].get.operationId;
-                }
-                case AbstractPatternElementOperation.READ: {
-                    return this._openAPISpec.paths[`${resource.path}/{${resource.selector}}`].get.operationId;
-                }
-                case AbstractPatternElementOperation.UPDATE: {
-                    if (this._openAPISpec.paths[`${resource.path}/{${resource.selector}}`].put) {
-                        return this._openAPISpec.paths[`${resource.path}/{${resource.selector}}`].put.operationId;
-                    }
-                    return this._openAPISpec.paths[resource.path].put.operationId;
-                }
-                case AbstractPatternElementOperation.DELETE: {
-                    return this._openAPISpec.paths[`${resource.path}/{${resource.selector}}`].delete.operationId;
-                }
-            }
-        } catch (e) {
-            throw new PatternResolverError(
-                `Operation "${op}" not available for resource "${resource.name}". Available operations are: ${resource.operations.join(', ')}`
-            );
-        }
-        throw new PatternResolverError(`"${op}" is not a valid operation.`);
     }
 
     private getDependencyStructure(sequence: AbstractPatternElement[]): AbstractPatternElementExtended[][] {
@@ -304,24 +248,6 @@ class AbstractPatternResolver {
                 ...rest,
                 subResources: rest.subResources ? this.getResourcesWithMinimumDepthLevel(rest.subResources, level - 1) : undefined
             }));
-    }
-
-    /**
-     * Check if a given operationId exists in the OpenAPI spec.
-     *
-     * @param {string} operationId
-     * @returns {boolean}
-     */
-    private doesOperationIdExist(operationId: string): boolean {
-        return Object
-            .keys(this._openAPISpec.paths)
-            .reduce((operationIds, path) => ([
-                ...operationIds,
-                ...Object
-                    .keys(this._openAPISpec.paths[path])
-                    .map(operation => this._openAPISpec.paths[path][operation].operationId)
-            ]), [])
-            .reduce((found, opId) => found || opId === operationId);
     }
 }
 

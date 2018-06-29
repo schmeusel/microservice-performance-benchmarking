@@ -1,25 +1,14 @@
-import * as jsf from 'json-schema-faker';
 import { PatternElementRequest, PatternElement, Pattern } from '../interfaces/index';
-import { SchemaObject, OperationObject } from '../interfaces/openapi/OpenAPISpecification';
+import { OperationObject } from '../interfaces/openapi/OpenAPISpecification';
 import OpenAPIService from '../services/OpenAPIService';
+import { generatePopulatedSchema } from "../utils/GeneratorUtil";
 
 class PatternBuilder {
-    private generatePopulatedSchema(jsonSchema?: SchemaObject, paramName?: string): Promise<any> {
-        if (!jsonSchema) {
-            return Promise.resolve(null);
-        }
-        if (!paramName) {
-            return jsf.resolve(jsonSchema);
-        } else {
-            return jsf.resolve(jsonSchema).then(resolved => ({ [paramName]: resolved }));
-        }
-    }
-
     private generateClientParamsObject(operation: OperationObject): Promise<any> {
         return new Promise((resolve, reject) => {
             const { parameters } = operation;
 
-            Promise.all(parameters.map(param => this.generatePopulatedSchema(param.schema, param.name)))
+            Promise.all(parameters.map(param => generatePopulatedSchema(param.schema, param.name)))
                 .then((paramsArray) => {
                     if (paramsArray && paramsArray.length) {
                         const result = paramsArray.reduce((allParams, currParams) => ({ ...allParams, ...currParams }), {});
@@ -42,7 +31,7 @@ class PatternBuilder {
                 return [...schemata, requestBody.content[mediaType].schema];
             }, []);
 
-            Promise.all(requestBodySchemata.map(schema => this.generatePopulatedSchema(schema, null)))
+            Promise.all(requestBodySchemata.map(schema => generatePopulatedSchema(schema, null)))
                 .then((requestBodyArray) => {
                     if (requestBodyArray && requestBodyArray.length) {
                         const result = requestBodyArray.reduce((allParams, currParams) => ({ ...allParams, ...currParams }), {});

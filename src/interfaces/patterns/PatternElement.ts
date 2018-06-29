@@ -1,4 +1,4 @@
-import { PatternElementSelector, PatternElementOutputType } from '..';
+import { PatternElementSelector, PatternElementOutputType, Resource } from '..';
 
 export default interface PatternElement {
     operationId: string;
@@ -7,4 +7,5 @@ export default interface PatternElement {
     output?: string;
     outputType?: PatternElementOutputType;
     selector?: PatternElementSelector;
+    resource?: Resource;
 };

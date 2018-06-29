@@ -1,9 +1,5 @@
-import * as sinon from 'sinon';
 import { expect } from 'chai';
-import * as proxyquire from 'proxyquire';
-
 import OpenAPIService from '../../src/services/OpenAPIService';
-import PatternResolverError from '../../src/exceptions/PatternResolverError';
 import OpenAPIError from '../../src/exceptions/OpenAPIError';
 import { AbstractPatternElementOperation } from '../../src/interfaces';
 import PolyfillUtil from '../../src/utils/PolyfillUtil';
@@ -36,7 +32,7 @@ describe('Test OpenAPIService', () => {
                         {
                             name: 'pets',
                             path: '/pets',
-                            selector: 'petId',
+                            accessors: ['petId'],
                             operations: [SCAN, CREATE, READ],
                             subResources: []
                         }

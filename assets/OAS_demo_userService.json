@@ -1,0 +1,97 @@
+{
+  "openapi": "3.0.0-rc2",
+  "servers": [{
+    "url": "http://localhost:3000"
+  }],
+  "info": {
+    "description": "This is a sample user service",
+    "version": "1.0.0",
+    "title": "User Service"
+  },
+  "paths": {
+    "/users": {
+      "get": {
+        "operationId": "listUsers",
+        "parameters": [],
+        "responses": [{
+          "default": {
+            "description": "All good."
+          }
+        }]
+      }
+    },
+    "/users/{username}": {
+      "get": {
+        "operationId": "getUserByName",
+        "parameters": [{
+            "name": "username",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+        }],
+        "responses": [{
+          "default": {
+            "description": "All good."
+          }
+        }]
+      },
+      "put": {
+        "operationId": "updateUser",
+        "parameters": [{
+          "name": "username",
+          "in": "path",
+          "description": "",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }],
+        "responses": [{
+          "default": {
+            "description": "All good."
+          }
+        }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          },
+          "description": "Updated order object",
+          "required": true
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "expired",
+              "enabled"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

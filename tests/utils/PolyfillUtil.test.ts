@@ -48,4 +48,26 @@ describe('Test PolyfillUtil', () => {
             });
         });
     });
+
+    describe('String.getAllInputParams()', () => {
+        it('should return an empty array if there are no selectors', () => {
+            const str1 = '/hello/test';
+            const str2 = 'hello';
+            const str3 = '/hello';
+
+            [str1, str2, str3].forEach(string => {
+                const result = string.getAllInputParams();
+                expect(result).to.deep.equal([]);
+            });
+        });
+
+        it('should return elements that match a accessors', () => {
+            const str1 = '/hello/{username}/{id}';
+            const str2 = '/users/{username}/events/{id}';
+            [str1, str2].forEach((str) => {
+                const result = str.getAllInputParams();
+                expect(result).to.deep.equal(['username', 'id']);
+            });
+        })
+    });
 });

@@ -69,14 +69,15 @@ class ExperimentRunner extends EventEmitter {
             case IPCMessageType.RESULT: {
                 this.emit(EmitterConstants.PATTERN_MEASUREMENT, message.data);
                 LoggingService.addPatternResult(message.data);
-                break;
+                return;
             }
             case IPCMessageType.ERROR: {
-                LoggingService.logEvent('(PatternRunner ERROR): ' + message.data)
-                break;
+                LoggingService.logEvent('(PatternRunner ERROR): ' + JSON.stringify(message.data));
+                return;
             }
             case IPCMessageType.INFO: {
-                LoggingService.logEvent('(PatternRunner INFO): ' + message.data)
+                LoggingService.logEvent('(PatternRunner INFO): ' + JSON.stringify(message.data))
+                return;
             }
         }
     }

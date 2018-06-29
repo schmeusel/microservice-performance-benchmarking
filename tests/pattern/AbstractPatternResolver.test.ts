@@ -17,7 +17,7 @@ describe('Test AbstractPatternResolver', () => {
     //                     {
     //                         operation: AbstractPatternElementOperation.READ,
     //                         input: 'list',
-    //                         selector: PatternElementSelector.RANDOM,
+    //                         accessors: PatternElementSelector.RANDOM,
     //                         output: 'item',
     //                         wait: 1000
     //                     }
@@ -43,7 +43,7 @@ describe('Test AbstractPatternResolver', () => {
     //             {
     //                 name: 'user',
     //                 path: '/user',
-    //                 selector: 'userId',
+    //                 accessors: 'userId',
     //                 operations: [AbstractPatternElementOperation.SCAN, AbstractPatternElementOperation.READ],
     //                 subResources: []
     //             }
@@ -62,7 +62,7 @@ describe('Test AbstractPatternResolver', () => {
     //                                 input: undefined,
     //                                 output: 'list',
     //                                 outputType: PatternElementOutputType.LIST,
-    //                                 selector: undefined
+    //                                 accessors: undefined
     //                             },
     //                             {
     //                                 operationId: 'getUser',
@@ -70,7 +70,7 @@ describe('Test AbstractPatternResolver', () => {
     //                                 input: 'list',
     //                                 output: 'item',
     //                                 outputType: PatternElementOutputType.ITEM,
-    //                                 selector: PatternElementSelector.RANDOM
+    //                                 accessors: PatternElementSelector.RANDOM
     //                             }
     //                         ]
     //                     }
