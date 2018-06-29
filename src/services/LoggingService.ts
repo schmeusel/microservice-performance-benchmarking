@@ -5,17 +5,17 @@ import LoggingError from '../exceptions/LoggingError';
 import config from '../config';
 
 export class LoggingService {
-    private _eventLogger: winston.LoggerInstance;
-    private _measurementLogger: winston.LoggerInstance;
+    private _eventLogger: winston.Logger;
+    private _measurementLogger: winston.Logger
 
-    public get eventLogger(): winston.LoggerInstance {
+    public get eventLogger(): winston.Logger{
         if (!this._eventLogger) {
             throw new LoggingError('LoggingManager has to be initiliazed before using the event logger.');
         }
         return this._eventLogger;
     }
 
-    public get measurementLogger(): winston.LoggerInstance {
+    public get measurementLogger(): winston.Logger {
         if (!this._measurementLogger) {
             throw new LoggingError('LoggingManager has to be initiliazed before using the event logger.');
         }
@@ -92,6 +92,7 @@ export class LoggingService {
         patternResult.measurements.forEach(measurement => {
             this.measurementLogger.log({
                 level: 'info',
+                message: '',
                 measurement
             });
         });

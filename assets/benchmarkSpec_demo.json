@@ -1,6 +1,6 @@
 {
   "configuration": {
-    "totalPatternRequests": 3000,
+    "totalPatternRequests": 1000,
     "patterns": [
       {
         "name": "listResourceAndUpdate",
@@ -8,7 +8,7 @@
           {
             "operation": "SCAN",
             "output": "resourceList",
-            "wait": 150
+            "wait": 15
           },
           {
             "operation": "UPDATE",
@@ -17,7 +17,7 @@
             "wait": 0
           }
         ],
-        "weight": 1
+        "weight": 2
       },
       {
         "name": "listResourceAndGetDetails",
@@ -25,7 +25,7 @@
           {
             "operation": "SCAN",
             "output": "resourceList",
-            "wait": 30
+            "wait": 10
           },
           {
             "operation": "READ",
@@ -34,21 +34,21 @@
             "wait": 0
           }
         ],
-        "weight": 2
+        "weight": 1
       }
     ],
-    "manualDecision": false
+    "manualDecision": true
   },
   "condition": {
     "listResourceAndUpdate": {
       "percentiles": {
-        "95": 400
+        "0.95": 400
       }
     },
     "listResourceAndGetDetails": {
       "percentiles": {
-        "50": 270,
-        "80": 320
+        "0.50": 270,
+        "0.80": 320
       }
     }
   }

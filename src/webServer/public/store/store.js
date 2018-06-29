@@ -20,4 +20,10 @@ const rootReducers = combineReducers({
     measurements: measurementsReducer,
 });
 
-export default createStore(rootReducers, applyMiddleware(thunk, logger));
+export default createStore(
+    rootReducers,
+    applyMiddleware(
+        thunk,
+        // logger,
+    ),
+);

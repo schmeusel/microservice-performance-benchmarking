@@ -1,5 +1,6 @@
 import * as Swagger from 'swagger-client';
 import * as request from 'request';
+import * as winston from 'winston';
 import OpenAPIError from '../exceptions/OpenAPIError';
 import OpenAPISpecification, { OperationObject } from '../interfaces/openapi/OpenAPISpecification';
 import { OpenAPIClient, Resource, EnvironmentSettings, PatternElementRequest } from '../interfaces/index';
@@ -10,6 +11,14 @@ class OpenAPIService {
     private _client: OpenAPIClient;
     private _resources: Resource[];
     private _servers: { [serverName: string]: boolean };
+
+    private _eventLogger = winston.createLogger({
+        transports: [
+            new winston.transports.File({
+                filename: 'openapiservice.log'
+            })
+        ]
+    });
 
     private get client(): OpenAPIClient {
         if (!this._client) {

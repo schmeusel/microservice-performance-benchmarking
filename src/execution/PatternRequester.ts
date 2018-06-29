@@ -4,19 +4,20 @@ import {
     PatternRequestMeasurement,
     PatternResult,
     PatternElementOutputType,
-    PatternElementSelector
 } from '../interfaces/index';
 import OpenAPIService from '../services/OpenAPIService';
 import { mapOutputTypeAndMethodToOperation } from '../utils/OpenAPIUtil';
 import * as winston from 'winston';
-import { enrichRequestWithInputItem, getBodyFromResponse, getOutputType, getProcessableResponse, getRequestMethodFromResponse, getRequestUrlFromResponse, getStatusCode } from "../utils/RequestUtil";
+import { buildNewOutputs, enrichRequestWithInputItem, getBodyFromResponse, getInputItemFromList, getOutputType, getProcessableResponse, getRequestMethodFromResponse, getRequestUrlFromResponse, getStatusCode } from "../utils/RequestUtil";
 
 export default class PatternRequester {
     private readonly measurements: PatternRequestMeasurement[];
     private readonly pattern: Pattern;
     private readonly requests: PatternElementRequest[];
-    private readonly _outputs: { [outputName: string]: any };
-    private _eventLogger;
+    private _outputs: {
+        [outputName: string]: any
+    };
+    private _eventLogger: winston.Logger;
 
     constructor(pattern: Pattern, requests: PatternElementRequest[]) {
         this._outputs = {};
@@ -46,10 +47,7 @@ export default class PatternRequester {
                         this.asyncLoop(index + 1, resolve, reject);
                     }, currentRequest.wait);
                 })
-                .catch(err => {
-                    this.log('catching in async loop')
-                    reject(err)
-                });
+                .catch(reject);
         } else {
             const patternResult: PatternResult = {
                 name: this.pattern.name,
@@ -66,43 +64,23 @@ export default class PatternRequester {
             return request;
         }
         const existingOutputData = this._outputs[inputName];
-        if (!existingOutputData) {
-            throw new Error(`There is no previous output stored for input: ${inputName}`);
-        }
-        const outputType = getOutputType(inputName, this.pattern);
-        if (outputType === PatternElementOutputType.LIST) {
-            if (!Array.isArray(existingOutputData)) {
-                throw new Error(`Output data for a list item is not an array.`);
-            }
-            let inputItem;
-            switch (matchingSequenceElement.selector) {
-                case PatternElementSelector.FIRST: {
-                    inputItem = existingOutputData.shift();
-                    break;
-                }
-                case PatternElementSelector.LAST: {
-                    inputItem = existingOutputData.pop();
-                    break;
-                }
-                case PatternElementSelector.RANDOM:
-                default: {
-                    // TODO length validation
-                    const randomIndex = Math.round(Math.random() * existingOutputData.length - 1);
-                    inputItem = existingOutputData[randomIndex];
-                }
-            }
+        const outputTypeFromDependency = getOutputType(inputName, this.pattern);
+        const { LIST, ITEM } = PatternElementOutputType;
+
+        if (outputTypeFromDependency === LIST) {
+            const inputItem = getInputItemFromList(matchingSequenceElement, existingOutputData[LIST]);
+            this._outputs[inputName][ITEM] = inputItem;
             return enrichRequestWithInputItem(request, inputItem, OpenAPIService.getSelectorsForOperationId(request.operationId));
         }
-        if (outputType === PatternElementOutputType.ITEM) {
-            return enrichRequestWithInputItem(request, existingOutputData, OpenAPIService.getSelectorsForOperationId(request.operationId));
+        if (outputTypeFromDependency === ITEM) {
+            return enrichRequestWithInputItem(request, existingOutputData[ITEM], OpenAPIService.getSelectorsForOperationId(request.operationId));
         }
-        throw new Error(`Cannot process a NONE output as an input for another request.`);
+        throw new Error(`Cannot process a "NONE" output as an input for another request.`);
     }
 
 
 
     private sendRequest(requestToSend: PatternElementRequest): Promise<void> {
-        this.log('about to send request: ' + JSON.stringify(requestToSend))
         return new Promise((resolve, reject) => {
             OpenAPIService.sendRequest(requestToSend)
                 .then(response => {
@@ -124,10 +102,8 @@ export default class PatternRequester {
                     };
 
                     this.addMeasurement(measurement);
-                    if (this.pattern.sequence[requestToSend.patternIndex].output) {
-                        const outputKey = this.pattern.sequence[requestToSend.patternIndex].output;
-                        this._outputs[outputKey] = getBodyFromResponse(response);
-                    }
+                    const providedOutputKey = this.pattern.sequence[requestToSend.patternIndex].output;
+                    this._outputs = buildNewOutputs(providedOutputKey, outputType, this._outputs, response);
                     resolve();
                 })
                 .catch(reject);

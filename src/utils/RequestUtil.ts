@@ -1,11 +1,13 @@
 import { Pattern, PatternElement, PatternElementOutputType, PatternElementRequest, PatternElementSelector, RequestMethod } from "../interfaces";
-import { findIdKey } from "./Helpers";
+import { findIdKey, getRandomNumber } from "./Helpers";
 
 export function enrichRequestWithInputItem(request: PatternElementRequest, inputItem, possibleAccessors: string[]): PatternElementRequest {
     const inputItemKeys = Object.keys(inputItem);
     const idKey = inputItemKeys.find(findIdKey(possibleAccessors));
 
     if (!idKey) {
+        console.log('input is', inputItem)
+        console.log('possible accessors', possibleAccessors)
         throw new Error('Could not locate identifying key from input. Input keys are: ' + JSON.stringify(inputItemKeys));
     }
 
@@ -89,13 +91,27 @@ export function getInputItemFromList(sequenceElement: PatternElement, outputList
     }
     switch (sequenceElement.selector) {
         case PatternElementSelector.FIRST:
-            return outputList.shift();
+            return outputList.pop();
         case PatternElementSelector.LAST:
             return outputList.pop();
         case PatternElementSelector.RANDOM:
         default: {
-            const randomIndex = Math.round(Math.random() * outputList.length - 1);
+            const randomIndex = getRandomNumber(outputList.length - 1);
             return outputList[randomIndex];
+        }
+    }
+}
+
+export function buildNewOutputs(outputName: string, outputType: PatternElementOutputType, previousOutputs: any, response: any) {
+    if (!outputName) {
+        return previousOutputs;
+    }
+
+    return {
+        ...previousOutputs,
+        [outputName]: {
+            ...(previousOutputs[outputName] || {}),
+            [outputType]: getBodyFromResponse(response)
         }
     }
 }
