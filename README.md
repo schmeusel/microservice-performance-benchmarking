@@ -28,9 +28,9 @@ Options are as follows:
 
 | Option | Description |
 | --- | --- |
-| --spec \<benchmark_spec.json\> | JSON file describing the various parameters of the benchmark run |
-| --url \<urlToOpenAPISpec\> | URL where the OpenAPI 3.0 description of the microservice is located |
-| --json \<openApi-3.0.json\> | JSON file describing the OpenAPI 3.0 description of the microservice |
+| `--spec \<benchmark_spec.json\>` | JSON file describing the various parameters of the benchmark run |
+| `--url \<urlToOpenAPISpec\>` | URL where the OpenAPI 3.0 description of the microservice is located |
+| `--json \<openApi-3.0.json\>` | JSON file describing the OpenAPI 3.0 description of the microservice |
 
 Exemplary start command:
 
