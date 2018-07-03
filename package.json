@@ -13,9 +13,9 @@
     "build-client-watch": "webpack --config webpack.config.js --mode development --watch --progress",
     "build": "yarn run build-server && yarn run build-client",
     "start": "yarn run build && node ./build/app.js",
-    "start-backend": "yarn run build-server && node ./build/app.js --json ./examples/SampleOpenAPISpec.json --spec ./examples/benchmarkSpec.json",
+    "start-backend": "yarn run build-server && node ./build/app.js --json ./assets/SampleOpenAPISpec.json --spec ./assets/benchmarkSpec.json",
     "lint": "eslint --fix ./src/webServer/public/* ./tests/webServer/public/*",
-    "start-demo": "yarn run build-server && node ./build/app.js"
+    "start-demo": "yarn run build && node ./build/app.js --json ./assets/OAS_demo_userService.json --spec ./assets/benchmarkSpec_demo.json"
   },
   "jest": {
     "verbose": true,
