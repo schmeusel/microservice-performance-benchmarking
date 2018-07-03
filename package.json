@@ -12,10 +12,10 @@
     "build-client": "webpack --config webpack.config.js --mode production && cp ./src/webServer/public/index.html ./build/webServer/public/index.html",
     "build-client-watch": "webpack --config webpack.config.js --mode development --watch --progress",
     "build": "yarn run build-server && yarn run build-client",
-    "start": "yarn run build && node ./build/app.js --json ./assets/SampleOpenAPISpec.json --spec ./assets/benchmarkSpec.json",
-    "start-backend": "yarn run build-server && node ./build/app.js --json ./assets/SampleOpenAPISpec.json --spec ./assets/benchmarkSpec.json",
+    "start": "yarn run build && node ./build/app.js",
+    "start-backend": "yarn run build-server && node ./build/app.js --json ./examples/SampleOpenAPISpec.json --spec ./examples/benchmarkSpec.json",
     "lint": "eslint --fix ./src/webServer/public/* ./tests/webServer/public/*",
-    "start-demo": "yarn run build && node ./build/app.js --json ./assets/OAS_demo_userService.json --spec ./assets/benchmarkSpec_demo.json"
+    "start-demo": "yarn run build-server && node ./build/app.js"
   },
   "jest": {
     "verbose": true,

@@ -2,15 +2,6 @@ import { Pattern, PatternElement, PatternElementOutputType, PatternElementReques
 import { findIdKey, getRandomNumber } from "./Helpers";
 
 export function enrichRequestWithInputItem(request: PatternElementRequest, inputItem, possibleAccessors: string[]): PatternElementRequest {
-    const inputItemKeys = Object.keys(inputItem);
-    const idKey = inputItemKeys.find(findIdKey(possibleAccessors));
-
-    if (!idKey) {
-        console.log('input is', inputItem)
-        console.log('possible accessors', possibleAccessors)
-        throw new Error('Could not locate identifying key from input. Input keys are: ' + JSON.stringify(inputItemKeys));
-    }
-
     return enrichParametersObject(request, inputItem, possibleAccessors) ||
            enrichBodyRequestObject(request, inputItem, possibleAccessors) ||
            request;
@@ -21,6 +12,9 @@ function enrichParametersObject(request: PatternElementRequest, inputItem, possi
     const inputItemKeys = Object.keys(inputItem);
 
     const idKey = inputItemKeys.find(findIdKey(possibleAccessors));
+    if (!idKey) {
+        return undefined;
+    }
 
     const paramKeyToBeReplaced = paramKeys.find(findIdKey(possibleAccessors));
     if (paramKeyToBeReplaced) {
@@ -40,6 +34,9 @@ function enrichBodyRequestObject(request: PatternElementRequest, inputItem, poss
     const inputItemKeys = Object.keys(inputItem);
 
     const idKey = inputItemKeys.find(findIdKey(possibleAccessors));
+    if (!idKey) {
+        return undefined;
+    }
 
     const requestBodyKeyToBeReplaced = requestBodyKeys.find(findIdKey(possibleAccessors));
     if (requestBodyKeyToBeReplaced) {
@@ -86,12 +83,15 @@ export function getBodyFromResponse(response) {
 }
 
 export function getInputItemFromList(sequenceElement: PatternElement, outputList: any[]): any {
-    if (!Array.isArray(outputList) || !outputList.length) {
+    if (!Array.isArray(outputList)) {
         throw new Error(`Output data for a list item is not an array or no element in array.`);
+    }
+    if (!outputList.length) {
+        return {};
     }
     switch (sequenceElement.selector) {
         case PatternElementSelector.FIRST:
-            return outputList.pop();
+            return outputList.shift();
         case PatternElementSelector.LAST:
             return outputList.pop();
         case PatternElementSelector.RANDOM:

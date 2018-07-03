@@ -1,7 +1,8 @@
 import { expect } from 'chai';
-import { buildNewOutputs } from "../../src/utils/RequestUtil";
-import { PatternElementOutputType } from "../../src/interfaces";
-const {ITEM, LIST} = PatternElementOutputType;
+import { buildNewOutputs, getInputItemFromList } from "../../src/utils/RequestUtil";
+import { PatternElementOutputType, PatternElementSelector } from "../../src/interfaces";
+
+const { ITEM, LIST } = PatternElementOutputType;
 
 describe('Test RequestUtil', () => {
     describe('buildNewOutputs(...)', () => {
@@ -40,4 +41,33 @@ describe('Test RequestUtil', () => {
             expect(result).to.deep.equal(expectedOutput);
         })
     });
+
+    describe('getInputItemFromList(...)', () => {
+        it('should thrown an error if outputList is not an array', () => {
+            expect(() => getInputItemFromList(null, null)).to.throw();
+        });
+
+        it('should return an empty object if array is empty', () => {
+            const result = getInputItemFromList(null, []);
+            expect(result).to.deep.equal({});
+        });
+
+        it('should return the first element from the array if the selector is FIRST', () => {
+            const sequenceElementStub = { selector: PatternElementSelector.FIRST } as any;
+            const result = getInputItemFromList(sequenceElementStub, [1, 2, 3]);
+            expect(result).to.equal(1);
+        });
+
+        it('should return the last element from the array if the selector is LAST', () => {
+            const sequenceElementStub = { selector: PatternElementSelector.LAST } as any;
+            const result = getInputItemFromList(sequenceElementStub, [1, 2, 3]);
+            expect(result).to.equal(3);
+        });
+
+        it('should return any element from the array if the selector is RANDOM', () => {
+            const sequenceElementStub = { selector: PatternElementSelector.LAST } as any;
+            const result = getInputItemFromList(sequenceElementStub, [1, 2, 3]);
+            expect(result).to.be.within(1, 3);
+        });
+    })
 });

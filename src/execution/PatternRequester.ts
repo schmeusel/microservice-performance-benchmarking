@@ -8,7 +8,16 @@ import {
 import OpenAPIService from '../services/OpenAPIService';
 import { mapOutputTypeAndMethodToOperation } from '../utils/OpenAPIUtil';
 import * as winston from 'winston';
-import { buildNewOutputs, enrichRequestWithInputItem, getBodyFromResponse, getInputItemFromList, getOutputType, getProcessableResponse, getRequestMethodFromResponse, getRequestUrlFromResponse, getStatusCode } from "../utils/RequestUtil";
+import {
+    buildNewOutputs,
+    enrichRequestWithInputItem,
+    getInputItemFromList,
+    getOutputType,
+    getProcessableResponse,
+    getRequestMethodFromResponse,
+    getRequestUrlFromResponse,
+    getStatusCode
+} from "../utils/RequestUtil";
 
 export default class PatternRequester {
     private readonly measurements: PatternRequestMeasurement[];
@@ -77,8 +86,6 @@ export default class PatternRequester {
         }
         throw new Error(`Cannot process a "NONE" output as an input for another request.`);
     }
-
-
 
     private sendRequest(requestToSend: PatternElementRequest): Promise<void> {
         return new Promise((resolve, reject) => {
