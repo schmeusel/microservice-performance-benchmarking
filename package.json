@@ -8,6 +8,7 @@
   "scripts": {
     "test-backend": "mocha --require ts-node/register ./tests/**/*.test.ts",
     "test-frontend": "jest",
+    "test": "yarn run test-backend && yarn run test-frontend",
     "build-server": "tsc",
     "build-client": "webpack --config webpack.config.js --mode production && cp ./src/webServer/public/index.html ./build/webServer/public/index.html",
     "build-client-watch": "webpack --config webpack.config.js --mode development --watch --progress",
