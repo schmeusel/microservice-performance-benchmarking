@@ -51,6 +51,7 @@ class Server {
             this._connectedSockets[socket.id] = socket;
             socket.emit('update', { type: ActionTypes.EXPERIMENT_PHASE, data: ApplicationState.phase });
             socket.emit('update', { type: ActionTypes.PATTERNS, data: ApplicationState.patterns });
+            socket.emit('update', { type: ActionTypes.MANUAL_DECISION, data: ApplicationState.manualDecision });
         });
     }
 
@@ -137,9 +138,17 @@ class Server {
                 this._io.emit('update', { type: ActionTypes.EXPERIMENT_PHASE, data: ApplicationState.phase });
                 break;
             }
+            case APPLICATION_STATE_UPDATE_TYPE.MANUAL_DECISION: {
+                this._io.emit('update', { type: ActionTypes.MANUAL_DECISION, data: ApplicationState.manualDecision });
+                break;
+            }
             case APPLICATION_STATE_UPDATE_TYPE.PATTERNS: {
                 this._io.emit('update', { type: ActionTypes.PATTERNS, data: ApplicationState.patterns });
                 break;
+            }
+            case APPLICATION_STATE_UPDATE_TYPE.DECISION_RESULT: {
+                this._io.emit('update', { type: ActionTypes.DECISION_RESULT, data: ApplicationState.result });
+                this.shutdown(ApplicationState.result);
             }
         }
     }

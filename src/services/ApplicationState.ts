@@ -7,6 +7,8 @@ class ApplicationState extends EventEmitter {
     private _openAPISpec: OpenAPISpecification;
     private _abstractPatterns: AbstractPattern[];
     private _patterns: Pattern[];
+    private _successful: boolean;
+    private _manualDecision: boolean;
 
     constructor() {
         super();
@@ -50,6 +52,24 @@ class ApplicationState extends EventEmitter {
     public setPatterns(patterns: Pattern[]): void {
         this._patterns = patterns;
         this.emit(EmitterConstants.APPLICATION_STATE_UPDATE, APPLICATION_STATE_UPDATE_TYPE.PATTERNS);
+    }
+
+    public get result(): string {
+        return this._successful ? 'succeed' : 'fail';
+    }
+
+    public setResult(successful: boolean): void {
+        this._successful = successful;
+        this.emit(EmitterConstants.APPLICATION_STATE_UPDATE, APPLICATION_STATE_UPDATE_TYPE.DECISION_RESULT);
+    }
+
+    public get manualDecision(): boolean {
+        return this._manualDecision;
+    }
+
+    public setManualDecision(manualDecision): void {
+        this._manualDecision = manualDecision;
+        this.emit(EmitterConstants.APPLICATION_STATE_UPDATE, APPLICATION_STATE_UPDATE_TYPE.MANUAL_DECISION);
     }
 }
 
