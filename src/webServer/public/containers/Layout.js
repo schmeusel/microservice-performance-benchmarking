@@ -28,6 +28,7 @@ class Layout extends PureComponent {
         experiment: PropTypes.shape({
             phase: ExperimentPhasePropTypes.isRequired,
             result: ExperimentResultPropTypes.isRequired,
+            manualDecision: PropTypes.bool.isRequired,
         }).isRequired,
         measurements: PropTypes.shape({
             async: AsyncPropTypes.isRequired,
@@ -45,7 +46,7 @@ class Layout extends PureComponent {
     componentWillReceiveProps(nextProps) {
         const notCompletedBefore = this.props.experiment.phase !== PHASES.VALUES.COMPLETION;
         const completedNow = nextProps.experiment.phase === PHASES.VALUES.COMPLETION;
-        if (notCompletedBefore && completedNow) {
+        if (notCompletedBefore && completedNow && nextProps.experiment.manualDecision) {
             this.props.fetchAllMeasurements();
         }
     }

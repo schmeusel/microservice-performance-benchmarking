@@ -31,3 +31,15 @@ export function experimentResultReducer(state = { async: DefaultAsyncStub, value
     }
     return state;
 }
+
+export function manualDecisionReducer(state = false, action) {
+    switch (action.type) {
+        case ActionTypes.EXPERIMENT.MANUAL_DECISION: {
+            if (typeof action.data !== 'boolean') {
+                return false;
+            }
+            return action.data;
+        }
+    }
+    return state;
+}

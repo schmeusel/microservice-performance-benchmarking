@@ -26,9 +26,8 @@ export default class BenchmarkController extends EventEmitter {
         this.initializeServices()
             .then(() => {
                 ApplicationState.setPhase(ApplicationPhase.PATTERN_RESOLUTION);
-                if (this.specification.configuration.manualDecision) {
-                    this.startWebServer();
-                }
+                ApplicationState.setManualDecision(this.specification.configuration.manualDecision)
+                this.startWebServer();
                 return this.initializePatternResolver();
             })
             .then(() => {
@@ -53,7 +52,7 @@ export default class BenchmarkController extends EventEmitter {
                 LoggingService.logEvent('Experiment finished.');
                 if (!this.specification.configuration.manualDecision) {
                     ApplicationState.setPhase(ApplicationPhase.MEASUREMENT_EVALUATION);
-                    LoggingService.logEvent('Starting to process results.')
+                    LoggingService.logEvent('Starting to process results.');
                     return this.processResults();
                 } else {
                     return Promise.resolve(true);
@@ -61,6 +60,9 @@ export default class BenchmarkController extends EventEmitter {
             })
             .then((wasSuccessful: boolean) => {
                 ApplicationState.setPhase(ApplicationPhase.COMPLETION);
+                if (!this.specification.configuration.manualDecision) {
+                    ApplicationState.setResult(wasSuccessful);
+                }
                 LoggingService.logEvent('Results processed.');
                 this.prepareShutdown(wasSuccessful);
                 return this.cleanUp();
@@ -141,5 +143,11 @@ export default class BenchmarkController extends EventEmitter {
         const exitCode = getExitCodeFromSuccess(wasSuccessful);
         LoggingService.logEvent(`Preparing shutdown with exit code: ${exitCode}`);
         process.exitCode = exitCode;
+        if (!this.specification.configuration.manualDecision) {
+            // Give some time to finish sending experiment result to frontend
+            setTimeout(() => {
+                process.exit();
+            }, 5000)
+        }
     }
 }

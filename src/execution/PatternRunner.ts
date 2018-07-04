@@ -41,6 +41,7 @@ function handleStart({ openAPISpec, pattern }: { openAPISpec: OpenAPISpecificati
                     input: fs.createReadStream(config.logging.loggers.workloads.filename(pattern.name), 'utf8')
                 })
                 .on('line', handleLineRead(pattern))
+                .on('error', handleError)
                 .on('close', handleDone);
         })
         .catch(handleError);
@@ -70,16 +71,22 @@ function handleRequests(pattern: Pattern, requests: PatternElementRequest[]) {
     requester
         .run()
         .then(measurements => {
-            isPerformingRequests = false;
-            handleRoundDone(measurements);
-            currentRound = currentRound + 1;
-            if (queue.length) {
-                handleRequests(pattern, queue.shift());
-            } else {
-                rl.resume();
-            }
+            handleMeasurements(pattern, measurements)
         })
-        .catch(handleError);
+        .catch((err) => {
+            handleError(err);
+        });
+}
+
+function handleMeasurements(pattern, measurements) {
+    isPerformingRequests = false;
+    handleRoundDone(measurements);
+    currentRound = currentRound + 1;
+    if (queue.length) {
+        handleRequests(pattern, queue.shift());
+    } else {
+        rl.resume();
+    }
 }
 
 function handleRoundDone(patternResult: PatternResult) {
