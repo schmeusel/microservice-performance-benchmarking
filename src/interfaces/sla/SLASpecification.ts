@@ -1,5 +1,7 @@
 import { SLACondition } from '../index';
 
 export default interface SLASpecification {
-    [patternName: string]: SLACondition
+    [patternName: string]: {
+        [sequenceIndex: string]: SLACondition
+    }
 };

@@ -1,7 +1,13 @@
 import * as simpleStats from "simple-statistics";
 import { SLACondition } from "../interfaces";
 
-export function evaluateConditions(condition: SLACondition, measurements: number[]) {
+export function evaluatePatternConditions(conditions: { [sequenceIndex: string]: SLACondition }, patternMeasurements: { [sequenceIndex: string]: number[] }): boolean {
+    return Object
+        .keys(conditions)
+        .every(sequenceIndex => evaluateConditions(conditions[sequenceIndex], patternMeasurements[sequenceIndex]));
+}
+
+export function evaluateConditions(condition: SLACondition, measurements: number[]): boolean {
     const objectTypeMapper = {
         min: evaluateMinValue,
         max: evaluateMaxValue,
@@ -11,7 +17,7 @@ export function evaluateConditions(condition: SLACondition, measurements: number
     };
     return Object
         .keys(condition)
-        .reduce((allValid, type) => objectTypeMapper[type](measurements, condition[type]) && allValid, true);
+        .every(type => objectTypeMapper[type](measurements, condition[type]));
 }
 
 export function evaluateMinValue(series: number[], threshold: number): boolean {
@@ -37,9 +43,7 @@ export function evaluateStandardDeviation(series: number[], threshold: number): 
 export function evaluatePercentiles(series: number[], percentiles: { [percentile: string]: number }): boolean {
     return Object
         .keys(percentiles)
-        .reduce((allValid, current) => {
-            return allValid && evaluatePercentile(series, parseFloat(current), percentiles[current])
-        }, true);
+        .every(current => evaluatePercentile(series, parseFloat(current), percentiles[current]));
 }
 
 export function evaluatePercentile(series: number[], percentile: number, threshold: number): boolean {
