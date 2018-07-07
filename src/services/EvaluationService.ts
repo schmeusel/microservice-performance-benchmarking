@@ -49,8 +49,7 @@ class EvaluationService {
                     }
                     const result = Object
                         .keys(slaSpec)
-                        .map(patternName => evaluatePatternConditions(slaSpec[patternName], this.measurements[patternName]))
-                        .reduce((conditionsMet, result) => conditionsMet && result, true);
+                        .every(patternName => evaluatePatternConditions(slaSpec[patternName], this.measurements[patternName]));
                     resolve(result);
                 })
                 .catch(reject);
