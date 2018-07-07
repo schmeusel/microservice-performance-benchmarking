@@ -3,7 +3,10 @@ import {
     evaluateConditions,
     evaluateMaxValue,
     evaluateMean,
-    evaluateMinValue, evaluatePercentile, evaluatePercentiles,
+    evaluateMinValue,
+    evaluatePatternConditions,
+    evaluatePercentile,
+    evaluatePercentiles,
     evaluateStandardDeviation
 } from "../../src/utils/EvaluationUtil";
 
@@ -118,5 +121,22 @@ describe('Test EvaluationUtil', () => {
             const result = evaluateConditions(conditionStub, [1, 2, 3, 4, 5]);
             expect(result).to.be.false;
         });
+    });
+
+    describe('evaluatePatternConditions(...)', () => {
+        it('should call evaluate each sequence index', () => {
+            const latenciesStub0 = [1, 2, 3, 4, 5];
+            const latenciesStub1 = [1, 2, 3, 4, 9];
+            const measurementsStub = {
+                0: latenciesStub0,
+                1: latenciesStub1,
+            };
+            const slaConditionsStub = {
+                0: { max: 6 },
+                1: { max: 8 },
+            };
+            const result = evaluatePatternConditions(slaConditionsStub, measurementsStub);
+            expect(result).to.be.false;
+        })
     })
 });

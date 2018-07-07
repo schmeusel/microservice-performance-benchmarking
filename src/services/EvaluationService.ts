@@ -4,26 +4,38 @@ import config from '../config';
 import { SLASpecification } from '../interfaces/index';
 import EvaluationError from '../exceptions/EvaluationError';
 import { LoggingService } from "./LoggingService";
-import { evaluateConditions } from "../utils/EvaluationUtil";
+import { evaluateConditions, evaluatePatternConditions } from "../utils/EvaluationUtil";
 
 class EvaluationService {
 
     private timestampStartIndex: number;
     private timestampEndIndex: number;
     private patternNameIndex: number;
+    private patternSequenceIndex: number;
 
-    private measurements: { [patternName: string]: number[] } = {};
+    private measurements: {
+        [patternName: string]: {
+            [sequenceIndex: string]: number[]
+        }
+    } = {};
 
+    /**
+     * Set service up with position of relevant properties in CSV log file.
+     * @returns {Promise<any>}
+     */
     public initialize(): Promise<any> {
         const csvKeys = LoggingService.getMeasurementCSVFields();
 
         this.timestampStartIndex = csvKeys.findIndex(key => key === 'timestampStart');
         this.timestampEndIndex = csvKeys.findIndex(key => key === 'timestampEnd');
         this.patternNameIndex = csvKeys.findIndex(key => key === 'pattern');
+        this.patternSequenceIndex = csvKeys.findIndex(key => key === 'patternIndex');
 
-        if (this.timestampStartIndex < 0 || this.timestampEndIndex < 0 || this.patternNameIndex < 0) {
-            throw new EvaluationError('Could not find timestampStart, timestampEnd, and pattern in CSV config in LoggingService.');
-        }
+        [this.timestampStartIndex, this.timestampEndIndex, this.patternNameIndex, this.patternSequenceIndex].forEach(index => {
+            if (index < 0) {
+                throw new EvaluationError('Could not find timestampStart, timestampEnd, pattern, and patternIndex in CSV config in LoggingService.');
+            }
+        });
 
         return Promise.resolve();
     }
@@ -37,7 +49,7 @@ class EvaluationService {
                     }
                     const result = Object
                         .keys(slaSpec)
-                        .map(patternName => evaluateConditions(slaSpec[patternName], this.measurements[patternName]))
+                        .map(patternName => evaluatePatternConditions(slaSpec[patternName], this.measurements[patternName]))
                         .reduce((conditionsMet, result) => conditionsMet && result, true);
                     resolve(result);
                 })
@@ -45,6 +57,15 @@ class EvaluationService {
         });
     }
 
+    /**
+     * Read measurements from file and store them in the format:
+     * {
+     *  [patternName]: {
+     *      [sequenceIndex]: number[] // latencies
+     *  }
+     * }
+     * @returns {Promise<void>}
+     */
     private readMeasurements(): Promise<void> {
         return new Promise((resolve, reject) => {
             readline
@@ -55,6 +76,7 @@ class EvaluationService {
                     const values = line.split(',');
                     const latency = parseInt(values[this.timestampEndIndex]) - parseInt(values[this.timestampStartIndex]);
                     const patternName = values[this.patternNameIndex];
+                    const sequenceIndex = values[this.patternSequenceIndex];
 
                     // ignore CSV header
                     if (patternName === 'pattern') {
@@ -62,9 +84,12 @@ class EvaluationService {
                     }
 
                     if (!this.measurements[patternName]) {
-                        this.measurements[patternName] = [];
+                        this.measurements[patternName] = {};
                     }
-                    this.measurements[patternName].push(latency);
+                    if (!this.measurements[patternName][sequenceIndex]) {
+                        this.measurements[patternName][sequenceIndex] = []
+                    }
+                    this.measurements[patternName][sequenceIndex].push(latency);
 
                 })
                 .on('close', resolve)

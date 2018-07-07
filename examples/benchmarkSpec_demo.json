@@ -1,6 +1,6 @@
 {
   "configuration": {
-    "totalPatternRequests": 1000,
+    "totalPatternRequests": 100,
     "patterns": [
       {
         "name": "listResourceAndUpdate",
@@ -37,18 +37,33 @@
         "weight": 1
       }
     ],
-    "manualDecision": true
+    "manualDecision": false
   },
   "condition": {
     "listResourceAndUpdate": {
-      "percentiles": {
-        "0.95": 400
+      "0": {
+        "percentiles": {
+          "0.95": 400
+        }
+      },
+      "1": {
+        "percentiles": {
+          "0.95": 400
+        }
       }
     },
     "listResourceAndGetDetails": {
-      "percentiles": {
-        "0.50": 270,
-        "0.80": 320
+      "0": {
+        "percentiles": {
+          "0.50": 270,
+          "0.80": 320
+        }
+      },
+      "1": {
+        "percentiles": {
+          "0.50": 270,
+          "0.80": 320
+        }
       }
     }
   }
