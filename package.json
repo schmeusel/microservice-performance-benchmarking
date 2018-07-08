@@ -1,9 +1,9 @@
 {
   "name": "microservice-performance-benchmarking",
-  "version": "1.0.0",
+  "version": "0.5.1",
   "main": "index.js",
   "repository": "https://github.com/schmeusel/microservice-performance-benchmarking.git",
-  "author": "Lukas <meusel.lukas@gmail.com>",
+  "author": "Lukas Meusel <meusel.lukas@gmail.com>",
   "license": "MIT",
   "scripts": {
     "test-backend": "mocha --require ts-node/register ./tests/**/*.test.ts",
